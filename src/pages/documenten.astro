@@ -1,0 +1,25 @@
+---
+// Overzicht van downloadbare documenten/PDF's uit src/content/documents/.
+// Zet de PDF's zelf in public/docs/ (zie public/docs/README.md).
+import { getCollection } from 'astro:content';
+import PageLayout from '../layouts/PageLayout.astro';
+
+const documents = (await getCollection('documents')).sort(
+	(a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0)
+);
+---
+
+<PageLayout title="Documenten" description="Downloadbare documenten en formulieren.">
+	{documents.length === 0 ? (
+		<p>Er zijn nog geen documenten toegevoegd.</p>
+	) : (
+		<ul class="card-grid">
+			{documents.map((doc) => (
+				<li class="card">
+					<h3><a href={doc.data.file}>{doc.data.title}</a></h3>
+					{doc.data.description && <p>{doc.data.description}</p>}
+				</li>
+			))}
+		</ul>
+	)}
+</PageLayout>

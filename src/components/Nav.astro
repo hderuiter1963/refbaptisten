@@ -1,0 +1,31 @@
+---
+import { mainNav } from '../data/navigation';
+
+const currentPath = Astro.url.pathname;
+---
+
+<nav class="nav" aria-label="Hoofdnavigatie">
+	<input type="checkbox" id="nav-toggle" class="nav__toggle" />
+	<label for="nav-toggle" class="nav__toggle-label" aria-label="Menu openen/sluiten">☰</label>
+	<ul class="nav__list">
+		{mainNav.map((link) => (
+			<li class:list={['nav__item', { 'has-children': !!link.children }]}>
+				<a href={link.href} aria-current={currentPath === link.href ? 'page' : undefined}>
+					{link.label}
+					{link.children && <span class="nav__caret" aria-hidden="true">▾</span>}
+				</a>
+				{link.children && (
+					<ul class="nav__submenu">
+						{link.children.map((child) => (
+							<li>
+								<a href={child.href} aria-current={currentPath === child.href ? 'page' : undefined}>
+									{child.label}
+								</a>
+							</li>
+						))}
+					</ul>
+				)}
+			</li>
+		))}
+	</ul>
+</nav>

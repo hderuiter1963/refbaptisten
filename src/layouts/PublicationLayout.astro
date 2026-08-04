@@ -1,0 +1,23 @@
+---
+// Layout voor artikelen uit de content collection 'publications': titel +
+// een "terug naar categorie"-link + container.
+import BaseLayout from './BaseLayout.astro';
+import { publicationCategories, type PublicationCategory } from '../data/publicationCategories';
+
+interface Props {
+	title: string;
+	category: PublicationCategory['slug'];
+	description?: string;
+}
+
+const { title, category, description } = Astro.props;
+const categoryMeta = publicationCategories.find((c) => c.slug === category);
+---
+
+<BaseLayout title={title} description={description}>
+	<div class="container page">
+		{categoryMeta && <p><a href={categoryMeta.href}>&larr; {categoryMeta.title}</a></p>}
+		<h1 class="page__title">{title}</h1>
+		<slot />
+	</div>
+</BaseLayout>

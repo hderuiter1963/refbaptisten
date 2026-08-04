@@ -1,0 +1,46 @@
+---
+// Categorie-hub "Historische achtergrond" onder Publicaties.
+import PageLayout from '../layouts/PageLayout.astro';
+import { getCategoryItems } from '../lib/publications';
+
+const items = await getCategoryItems('historische-achtergrond');
+---
+
+<PageLayout title="Historische achtergrond" description="De wortels van de Reformatorische Baptisten, terug tot de 17e eeuw.">
+	<img src="/images/publicaties/historische-achtergrond.jpg" alt="Charles Haddon Spurgeon" loading="lazy" />
+
+	<p>
+		De wortels gaan terug tot de <strong>17e eeuw</strong>, toen gelovigen in Engeland op basis van Gods Woord
+		gemeenten vormden die zowel vasthielden aan de <strong>reformatorische geloofsleer</strong> als aan de
+		<strong>doop op geloof</strong>. Deze zogeheten <strong>Particular Baptists</strong> legden hun geloof vast
+		in de <a href="/samenvatting-van-de-1689-baptist-confession/">1689</a> Baptistische Geloofsbelijdenis,
+		waarin de rijkdom van de Schrift en de genade van God centraal staan.
+	</p>
+
+	<p>
+		Een van de bekendste predikanten uit deze traditie is <strong>Charles Haddon Spurgeon</strong>
+		(1834&ndash;1892), ook wel "de prins der predikers" genoemd. Zijn krachtige, bijbelgetrouwe prediking
+		inspireert wereldwijd tot op de dag van vandaag.
+	</p>
+
+	<p>
+		Het verlangen is ernaar om God te eren in prediking, onderwijs, gemeente-zijn en levenswandel, alles tot
+		Zijn eer, door genade, en op grond van Zijn Woord.
+	</p>
+
+	<p><strong>Welkom</strong> bij een gemeente waar genade centraal staat, het Woord gezag heeft, en Jezus Christus het middelpunt is.</p>
+
+	{items.length === 0 ? (
+		<p>Er zijn nog geen artikelen in deze categorie toegevoegd.</p>
+	) : (
+		<ul class="card-grid">
+			{items.map((item) => (
+				<li class="card">
+					{item.image && <img src={item.image} alt="" loading="lazy" />}
+					<h3><a href={`/${item.id}/`}>{item.title}</a></h3>
+					{item.description && <p>{item.description}</p>}
+				</li>
+			))}
+		</ul>
+	)}
+</PageLayout>

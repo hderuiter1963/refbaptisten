@@ -1,0 +1,731 @@
+/* ==========================================================================
+   Reformatorische Baptisten — basisstijl
+   Strak & minimalistisch: veel witruimte, sans-serif typografie, zachte
+   schaduwen/afgeronde cards, één ingetogen kleuraccent (afgeleid van het
+   oorspronkelijke brand-accent #CB5920 uit het WordPress-thema).
+   ========================================================================== */
+
+:root {
+	--color-bg: #ffffff;
+	--color-bg-alt: #f7f7fa;
+	--color-text: #14151a;
+	--color-muted: #666a75;
+	--color-primary: #33418c;
+	--color-primary-dark: #232c63;
+	--color-accent: #c15b1d;
+	--color-border: #e5e6ea;
+	--color-surface: #f7f7fa;
+
+	--font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	/* var-namen behouden voor compatibiliteit; beide wijzen nu naar dezelfde moderne sans-serif */
+	--font-heading: var(--font-sans);
+	--font-body: var(--font-sans);
+
+	--content-width: 74rem;
+	--radius: 14px;
+	--radius-sm: 8px;
+	--shadow: 0 1px 2px rgba(20, 21, 26, 0.04), 0 8px 24px rgba(20, 21, 26, 0.06);
+	--shadow-hover: 0 4px 12px rgba(20, 21, 26, 0.08), 0 16px 32px rgba(20, 21, 26, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-bg: #101114;
+		--color-bg-alt: #17191f;
+		--color-text: #e8e9ec;
+		--color-muted: #9a9fac;
+		--color-primary: #93a3e6;
+		--color-primary-dark: #c2ccf2;
+		--color-accent: #e2984f;
+		--color-border: #272a33;
+		--color-surface: #17191f;
+		--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+		--shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.35), 0 16px 32px rgba(0, 0, 0, 0.4);
+	}
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	margin: 0;
+	background: var(--color-bg);
+	color: var(--color-text);
+	font-family: var(--font-sans);
+	font-size: 1.0625rem;
+	line-height: 1.65;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	-webkit-font-smoothing: antialiased;
+}
+
+main {
+	flex: 1;
+}
+
+h1, h2, h3, h4 {
+	font-family: var(--font-heading);
+	color: var(--color-text);
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	line-height: 1.2;
+	margin-top: 2em;
+	margin-bottom: 0.5em;
+}
+
+h1 { font-size: clamp(2.1rem, 1.5rem + 2.5vw, 3.25rem); }
+h2 { font-size: clamp(1.4rem, 1.1rem + 1.2vw, 1.9rem); }
+h3 { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; }
+
+p { margin: 0 0 1em; }
+
+a {
+	color: var(--color-primary);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.15em;
+}
+a:hover {
+	color: var(--color-accent);
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+	border-radius: var(--radius-sm);
+}
+
+.container {
+	width: 100%;
+	max-width: var(--content-width);
+	margin-inline: auto;
+	padding-inline: 1.5rem;
+}
+
+/* ---------- Header ---------- */
+
+.site-header {
+	background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+	backdrop-filter: blur(8px);
+	border-bottom: 1px solid var(--color-border);
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+
+.site-header__inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-block: 1.1rem;
+	gap: 1rem;
+}
+
+.site-header__brand {
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	font-family: var(--font-heading);
+	font-size: 1.2rem;
+	font-weight: 800;
+	letter-spacing: -0.01em;
+	color: var(--color-text);
+	text-decoration: none;
+}
+
+.site-header__right {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+}
+
+/* Subtiele knipoog naar de oorspronkelijke hero-beelden, nu als kleine
+   ronde beeldmerken die het logo en de navigatie flankeren. */
+.site-header__accent {
+	width: 2.1rem;
+	height: 2.1rem;
+	object-fit: cover;
+	border-radius: 50%;
+	border: 1px solid var(--color-border);
+	flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+	.site-header__accent {
+		display: none;
+	}
+}
+
+/* ---------- Nav ---------- */
+
+.nav {
+	display: flex;
+	align-items: center;
+}
+
+.nav__toggle {
+	display: none;
+}
+
+.nav__list {
+	list-style: none;
+	display: flex;
+	gap: 1.75rem;
+	margin: 0;
+	padding: 0;
+}
+
+.nav__list a {
+	position: relative;
+	text-decoration: none;
+	color: var(--color-text);
+	font-weight: 600;
+	font-size: 0.9rem;
+	padding-block: 0.25rem;
+}
+
+.nav__list a::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 100%;
+	bottom: 0;
+	height: 2px;
+	background: var(--color-accent);
+	transition: right 0.18s ease;
+}
+
+.nav__list a:hover,
+.nav__list a[aria-current='page'] {
+	color: var(--color-text);
+}
+
+.nav__list a:hover::after,
+.nav__list a[aria-current='page']::after {
+	right: 0;
+}
+
+.nav__item {
+	position: relative;
+}
+
+.nav__caret {
+	font-size: 0.65em;
+	margin-left: 0.15em;
+	vertical-align: 0.05em;
+}
+
+/* Desktop: uitklapmenu op hover/focus */
+@media (min-width: 721px) {
+	.nav__submenu {
+		list-style: none;
+		margin: 0;
+		padding: 0.5rem;
+		position: absolute;
+		top: 100%;
+		left: -0.5rem;
+		min-width: 13rem;
+		background: var(--color-bg);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-sm);
+		box-shadow: var(--shadow-hover);
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(4px);
+		transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+	}
+
+	.nav__item.has-children:hover .nav__submenu,
+	.nav__item.has-children:focus-within .nav__submenu {
+		opacity: 1;
+		visibility: visible;
+		transform: translateY(0);
+	}
+
+	.nav__submenu a {
+		display: block;
+		padding: 0.5rem 0.6rem;
+		border-radius: var(--radius-sm);
+		white-space: nowrap;
+		font-size: 0.85rem;
+		font-weight: 500;
+	}
+
+	.nav__submenu a::after {
+		display: none;
+	}
+
+	.nav__submenu a:hover,
+	.nav__submenu a[aria-current='page'] {
+		background: var(--color-surface);
+	}
+}
+
+.nav__toggle-label {
+	display: none;
+	cursor: pointer;
+	font-size: 1.6rem;
+	line-height: 1;
+	background: none;
+	border: none;
+	color: var(--color-text);
+}
+
+@media (max-width: 720px) {
+	.nav__toggle-label {
+		display: block;
+	}
+
+	.nav__list {
+		position: absolute;
+		inset-inline: 0;
+		top: 100%;
+		flex-direction: column;
+		background: var(--color-bg);
+		border-bottom: 1px solid var(--color-border);
+		padding: 1rem 1.5rem;
+		gap: 1rem;
+		display: none;
+	}
+
+	.nav__toggle:checked ~ .nav__list {
+		display: flex;
+	}
+
+	.site-header__inner {
+		position: relative;
+	}
+
+	/* Mobiel: submenu staat gewoon altijd ingesprongen onder het hoofditem,
+	   geen aparte tap-interactie nodig. */
+	.nav__submenu {
+		list-style: none;
+		margin: 0.5rem 0 0;
+		padding-left: 1rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		border-left: 2px solid var(--color-border);
+	}
+
+	.nav__item.has-children > a {
+		font-weight: 700;
+	}
+
+	.nav__submenu a {
+		font-weight: 500;
+		font-size: 0.85rem;
+	}
+}
+
+/* ---------- Hero (algemeen, voor gewone pagina's) ---------- */
+
+.hero {
+	background: var(--color-surface);
+	border-bottom: 1px solid var(--color-border);
+	padding-block: 3.5rem;
+	text-align: center;
+}
+
+.hero h1 {
+	margin-top: 0;
+}
+
+.hero__lead {
+	color: var(--color-muted);
+	font-size: 1.15rem;
+	max-width: 40rem;
+	margin-inline: auto;
+}
+
+/* ---------- Homepage hero: rijke gradient, echte (toegankelijke) tekst ---------- */
+
+.hero-modern {
+	background: radial-gradient(circle at 15% -10%, #4a5aad 0%, transparent 55%),
+		linear-gradient(160deg, var(--color-primary-dark) 0%, var(--color-primary) 65%, #4b3a7a 100%);
+	color: #fff;
+	padding-block: clamp(3.5rem, 6vw, 6.5rem);
+	text-align: center;
+}
+
+.hero-modern__eyebrow {
+	text-transform: uppercase;
+	letter-spacing: 0.14em;
+	font-size: 0.8rem;
+	font-weight: 700;
+	color: #cdd4f6;
+	margin: 0 0 1rem;
+}
+
+.hero-modern h1 {
+	color: #fff;
+	margin-top: 0;
+	max-width: 44rem;
+	margin-inline: auto;
+}
+
+.hero-modern__lead {
+	color: #d9dcf3;
+	font-size: 1.15rem;
+	max-width: 38rem;
+	margin: 1rem auto 0;
+}
+
+.solas {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.6rem;
+	padding: 0;
+	margin: 2rem 0 0;
+}
+
+.solas li {
+	font-size: 0.82rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	color: #fff;
+	background: rgba(255, 255, 255, 0.12);
+	border: 1px solid rgba(255, 255, 255, 0.22);
+	border-radius: 999px;
+	padding: 0.4rem 0.9rem;
+}
+
+/* ---------- Homepage: recente berichten / vooruitblik ---------- */
+
+/* Zelfde kolomverhouding/gap als .scroll-section-pair__grid hieronder, zodat
+   de middenlijn en de boven-/onderranden van beide rijen mooi doorlopen. */
+.home-columns {
+	display: grid;
+	/* minmax(0, 1fr) i.p.v. kaal 1fr: anders claimt elke kolom eerst ruimte
+	   op basis van haar eigen inhoud (bv. het lange woord "Vooruitblik"),
+	   waardoor het geen echte 50/50-verdeling wordt. */
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	gap: 2.5rem;
+	align-items: stretch;
+}
+
+@media (max-width: 780px) {
+	.home-columns {
+		grid-template-columns: 1fr;
+	}
+}
+
+.post-list,
+.vooruitblik-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.post-list li {
+	padding-block: 0.7rem;
+	border-bottom: 1px solid var(--color-border);
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.post-list a {
+	color: var(--color-text);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.post-list a:hover {
+	color: var(--color-accent);
+}
+
+.post-list time {
+	color: var(--color-muted);
+	font-size: 0.85rem;
+	white-space: nowrap;
+}
+
+/* Homepage "Recente berichten": max 1 regel per bericht, lange titels
+   krijgen een ellipsis in plaats van door te lopen naar een 2e regel. */
+.post-list--compact li {
+	flex-wrap: nowrap;
+}
+
+.post-list--compact a {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.post-list--compact time {
+	flex-shrink: 0;
+}
+
+.vooruitblik-list li {
+	margin-bottom: 1.1em;
+}
+
+.post-meta {
+	color: var(--color-muted);
+	font-size: 0.9rem;
+	margin-top: -0.5em;
+}
+
+.link-arrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35em;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.link-arrow:hover {
+	text-decoration: none;
+}
+
+/* ---------- Scrollbare secties (Geschiedenis, Wie bepaalt, ...) ---------- */
+/* Twee (of meer) ScrollSection-kolommen naast elkaar in één band. */
+
+.scroll-section-pair {
+	padding-block: 3.5rem;
+	background: var(--color-bg-alt);
+}
+
+.scroll-section-pair__grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	gap: 2.5rem;
+	align-items: stretch;
+}
+
+@media (max-width: 780px) {
+	.scroll-section-pair__grid {
+		grid-template-columns: 1fr;
+		gap: 3rem;
+	}
+}
+
+.scroll-column {
+	display: flex;
+	flex-direction: column;
+}
+
+.scroll-column h2 {
+	margin-top: 0;
+}
+
+.scroll-section__track {
+	display: flex;
+	justify-content: center;
+	gap: 1.5rem;
+	overflow-x: auto;
+	scroll-snap-type: x proximity;
+	padding-bottom: 0.5rem;
+	flex: 1;
+}
+
+.scroll-card {
+	flex: 0 0 min(28rem, 85vw);
+	scroll-snap-align: start;
+	display: flex;
+	flex-direction: column;
+	background: var(--color-bg);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow);
+	overflow: hidden;
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.scroll-card:hover {
+	box-shadow: var(--shadow-hover);
+	transform: translateY(-2px);
+}
+
+.scroll-card img {
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	border-radius: 0;
+	display: block;
+}
+
+.scroll-card p {
+	padding: 1.25rem;
+	margin: 0;
+	flex: 1;
+}
+
+/* ---------- Auteursbio ---------- */
+
+.author-bio {
+	padding-block: 3.5rem;
+}
+
+.author-bio h2 {
+	margin-top: 0;
+}
+
+.author-bio__row {
+	display: flex;
+	gap: 1.75rem;
+	align-items: center;
+	flex-wrap: wrap;
+	background: var(--color-surface);
+	border-radius: var(--radius);
+	padding: 1.75rem;
+}
+
+.author-bio__photo {
+	width: 6.5rem;
+	height: 6.5rem;
+	object-fit: cover;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+/* ---------- Page content ---------- */
+
+.page {
+	padding-block: 3rem;
+}
+
+.page__title {
+	margin-top: 0;
+}
+
+/* ---------- Pagina met "Bijbelteksten"-zijbalk (Verbond & Doop e.d.) ---------- */
+
+.page-with-scripture {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+	gap: 3rem;
+	align-items: start;
+}
+
+@media (max-width: 780px) {
+	.page-with-scripture {
+		grid-template-columns: 1fr;
+	}
+}
+
+.page-with-scripture__main img {
+	display: block;
+	margin: 0 auto 1.5rem;
+}
+
+.scripture-aside {
+	background: var(--color-surface);
+	border-radius: var(--radius);
+	padding: 1.5rem;
+	position: sticky;
+	top: 5.5rem;
+}
+
+.scripture-aside h2 {
+	margin-top: 0;
+	font-size: 1.05rem;
+}
+
+.scripture-aside blockquote {
+	margin: 0 0 1.25rem;
+	padding-left: 0.9rem;
+	border-left: 3px solid var(--color-primary);
+}
+
+.scripture-aside blockquote:last-child {
+	margin-bottom: 0;
+}
+
+.scripture-aside p {
+	font-style: italic;
+	color: var(--color-muted);
+	margin: 0 0 0.35em;
+	font-size: 0.95rem;
+}
+
+.scripture-aside cite {
+	font-style: normal;
+	font-weight: 600;
+	font-size: 0.8rem;
+	color: var(--color-text);
+}
+
+/* ---------- Cards / lists (bv. documentenoverzicht, feature cards) ---------- */
+
+.card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+	gap: 1.5rem;
+	list-style: none;
+	padding: 0;
+}
+
+.card {
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+	padding: 1.5rem;
+	background: var(--color-bg);
+	box-shadow: var(--shadow);
+	overflow: hidden;
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+	box-shadow: var(--shadow-hover);
+	transform: translateY(-2px);
+}
+
+.card img {
+	width: 100%;
+	aspect-ratio: 16 / 10;
+	object-fit: cover;
+	margin: -1.5rem -1.5rem 1rem;
+	width: calc(100% + 3rem);
+	max-width: none;
+	border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.card h3 {
+	margin-top: 0;
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+	background: var(--color-primary-dark);
+	color: #f0f0f0;
+	margin-top: 3rem;
+}
+
+.site-footer__inner {
+	padding-block: 2rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.site-footer a {
+	color: #dce6f2;
+}
+
+.site-footer__nav {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	margin: 0;
+	padding: 0;
+}
+
+.site-footer__copyright {
+	font-size: 0.85rem;
+	color: #b9c4d1;
+}

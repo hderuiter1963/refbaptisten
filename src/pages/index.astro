@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ScrollSection from '../components/ScrollSection.astro';
+import AuthorBio from '../components/AuthorBio.astro';
+import { getCollection } from 'astro:content';
+import { geschiedenis, wieBepaalt } from '../data/homeSections';
+import { featureCards, vooruitblik } from '../data/home';
+
+// "Recente berichten" komt nu rechtstreeks uit de content collection
+// (voorheen via een aparte WordPress-subapplicatie/widget geregeld).
+const recentPosts = (await getCollection('posts'))
+	.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+	.slice(0, 4);
+---
+
+<BaseLayout title="Home" description="Reformatorische Baptisten — geworteld in de Bijbel, gevormd door de reformatie.">
+	<section class="hero-modern">
+		<div class="container">
+			<p class="hero-modern__eyebrow">Reformatorische Baptisten</p>
+			<h1>Geworteld in de Bijbel, gevormd door de reformatie.</h1>
+			<p class="hero-modern__lead">
+				Levend in het geloof dat Jezus Christus Heere is over heel het leven.
+			</p>
+			<ul class="solas">
+				<li>Sola Scriptura</li>
+				<li>Sola Gratia</li>
+				<li>Sola Fide</li>
+				<li>Sola Christus</li>
+				<li>Soli Deo Gloria</li>
+			</ul>
+		</div>
+	</section>
+
+	<div class="container page">
+		<div class="home-columns">
+			<div>
+				<h2>Recente berichten</h2>
+				<ul class="post-list post-list--compact">
+					{recentPosts.map((post) => (
+						<li>
+							<a href={`/${post.id}/`} title={post.data.title}>{post.data.title}</a>
+							<time datetime={post.data.date.toISOString()}>
+								{post.data.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}
+							</time>
+						</li>
+					))}
+				</ul>
+				<p><a href="/berichten/" class="link-arrow">Alle berichten &rarr;</a></p>
+			</div>
+			<div>
+				<h2>Vooruitblik</h2>
+				<ul class="vooruitblik-list">
+					{vooruitblik.map((item) => (
+						<li><strong>{item.title}</strong>, {item.text}</li>
+					))}
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<section class="scroll-section-pair">
+		<div class="container scroll-section-pair__grid">
+			<ScrollSection title="Geschiedenis" items={geschiedenis} />
+			<ScrollSection title="Reformatorisch Baptist: Wie bepaalt?" items={wieBepaalt} />
+		</div>
+	</section>
+
+	<div class="container page">
+		<ul class="card-grid">
+			{featureCards.map((card) => (
+				<li class="card">
+					<img src={card.image} alt={card.alt} loading="lazy" />
+					<h3>{card.title}</h3>
+					<p>{card.text}</p>
+				</li>
+			))}
+		</ul>
+	</div>
+
+	<AuthorBio />
+</BaseLayout>

@@ -1,0 +1,25 @@
+---
+import { footerNav, siteMeta } from '../data/navigation';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+	<div class="container site-footer__inner">
+		<div>
+			<p class="site-footer__copyright">
+				&copy; {year} {siteMeta.title}
+				{siteMeta.email && (
+					<>
+						· <a href={`mailto:${siteMeta.email}`}>{siteMeta.email}</a>
+					</>
+				)}
+			</p>
+		</div>
+		<ul class="site-footer__nav">
+			{footerNav.map((link) => (
+				<li><a href={link.href}>{link.label}</a></li>
+			))}
+		</ul>
+	</div>
+</footer>

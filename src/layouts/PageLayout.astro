@@ -1,0 +1,43 @@
+---
+// Layout voor gewone inhoudspagina's (uit de content collection): titel + container.
+// Optioneel: een "Bijbelteksten"-zijbalk naast de hoofdtekst (zie o.a. de
+// Verbond & Doop-pagina's, die dit patroon overnemen van de oorspronkelijke site).
+import BaseLayout from './BaseLayout.astro';
+
+interface ScriptureItem {
+	ref: string;
+	text: string;
+}
+
+interface Props {
+	title: string;
+	description?: string;
+	scripture?: ScriptureItem[];
+}
+
+const { title, description, scripture } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+	<div class="container page">
+		<h1 class="page__title">{title}</h1>
+		{scripture && scripture.length > 0 ? (
+			<div class="page-with-scripture">
+				<div class="page-with-scripture__main">
+					<slot />
+				</div>
+				<aside class="scripture-aside" aria-label="Bijbelteksten">
+					<h2>Bijbelteksten</h2>
+					{scripture.map((item) => (
+						<blockquote>
+							<p>{item.text}</p>
+							<cite>{item.ref}</cite>
+						</blockquote>
+					))}
+				</aside>
+			</div>
+		) : (
+			<slot />
+		)}
+	</div>
+</BaseLayout>

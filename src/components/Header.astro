@@ -1,0 +1,17 @@
+---
+import Nav from './Nav.astro';
+import { siteMeta } from '../data/navigation';
+---
+
+<header class="site-header">
+	<div class="container site-header__inner">
+		<a href="/" class="site-header__brand">
+			<img src="/images/home/hero-geworteld.png" alt="" class="site-header__accent" />
+			<span>{siteMeta.title}</span>
+		</a>
+		<div class="site-header__right">
+			<Nav />
+			<img src="/images/home/hero-sola.png" alt="" class="site-header__accent" />
+		</div>
+	</div>
+</header>

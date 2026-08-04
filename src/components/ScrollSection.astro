@@ -1,0 +1,40 @@
+---
+// Herbruikbare kolom met horizontaal scrollbare kaarten. Gebruikt voor
+// bijvoorbeeld "Geschiedenis" en "Reformatorisch Baptist: Wie bepaalt?" —
+// elke kolom beheert zijn eigen lijst met kaarten (zie src/data/homeSections.ts)
+// en kan later gewoon meer kaarten krijgen zonder dat dit component wijzigt.
+// Geen eigen <section>/achtergrond: de aanroeper bepaalt de lay-out eromheen
+// (zie .scroll-section-pair in index.astro) zodat meerdere kolommen naast
+// elkaar kunnen staan.
+
+export interface ScrollItem {
+	image: string;
+	alt: string;
+	text: string;
+	href: string;
+	linkLabel?: string;
+}
+
+interface Props {
+	title: string;
+	items: ScrollItem[];
+}
+
+const { title, items } = Astro.props;
+---
+
+<div class="scroll-column">
+	<h2>{title}</h2>
+	<div class="scroll-section__track">
+		{items.map((item) => (
+			<article class="scroll-card">
+				<img src={item.image} alt={item.alt} loading="lazy" />
+				<p>
+					<Fragment set:html={item.text} />
+					{' '}
+					<a href={item.href}>{item.linkLabel ?? 'Lees verder'}</a>
+				</p>
+			</article>
+		))}
+	</div>
+</div>

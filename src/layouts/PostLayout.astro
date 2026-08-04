@@ -1,0 +1,32 @@
+---
+// Layout voor berichten (uit de content collection 'posts'): titel + datum + container.
+import BaseLayout from './BaseLayout.astro';
+import { publicationCategories, type PublicationCategory } from '../data/publicationCategories';
+
+interface Props {
+	title: string;
+	date: Date;
+	description?: string;
+	category?: PublicationCategory['slug'];
+}
+
+const { title, date, description, category } = Astro.props;
+const formattedDate = date.toLocaleDateString('nl-NL', {
+	day: 'numeric',
+	month: 'long',
+	year: 'numeric',
+});
+const categoryMeta = category ? publicationCategories.find((c) => c.slug === category) : undefined;
+---
+
+<BaseLayout title={title} description={description}>
+	<div class="container page">
+		<p>
+			<a href="/berichten/">&larr; Alle berichten</a>
+			{categoryMeta && <> &middot; <a href={categoryMeta.href}>{categoryMeta.title}</a></>}
+		</p>
+		<h1 class="page__title">{title}</h1>
+		<p class="post-meta">{formattedDate}</p>
+		<slot />
+	</div>
+</BaseLayout>
