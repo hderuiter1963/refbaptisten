@@ -3,7 +3,10 @@ title: "Geen kiem, maar keuze: Een Bijbelse kritiek op Calvijns kinderdooptheolo
 category: "doop"
 date: 2025-06-11
 description: "Een theologische toetsing van Calvijns verdediging van de kinderdoop in zijn Institutie, in het licht van 1 Petrus 3:21."
+image: "/images/publicaties/geen-kiem-maar-keuze.jpg"
 ---
+
+![Tarwekiem](/images/publicaties/geen-kiem-maar-keuze.jpg)
 
 #### "Een Bijbelse kritiek op Calvijns kinderdooptheologie"
 

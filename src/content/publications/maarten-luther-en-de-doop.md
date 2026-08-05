@@ -3,7 +3,10 @@ title: "Maarten Luther over de doop"
 category: "doop"
 date: 2025-08-01
 description: "Een kritische beschouwing van Luthers doopleer, en een verweer daartegen vanuit een reformatorisch-baptistisch perspectief."
+image: "/images/publicaties/maarten-luther.jpg"
 ---
+
+![Maarten Luther](/images/publicaties/maarten-luther.jpg)
 
 Maarten Luther beschouwde de doop als één van de twee door Christus ingestelde sacramenten, samen met het Heilig Avondmaal. In tegenstelling tot een puur symbolische uitleg zag Luther de doop als **een krachtig middel van genade**, waarin God Zelf handelt. In zijn **Kleine Catechismus (1529)** schrijft hij:
 
