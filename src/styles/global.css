@@ -599,6 +599,89 @@ img {
 	margin-top: 0;
 }
 
+/* ---------- Contactformulier ---------- */
+
+.contact-form {
+	max-width: 32rem;
+	margin-top: 2rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+}
+
+.contact-form__field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.contact-form__field label {
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+
+.contact-form__field input,
+.contact-form__field textarea {
+	font: inherit;
+	color: var(--color-text);
+	background: var(--color-bg);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	padding: 0.6rem 0.75rem;
+	resize: vertical;
+}
+
+.contact-form__field input:focus,
+.contact-form__field textarea:focus {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 1px;
+}
+
+/* Honeypot-veld: onzichtbaar voor bezoekers, blijft in de DOM voor bots */
+.contact-form__honeypot {
+	position: absolute;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+.button-primary {
+	align-self: flex-start;
+	background: var(--color-primary);
+	color: #fff;
+	border: none;
+	border-radius: var(--radius-sm);
+	padding: 0.7rem 1.5rem;
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.15s ease;
+}
+
+.button-primary:hover {
+	background: var(--color-accent);
+}
+
+.button-primary:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.contact-form__status {
+	font-size: 0.9rem;
+	min-height: 1.2em;
+	margin: 0;
+}
+
+.contact-form__status--success {
+	color: #1a7f37;
+}
+
+.contact-form__status--error {
+	color: #c0341d;
+}
+
 /* ---------- Pagina met "Bijbelteksten"-zijbalk (Verbond & Doop e.d.) ---------- */
 
 .page-with-scripture {

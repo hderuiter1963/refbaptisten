@@ -44,7 +44,10 @@ export const mainNav: NavLink[] = [
 	{ label: 'Gemeenten', href: '/gemeenten/' },
 ];
 
-export const footerNav: NavLink[] = [{ label: 'Berichten', href: '/berichten/' }];
+export const footerNav: NavLink[] = [
+	{ label: 'Berichten', href: '/berichten/' },
+	{ label: 'Contact', href: '/contact/' },
+];
 
 export const siteMeta = {
 	title: 'Reformatorische Baptisten',
