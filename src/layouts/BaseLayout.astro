@@ -1,15 +1,19 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import SolasBar from '../components/SolasBar.astro';
 import { siteMeta } from '../data/navigation';
 import '../styles/global.css';
 
 interface Props {
 	title: string;
 	description?: string;
+	// De homepage heeft de sola's al verwerkt in haar eigen (grotere) hero,
+	// dus die zet dit op false om dubbele weergave te voorkomen.
+	showSolasBar?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, showSolasBar = true } = Astro.props;
 const pageTitle = title ? `${title} — ${siteMeta.title}` : siteMeta.title;
 ---
 
@@ -25,6 +29,7 @@ const pageTitle = title ? `${title} — ${siteMeta.title}` : siteMeta.title;
 	</head>
 	<body>
 		<Header />
+		{showSolasBar && <SolasBar />}
 		<main>
 			<slot />
 		</main>

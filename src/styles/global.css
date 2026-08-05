@@ -397,6 +397,17 @@ img {
 	padding: 0.4rem 0.9rem;
 }
 
+/* Smalle sola-balk direct onder de header, op elke pagina behalve home. */
+.solas-bar {
+	background: radial-gradient(circle at 15% -10%, #4a5aad 0%, transparent 55%),
+		linear-gradient(160deg, var(--color-primary-dark) 0%, var(--color-primary) 65%, #4b3a7a 100%);
+	padding-block: 1rem;
+}
+
+.solas-bar .solas {
+	margin-top: 0;
+}
+
 /* ---------- Homepage: recente berichten / vooruitblik ---------- */
 
 /* Zelfde kolomverhouding/gap als .scroll-section-pair__grid hieronder, zodat
