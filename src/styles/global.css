@@ -553,7 +553,7 @@ img {
 }
 
 .scroll-card {
-	flex: 0 0 min(28rem, 85vw);
+	flex: 0 0 min(32rem, 88vw);
 	scroll-snap-align: start;
 	display: flex;
 	flex-direction: column;
@@ -767,6 +767,22 @@ img {
 	gap: 1.5rem;
 	list-style: none;
 	padding: 0;
+	/* Centreer de rij als kaarten niet de volle breedte vullen, i.p.v. links
+	   te blijven plakken. */
+	justify-content: center;
+}
+
+/* Grotere variant voor de 3 kaarten op de homepage. Expliciet 3 kolommen
+   (i.p.v. auto-fit) zodat ze gegarandeerd naast elkaar blijven staan i.p.v.
+   dat de 3e naar een nieuwe, links uitgelijnde regel valt. */
+.card-grid--large {
+	grid-template-columns: repeat(3, minmax(0, 22rem));
+}
+
+@media (max-width: 900px) {
+	.card-grid--large {
+		grid-template-columns: repeat(auto-fit, minmax(15rem, 22rem));
+	}
 }
 
 .card {

@@ -66,7 +66,7 @@ const recentPosts = (await getCollection('posts'))
 	</section>
 
 	<div class="container page">
-		<ul class="card-grid">
+		<ul class="card-grid card-grid--large">
 			{featureCards.map((card) => (
 				<li class="card">
 					<img src={card.image} alt={card.alt} loading="lazy" />
