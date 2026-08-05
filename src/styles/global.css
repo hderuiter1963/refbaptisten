@@ -758,31 +758,27 @@ img {
 
 /* ---------- Cards / lists (bv. documentenoverzicht, feature cards) ---------- */
 
+/* Flexbox i.p.v. grid: bij grid delen alle rijen dezelfde kolommen, waardoor
+   een "weeskaart" op de laatste, onvolledige rij links blijft hangen i.p.v.
+   te centreren (bv. bij 7 kaarten: 3+3+1). Met flex-wrap centreert élke rij
+   onafhankelijk via justify-content, ongeacht het aantal kaarten. */
 .card-grid {
-	display: grid;
-	/* Vaste bovengrens (20rem) i.p.v. 1fr: zo blijven kaarten consistent
-	   ~15-20rem breed, of er nu 1 of 8 in de rij staan, in plaats van uit
-	   te rekken om de hele rij te vullen bij weinig items. */
-	grid-template-columns: repeat(auto-fit, minmax(15rem, 20rem));
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
 	gap: 1.5rem;
 	list-style: none;
 	padding: 0;
-	/* Centreer de rij als kaarten niet de volle breedte vullen, i.p.v. links
-	   te blijven plakken. */
-	justify-content: center;
 }
 
-/* Grotere variant voor de 3 kaarten op de homepage. Expliciet 3 kolommen
-   (i.p.v. auto-fit) zodat ze gegarandeerd naast elkaar blijven staan i.p.v.
-   dat de 3e naar een nieuwe, links uitgelijnde regel valt. */
-.card-grid--large {
-	grid-template-columns: repeat(3, minmax(0, 22rem));
+.card-grid .card {
+	flex: 0 1 20rem;
+	min-width: 15rem;
 }
 
-@media (max-width: 900px) {
-	.card-grid--large {
-		grid-template-columns: repeat(auto-fit, minmax(15rem, 22rem));
-	}
+/* Grotere variant, zelfde maat als de 3 kaarten op de homepage. */
+.card-grid--large .card {
+	flex-basis: 22rem;
 }
 
 .card {

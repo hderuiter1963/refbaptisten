@@ -1,0 +1,26 @@
+---
+// Herbruikbare kaart voor artikel-overzichten (Publicaties-categorieën,
+// eventueel later Documenten). Titel is platte tekst (niet klikbaar); de
+// link staat als "Lees verder" aan het einde van de tekst — consistent met
+// de kaarten op de homepage (zie ScrollSection.astro).
+
+interface Props {
+	href: string;
+	image?: string;
+	title: string;
+	description?: string;
+	linkLabel?: string;
+}
+
+const { href, image, title, description, linkLabel = 'Lees verder' } = Astro.props;
+---
+
+<li class="card">
+	{image && <img src={image} alt="" loading="lazy" />}
+	<h3>{title}</h3>
+	<p>
+		{description}
+		{' '}
+		<a href={href}>{linkLabel}</a>
+	</p>
+</li>

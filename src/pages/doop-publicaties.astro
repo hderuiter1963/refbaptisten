@@ -2,6 +2,7 @@
 // Categorie-hub "Doop" onder Publicaties: intro + overzicht van artikelen
 // met category: 'doop' (uit content/publications/ en content/posts/).
 import PageLayout from '../layouts/PageLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
 import { getCategoryItems } from '../lib/publications';
 
 const items = await getCategoryItems('doop');
@@ -11,13 +12,9 @@ const items = await getCategoryItems('doop');
 	{items.length === 0 ? (
 		<p>Er zijn nog geen artikelen in deze categorie toegevoegd.</p>
 	) : (
-		<ul class="card-grid">
+		<ul class="card-grid card-grid--large">
 			{items.map((item) => (
-				<li class="card">
-					{item.image && <img src={item.image} alt="" loading="lazy" />}
-					<h3><a href={`/${item.id}/`}>{item.title}</a></h3>
-					{item.description && <p>{item.description}</p>}
-				</li>
+				<ArticleCard href={`/${item.id}/`} image={item.image} title={item.title} description={item.description} />
 			))}
 		</ul>
 	)}
