@@ -3,6 +3,8 @@
 // bijvoorbeeld "Geschiedenis" en "Reformatorisch Baptist: Wie bepaalt?" —
 // elke kolom beheert zijn eigen lijst met kaarten (zie src/data/homeSections.ts)
 // en kan later gewoon meer kaarten krijgen zonder dat dit component wijzigt.
+// De titel staat, net als bij de 3 feature cards, ín de kaart onder de foto
+// (niet als apart kopje boven de kolom) — elke kaart heeft dus zijn eigen titel.
 // Geen eigen <section>/achtergrond: de aanroeper bepaalt de lay-out eromheen
 // (zie .scroll-section-pair in index.astro) zodat meerdere kolommen naast
 // elkaar kunnen staan.
@@ -10,25 +12,25 @@
 export interface ScrollItem {
 	image: string;
 	alt: string;
+	title: string;
 	text: string;
 	href: string;
 	linkLabel?: string;
 }
 
 interface Props {
-	title: string;
 	items: ScrollItem[];
 }
 
-const { title, items } = Astro.props;
+const { items } = Astro.props;
 ---
 
 <div class="scroll-column">
-	<h2>{title}</h2>
 	<div class="scroll-section__track">
 		{items.map((item) => (
 			<article class="scroll-card">
 				<img src={item.image} alt={item.alt} loading="lazy" />
+				<h3>{item.title}</h3>
 				<p>
 					<Fragment set:html={item.text} />
 					{' '}
