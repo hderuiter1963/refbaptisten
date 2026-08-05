@@ -18,39 +18,8 @@ export default defineConfig({
 	// serverless function op Vercel, voor het contactformulier.
 	adapter: vercel(),
 
-	// Oude WordPress-URL's die niet (meer) op dezelfde plek staan.
-	// Zie REDIRECTS.md voor de volledige toelichting per regel.
-	redirects: {
-		// Teaser-pagina's / dubbele of verkorte URL's, samengevoegd tot 1 pagina.
-		'/de-doop-van-het-kind-belofte-of-verwarring/': {
-			status: 301,
-			destination: '/de-doop-van-het-kind-belofte-of-verwarring-een-baptistische-reflectie-op-kerkelijke-verdeeldheid/',
-		},
-		'/maarten-luther-over-de-doop-een-kritische-beschouwing/': {
-			status: 301,
-			destination: '/maarten-luther-en-de-doop/',
-		},
-		'/776-2/': {
-			status: 301,
-			destination: '/geen-kiem-maar-keuze-een-bijbelse-kritiek-op-calvijns-kinderdooptheologie/',
-		},
-		'/de-kinderdoop-getoetst-aan-de-schrift-exegese-of-eisegese/': {
-			status: 301,
-			destination: '/kinderdoop-exegese-of-eisegese/',
-		},
-		'/850-2/': {
-			status: 301,
-			destination: '/doop-van-jezus-en-de-rode-lijn-in-de-schrift/',
-		},
-		'/exegese-doen-reformatorisch-baptists/': {
-			status: 301,
-			destination: '/exegese-doen-reformatorisch-baptist/',
-		},
-		// Niet overgezette pagina's — naar de meest relevante bestaande plek.
-		'/missie-en-visie/': { status: 301, destination: '/' },
-		'/auteur/': { status: 301, destination: '/' },
-		'/media/': { status: 301, destination: '/' },
-		'/lezingen/': { status: 301, destination: '/' },
-		'/845-2/': { status: 301, destination: '/praktisch-theologische-onderwerpen/' },
-	},
+	// Let op: de redirects voor oude WordPress-URL's staan NIET hier, maar in
+	// src/middleware.ts — de `redirects`-optie hier bleek in de praktijk ná
+	// Vercel's eigen trailing-slash-normalisatie te komen, waardoor bv.
+	// /776-2/ alsnog op een 404 uitkwam. Zie REDIRECTS.md voor de lijst.
 });
