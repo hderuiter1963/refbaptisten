@@ -704,6 +704,53 @@ img {
 	color: #c0341d;
 }
 
+/* ---------- Statistiekpagina ---------- */
+
+.stat-list {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 1.5rem;
+	max-width: 40rem;
+}
+
+.stat-row {
+	display: grid;
+	grid-template-columns: 5.5rem 1fr 3rem;
+	align-items: center;
+	gap: 0.85rem;
+	padding-block: 0.4rem;
+}
+
+.stat-row__label {
+	font-size: 0.85rem;
+	color: var(--color-muted);
+	white-space: nowrap;
+}
+
+.stat-row__bar-track {
+	background: var(--color-surface);
+	border-radius: 999px;
+	height: 0.6rem;
+	overflow: hidden;
+}
+
+.stat-row__bar-fill {
+	display: block;
+	height: 100%;
+	background: var(--color-primary);
+	border-radius: 999px;
+}
+
+.stat-row__count {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+.stat-footnote {
+	font-size: 0.85rem;
+	color: var(--color-muted);
+}
+
 /* ---------- Pagina met "Bijbelteksten"-zijbalk (Verbond & Doop e.d.) ---------- */
 
 .page-with-scripture {

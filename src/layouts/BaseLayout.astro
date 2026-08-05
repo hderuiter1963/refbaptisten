@@ -11,9 +11,11 @@ interface Props {
 	// De homepage heeft de sola's al verwerkt in haar eigen (grotere) hero,
 	// dus die zet dit op false om dubbele weergave te voorkomen.
 	showSolasBar?: boolean;
+	// Voor pagina's die niet in zoekmachines mogen verschijnen (bv. /statistiek/).
+	noindex?: boolean;
 }
 
-const { title, description, showSolasBar = true } = Astro.props;
+const { title, description, showSolasBar = true, noindex = false } = Astro.props;
 const pageTitle = title ? `${title} — ${siteMeta.title}` : siteMeta.title;
 ---
 
@@ -25,6 +27,7 @@ const pageTitle = title ? `${title} — ${siteMeta.title}` : siteMeta.title;
 		<meta name="generator" content={Astro.generator} />
 		<title>{pageTitle}</title>
 		{description && <meta name="description" content={description} />}
+		{noindex && <meta name="robots" content="noindex,nofollow" />}
 		<link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
 	</head>
 	<body>

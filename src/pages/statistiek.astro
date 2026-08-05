@@ -1,0 +1,92 @@
+---
+// Verborgen statistiekpagina: niet in het menu, niet in zoekmachines
+// (noindex), alleen bereikbaar via de directe URL /statistiek/.
+// Leest live uit Vercel KV, dus deze route is server-rendered i.p.v. statisch.
+export const prerender = false;
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { kv } from '@vercel/kv';
+
+let total = 0;
+let weekCounts: { label: string; count: number }[] = [];
+let monthCounts: { label: string; count: number }[] = [];
+let errorMessage = '';
+
+try {
+	const [weekKeys, monthKeys, totalCount] = await Promise.all([
+		kv.smembers('pv:weeks'),
+		kv.smembers('pv:months'),
+		kv.get<number>('pv:total'),
+	]);
+
+	total = totalCount ?? 0;
+
+	const sortedWeeks = (weekKeys as string[]).sort().reverse().slice(0, 12);
+	const sortedMonths = (monthKeys as string[]).sort().reverse().slice(0, 12);
+
+	weekCounts = await Promise.all(
+		sortedWeeks.map(async (label) => ({ label, count: (await kv.get<number>(`pv:week:${label}`)) ?? 0 }))
+	);
+	monthCounts = await Promise.all(
+		sortedMonths.map(async (label) => ({ label, count: (await kv.get<number>(`pv:month:${label}`)) ?? 0 }))
+	);
+} catch (err) {
+	errorMessage = 'Kon de statistieken nog niet ophalen — is de KV-database al gekoppeld in Vercel?';
+	console.error('Statistiek: KV-fout', err);
+}
+
+const maxWeek = Math.max(1, ...weekCounts.map((w) => w.count));
+const maxMonth = Math.max(1, ...monthCounts.map((m) => m.count));
+---
+
+<BaseLayout title="Statistiek" description="Bezoekersstatistieken." showSolasBar={false} noindex={true}>
+	<div class="container page">
+		<h1 class="page__title">Statistiek</h1>
+
+		{errorMessage ? (
+			<p class="contact-form__status contact-form__status--error">{errorMessage}</p>
+		) : (
+			<>
+				<p>Totaal aantal paginaweergaves sinds de start van de teller: <strong>{total.toLocaleString('nl-NL')}</strong></p>
+
+				<h2>Per week</h2>
+				{weekCounts.length === 0 ? (
+					<p>Nog geen gegevens.</p>
+				) : (
+					<ul class="stat-list">
+						{weekCounts.map((w) => (
+							<li class="stat-row">
+								<span class="stat-row__label">{w.label}</span>
+								<span class="stat-row__bar-track">
+									<span class="stat-row__bar-fill" style={`width: ${(w.count / maxWeek) * 100}%`} />
+								</span>
+								<strong class="stat-row__count">{w.count}</strong>
+							</li>
+						))}
+					</ul>
+				)}
+
+				<h2>Per maand</h2>
+				{monthCounts.length === 0 ? (
+					<p>Nog geen gegevens.</p>
+				) : (
+					<ul class="stat-list">
+						{monthCounts.map((m) => (
+							<li class="stat-row">
+								<span class="stat-row__label">{m.label}</span>
+								<span class="stat-row__bar-track">
+									<span class="stat-row__bar-fill" style={`width: ${(m.count / maxMonth) * 100}%`} />
+								</span>
+								<strong class="stat-row__count">{m.count}</strong>
+							</li>
+						))}
+					</ul>
+				)}
+
+				<p class="stat-footnote">
+					Telt paginaweergaves (niet unieke bezoekers) — geen cookies, geen IP-adressen opgeslagen.
+				</p>
+			</>
+		)}
+	</div>
+</BaseLayout>
