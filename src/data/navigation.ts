@@ -46,7 +46,9 @@ export const mainNav: NavLink[] = [
 
 export const footerNav: NavLink[] = [
 	{ label: 'Berichten', href: '/berichten/' },
-	{ label: 'Contact', href: '/contact/' },
+	// Contact-link tijdelijk verwijderd: het formulier op /contact/ werkt nog
+	// niet (SMTP-verzending via Outlook geblokkeerd, zie git-historie).
+	// Pagina blijft bestaan, alleen niet meer gelinkt vanuit de footer.
 ];
 
 export const siteMeta = {
