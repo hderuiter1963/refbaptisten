@@ -13,13 +13,17 @@ export default defineConfig({
 		format: 'directory',
 	},
 
-	// De site blijft verder volledig statisch; alleen src/pages/api/contact.ts
-	// (die zelf `export const prerender = false` heeft) draait als losse
-	// serverless function op Vercel, voor het contactformulier.
+	// De site blijft verder volledig statisch; alleen src/pages/api/contact.ts,
+	// src/pages/statistiek.astro en de losse redirect-pagina's voor oude
+	// WordPress-URL's (die zelf `export const prerender = false` hebben)
+	// draaien als serverless functions op Vercel.
+	//
+	// Let op: redirects voor oude URL's staan NIET in de `redirects`-optie
+	// hieronder (die bestaat wel, maar Astro compileert de source-patterns
+	// altijd zónder trailing slash, terwijl deze site trailingSlash:'always'
+	// gebruikt — het resultaat matcht dan nooit een binnenkomend verzoek en
+	// valt terug op Vercel's generieke catch-all, die de status altijd naar
+	// 404 dwingt). In plaats daarvan is elke oude URL een eigen .astro-bestand
+	// in src/pages/ dat zelf `Astro.redirect(...)` aanroept — zie REDIRECTS.md.
 	adapter: vercel(),
-
-	// Let op: de redirects voor oude WordPress-URL's staan NIET hier, maar in
-	// src/middleware.ts — de `redirects`-optie hier bleek in de praktijk ná
-	// Vercel's eigen trailing-slash-normalisatie te komen, waardoor bv.
-	// /776-2/ alsnog op een 404 uitkwam. Zie REDIRECTS.md voor de lijst.
 });

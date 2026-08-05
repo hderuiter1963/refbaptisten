@@ -1,0 +1,7 @@
+---
+// Oude WordPress-URL, doorverwezen naar de nieuwe locatie. Server-rendered
+// (i.p.v. via astro.config.mjs `redirects`) omdat die laatste in de
+// praktijk op Vercel op een 404-status bleef hangen — zie REDIRECTS.md.
+export const prerender = false;
+return Astro.redirect('/kinderdoop-exegese-of-eisegese/', 301);
+---

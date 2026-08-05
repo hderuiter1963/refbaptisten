@@ -83,6 +83,16 @@ staan, geef ze door dan voeg ik ze toe.
 ## Status: geïmplementeerd ✅
 
 Deze site draait niet bij Hostnet maar bij Vercel, dus geen `.htaccess`
-nodig. Alle 11 redirects hierboven staan als echte 301-redirects in
-`astro.config.mjs` (zie de `redirects`-instelling) en worden bij elke
-deploy automatisch door Vercel toegepast.
+nodig. Alle 11 redirects hierboven zijn geïmplementeerd als losse
+pagina's in `src/pages/` (bv. `776-2.astro`), die elk zelf
+`Astro.redirect(nieuwe-url, 301)` aanroepen.
+
+Dat is bewust *niet* via Astro's ingebouwde `redirects`-optie in
+`astro.config.mjs` gedaan: die optie bestaat wel, maar Astro compileert de
+source-patterns altijd zónder trailing slash, terwijl deze site
+`trailingSlash: 'always'` gebruikt. Een binnenkomend verzoek voor
+bijvoorbeeld `/776-2/` matchte daardoor nooit de gegenereerde regel, viel
+terug op Vercel's generieke catch-all route, en die dwingt de HTTP-status
+altijd naar 404 — ook al werd de juiste `Location`-header al gezet. Met
+losse pagina's krijgt elke oude URL zijn eigen Vercel-route (net als
+`/statistiek/`), zonder dat probleem.

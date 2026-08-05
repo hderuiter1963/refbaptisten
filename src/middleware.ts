@@ -1,44 +1,20 @@
-// 1. Verwerkt oude WordPress-URL's naar hun nieuwe plek (zie REDIRECTS.md).
-//    Dit gebeurt hier i.p.v. via astro.config.mjs `redirects`, omdat die
-//    laatste in de praktijk na Vercel's eigen trailing-slash-normalisatie
-//    kwam te staan — waardoor bv. /776-2/ alsnog op een 404 uitkwam.
-//    Middleware draait als Edge Middleware vóór die routing, dus dit werkt
-//    altijd, ongeacht met/zonder trailing slash.
-// 2. Telt paginaweergaves (niet: unieke bezoekers — geen cookies/IP-opslag)
-//    per week en per maand in Vercel KV, voor de /statistiek/-pagina.
+// Telt paginaweergaves (niet: unieke bezoekers — geen cookies/IP-opslag,
+// simpel en privacyvriendelijk) per week en per maand in Vercel KV.
+// Draait via de Vercel-adapter als Edge Middleware, dus ook vóór statisch
+// geserveerde pagina's — niet alleen voor de ene serverless route
+// (/api/contact/) die de rest van de site heeft.
+//
+// Let op: redirects voor oude WordPress-URL's staan niet hier, maar als
+// losse .astro-bestanden in src/pages/ (elk met `Astro.redirect(...)`) —
+// zie REDIRECTS.md voor de achtergrond.
 import { defineMiddleware } from 'astro:middleware';
 import { kv } from '@vercel/kv';
 
-// Normaliseer (geen trailing slash) → nieuwe bestemming.
-const REDIRECTS: Record<string, string> = {
-	// Teaser-pagina's / dubbele of verkorte URL's, samengevoegd tot 1 pagina.
-	'/de-doop-van-het-kind-belofte-of-verwarring': '/de-doop-van-het-kind-belofte-of-verwarring-een-baptistische-reflectie-op-kerkelijke-verdeeldheid/',
-	'/maarten-luther-over-de-doop-een-kritische-beschouwing': '/maarten-luther-en-de-doop/',
-	'/776-2': '/geen-kiem-maar-keuze-een-bijbelse-kritiek-op-calvijns-kinderdooptheologie/',
-	'/de-kinderdoop-getoetst-aan-de-schrift-exegese-of-eisegese': '/kinderdoop-exegese-of-eisegese/',
-	'/850-2': '/doop-van-jezus-en-de-rode-lijn-in-de-schrift/',
-	'/exegese-doen-reformatorisch-baptists': '/exegese-doen-reformatorisch-baptist/',
-	// Niet overgezette pagina's — naar de meest relevante bestaande plek.
-	'/missie-en-visie': '/',
-	'/auteur': '/',
-	'/media': '/',
-	'/lezingen': '/',
-	'/845-2': '/praktisch-theologische-onderwerpen/',
-};
-
-// Alles wat geen "pagina" is (assets, API's, feeds) telt niet mee voor de
-// bezoekersstatistiek.
+// Alles wat geen "pagina" is (assets, API's, feeds) telt niet mee.
 const SKIP_RE = /\.(css|js|mjs|png|jpe?g|gif|svg|webp|avif|ico|pdf|woff2?|ttf|xml|txt|json|map)$/i;
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	const { pathname } = context.url;
-	const withoutTrailingSlash = pathname.length > 1 ? pathname.replace(/\/$/, '') : pathname;
-
-	const destination = REDIRECTS[withoutTrailingSlash];
-	if (destination) {
-		return context.redirect(destination, 301);
-	}
-
 	const isPageRequest =
 		context.request.method === 'GET' && !pathname.startsWith('/api/') && !pathname.startsWith('/_astro/') && !SKIP_RE.test(pathname);
 
