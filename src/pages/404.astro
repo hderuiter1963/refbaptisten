@@ -1,0 +1,20 @@
+---
+// Astro genereert hieruit een statische 404.html die Vercel automatisch
+// toont bij niet-gevonden pagina's — geen aparte configuratie nodig.
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Pagina niet gevonden" description="Deze pagina bestaat niet (meer)." noindex={true}>
+	<div class="container page">
+		<h1 class="page__title">Pagina niet gevonden</h1>
+		<div class="prose">
+			<p>
+				Sorry, deze pagina bestaat niet (meer) — mogelijk is de link verouderd of is er een
+				typefout gemaakt.
+			</p>
+			<p>
+				<a href="/">Ga naar de homepage</a> of bekijk de <a href="/publicaties/">publicaties</a>.
+			</p>
+		</div>
+	</div>
+</BaseLayout>

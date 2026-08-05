@@ -8,9 +8,10 @@ interface Props {
 	date: Date;
 	description?: string;
 	category?: PublicationCategory['slug'];
+	image?: string;
 }
 
-const { title, date, description, category } = Astro.props;
+const { title, date, description, category, image } = Astro.props;
 const formattedDate = date.toLocaleDateString('nl-NL', {
 	day: 'numeric',
 	month: 'long',
@@ -19,7 +20,7 @@ const formattedDate = date.toLocaleDateString('nl-NL', {
 const categoryMeta = category ? publicationCategories.find((c) => c.slug === category) : undefined;
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} image={image}>
 	<div class="container page">
 		<p>
 			<a href="/berichten/">&larr; Alle berichten</a>

@@ -8,13 +8,14 @@ interface Props {
 	title: string;
 	category: PublicationCategory['slug'];
 	description?: string;
+	image?: string;
 }
 
-const { title, category, description } = Astro.props;
+const { title, category, description, image } = Astro.props;
 const categoryMeta = publicationCategories.find((c) => c.slug === category);
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} image={image}>
 	<div class="container page">
 		{categoryMeta && <p><a href={categoryMeta.href}>&larr; {categoryMeta.title}</a></p>}
 		<h1 class="page__title">{title}</h1>

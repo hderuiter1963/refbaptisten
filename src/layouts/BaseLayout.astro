@@ -13,10 +13,15 @@ interface Props {
 	showSolasBar?: boolean;
 	// Voor pagina's die niet in zoekmachines mogen verschijnen (bv. /statistiek/).
 	noindex?: boolean;
+	// Afbeelding voor het social-media-voorbeeld (og:image); valt terug op
+	// een sitebrede standaardafbeelding als de pagina er zelf geen heeft.
+	image?: string;
 }
 
-const { title, description, showSolasBar = true, noindex = false } = Astro.props;
+const { title, description, showSolasBar = true, noindex = false, image } = Astro.props;
 const pageTitle = title ? `${title} — ${siteMeta.title}` : siteMeta.title;
+const ogImage = new URL(image ?? '/images/home/hero-geworteld.png', Astro.site);
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <html lang="nl">
@@ -24,11 +29,24 @@ const pageTitle = title ? `${title} — ${siteMeta.title}` : siteMeta.title;
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" sizes="any" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{pageTitle}</title>
 		{description && <meta name="description" content={description} />}
 		{noindex && <meta name="robots" content="noindex,nofollow" />}
-		<link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+		<link rel="canonical" href={canonicalUrl} />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={siteMeta.title} />
+		<meta property="og:title" content={pageTitle} />
+		{description && <meta property="og:description" content={description} />}
+		<meta property="og:url" content={canonicalUrl} />
+		<meta property="og:image" content={ogImage} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={pageTitle} />
+		{description && <meta name="twitter:description" content={description} />}
+		<meta name="twitter:image" content={ogImage} />
 	</head>
 	<body>
 		<Header />
