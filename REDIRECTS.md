@@ -80,15 +80,9 @@ sitemap onder een eigen categorie-indeling, dus zie ik geen extra
 "vergeten" URL's. Mocht je zelf nog links tegenkomen die niet in deze lijst
 staan, geef ze door dan voeg ik ze toe.
 
-## Hoe toe te passen bij Hostnet
+## Status: geïmplementeerd ✅
 
-Bij Hostnet stel je redirects meestal in via een `.htaccess`-bestand
-(Apache) in de hoofdmap van de hosting, met regels als:
-
-```apache
-Redirect 301 /776-2/ /geen-kiem-maar-keuze-een-bijbelse-kritiek-op-calvijns-kinderdooptheologie/
-Redirect 301 /845-2/ /praktisch-theologische-onderwerpen/
-```
-
-Ik kan dit `.htaccess`-bestand ook kant-en-klaar voor je genereren zodra je
-zover bent om te uploaden (stap 6) — zeg het maar.
+Deze site draait niet bij Hostnet maar bij Vercel, dus geen `.htaccess`
+nodig. Alle 11 redirects hierboven staan als echte 301-redirects in
+`astro.config.mjs` (zie de `redirects`-instelling) en worden bij elke
+deploy automatisch door Vercel toegepast.
