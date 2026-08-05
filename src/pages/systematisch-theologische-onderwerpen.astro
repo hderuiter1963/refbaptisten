@@ -9,31 +9,34 @@ const items = await getCategoryItems('systematisch-theologisch');
 <PageLayout
 	title="Systematisch Theologische onderwerpen"
 	description="De hoofdonderwerpen van de systematische theologie, thematisch geordend."
+	prose={false}
 >
-	<img src="/images/publicaties/ondergrondse-kerk.jpg" alt="" loading="lazy" />
+	<div class="prose">
+		<img src="/images/publicaties/ondergrondse-kerk.jpg" alt="" loading="lazy" />
 
-	<p>
-		Onder de rubriek <strong>"systematisch-theologisch"</strong> willen we een aantal onderwerpen belichten
-		met betrekking tot Systematische theologie, de discipline die de leer van de Bijbel thematisch ordent in
-		een logisch en samenhangend geheel. Het formuleert op basis van de gehele Schrift wat wij geloven over
-		God en de wereld, met het oog op de belijdenis van de kerk en de praktijk van het geloof.
-	</p>
+		<p>
+			Onder de rubriek <strong>"systematisch-theologisch"</strong> willen we een aantal onderwerpen belichten
+			met betrekking tot Systematische theologie, de discipline die de leer van de Bijbel thematisch ordent in
+			een logisch en samenhangend geheel. Het formuleert op basis van de gehele Schrift wat wij geloven over
+			God en de wereld, met het oog op de belijdenis van de kerk en de praktijk van het geloof.
+		</p>
 
-	<p>
-		In de systematische theologie worden de hoofdonderwerpen traditioneel ingedeeld in de zogenaamde
-		<em>loci</em> (plaatsen). Hier zijn de belangrijkste deeldisciplines:
-	</p>
+		<p>
+			In de systematische theologie worden de hoofdonderwerpen traditioneel ingedeeld in de zogenaamde
+			<em>loci</em> (plaatsen). Hier zijn de belangrijkste deeldisciplines:
+		</p>
 
-	<ol>
-		<li><strong>Bibliologie</strong>: De leer over de Schrift (openbaring, inspiratie en gezag van de Bijbel).</li>
-		<li><strong>Theologie</strong>: De leer over God (Zijn wezen, eigenschappen en de Drie-eenheid).</li>
-		<li><strong>Antropologie</strong>: De leer over de mens (de schepping van de mens en de zondeval).</li>
-		<li><strong>Christologie</strong>: De leer over de persoon en het werk van Jezus Christus.</li>
-		<li><strong>Pneumatologie</strong>: De leer over de Heilige Geest en Zijn werk.</li>
-		<li><strong>Soteriologie</strong>: De leer over de redding/verlossing (wedergeboorte, geloof, rechtvaardiging en heiliging).</li>
-		<li><strong>Ecclesiologie</strong>: De leer over de kerk (waaronder de sacramenten/instellingen en de <strong>leiding/ambten</strong> in de gemeente).</li>
-		<li><strong>Eschatologie</strong>: De leer over de laatste dingen (de wederkomst, het oordeel en de nieuwe hemel en aarde).</li>
-	</ol>
+		<ol>
+			<li><strong>Bibliologie</strong>: De leer over de Schrift (openbaring, inspiratie en gezag van de Bijbel).</li>
+			<li><strong>Theologie</strong>: De leer over God (Zijn wezen, eigenschappen en de Drie-eenheid).</li>
+			<li><strong>Antropologie</strong>: De leer over de mens (de schepping van de mens en de zondeval).</li>
+			<li><strong>Christologie</strong>: De leer over de persoon en het werk van Jezus Christus.</li>
+			<li><strong>Pneumatologie</strong>: De leer over de Heilige Geest en Zijn werk.</li>
+			<li><strong>Soteriologie</strong>: De leer over de redding/verlossing (wedergeboorte, geloof, rechtvaardiging en heiliging).</li>
+			<li><strong>Ecclesiologie</strong>: De leer over de kerk (waaronder de sacramenten/instellingen en de <strong>leiding/ambten</strong> in de gemeente).</li>
+			<li><strong>Eschatologie</strong>: De leer over de laatste dingen (de wederkomst, het oordeel en de nieuwe hemel en aarde).</li>
+		</ol>
+	</div>
 
 	{items.length === 0 ? (
 		<p>Er zijn nog geen artikelen in deze categorie toegevoegd.</p>

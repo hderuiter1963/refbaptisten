@@ -9,23 +9,26 @@ const items = await getCategoryItems('praktisch-theologisch');
 <PageLayout
 	title="Praktisch Theologische onderwerpen"
 	description="Ethiek, pastoraat, gemeenteopbouw, tucht en andere praktisch-theologische onderwerpen."
+	prose={false}
 >
-	<img src="/images/publicaties/ondergrondse-kerk.jpg" alt="" loading="lazy" />
+	<div class="prose">
+		<img src="/images/publicaties/ondergrondse-kerk.jpg" alt="" loading="lazy" />
 
-	<p>
-		Onder de rubriek <strong>"praktisch-theologisch"</strong> willen we een aantal onderwerpen belichten,
-		zoals <strong>ethiek, pastoraat, gemeenteopbouw, tucht, etc</strong>.
-	</p>
+		<p>
+			Onder de rubriek <strong>"praktisch-theologisch"</strong> willen we een aantal onderwerpen belichten,
+			zoals <strong>ethiek, pastoraat, gemeenteopbouw, tucht, etc</strong>.
+		</p>
 
-	<p>
-		Praktisch-theologie is het nadenken over geloof en leven vanuit de concrete praktijk van de gemeente,
-		waarbij leer en leven elkaar wederzijds vormen. Ze vertrekt bij situaties zoals eredienst, pastoraat en
-		discipelschap, luistert eerst naar de Schrift als hoogste norm, weegt traditie, rede en ervaring
-		dienstbaar mee, en zoekt cyclisch (zien &rarr; verstaan &rarr; onderscheiden &rarr; handelen &rarr; leren)
-		naar een handelingsperspectief: wat doen we nu trouw aan Christus? Het doel is lofprijzing en navolging:
-		God eren en de gemeente opbouwen in liefde en heiligheid &mdash; een theologie die werkt, dient en
-		transformeert, midden in het leven van alledag.
-	</p>
+		<p>
+			Praktisch-theologie is het nadenken over geloof en leven vanuit de concrete praktijk van de gemeente,
+			waarbij leer en leven elkaar wederzijds vormen. Ze vertrekt bij situaties zoals eredienst, pastoraat en
+			discipelschap, luistert eerst naar de Schrift als hoogste norm, weegt traditie, rede en ervaring
+			dienstbaar mee, en zoekt cyclisch (zien &rarr; verstaan &rarr; onderscheiden &rarr; handelen &rarr; leren)
+			naar een handelingsperspectief: wat doen we nu trouw aan Christus? Het doel is lofprijzing en navolging:
+			God eren en de gemeente opbouwen in liefde en heiligheid &mdash; een theologie die werkt, dient en
+			transformeert, midden in het leven van alledag.
+		</p>
+	</div>
 
 	{items.length === 0 ? (
 		<p>Er zijn nog geen artikelen in deze categorie toegevoegd.</p>

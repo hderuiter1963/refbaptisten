@@ -100,6 +100,17 @@ img {
 	border-radius: var(--radius-sm);
 }
 
+/* Standaardmaat voor losse foto's in lopende tekst (artikelen, Gemeenten,
+   introteksten van de Publicaties-categorieën) — ongeacht hoe breed de
+   tekstkolom is, blijft de foto een consistente, nette illustratiemaat.
+   .card/.scroll-card-afbeeldingen vallen hier bewust buiten: die hebben hun
+   eigen (al vaste) maatvoering. */
+.prose img {
+	display: block;
+	max-width: 30rem; /* ~480px */
+	margin: 0 auto 1.5rem;
+}
+
 .container {
 	width: 100%;
 	max-width: var(--content-width);
@@ -708,11 +719,6 @@ img {
 	}
 }
 
-.page-with-scripture__main img {
-	display: block;
-	margin: 0 auto 1.5rem;
-}
-
 .scripture-aside {
 	background: var(--color-surface);
 	border-radius: var(--radius);
@@ -754,7 +760,10 @@ img {
 
 .card-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+	/* Vaste bovengrens (20rem) i.p.v. 1fr: zo blijven kaarten consistent
+	   ~15-20rem breed, of er nu 1 of 8 in de rij staan, in plaats van uit
+	   te rekken om de hele rij te vullen bij weinig items. */
+	grid-template-columns: repeat(auto-fit, minmax(15rem, 20rem));
 	gap: 1.5rem;
 	list-style: none;
 	padding: 0;

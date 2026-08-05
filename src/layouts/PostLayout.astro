@@ -27,6 +27,8 @@ const categoryMeta = category ? publicationCategories.find((c) => c.slug === cat
 		</p>
 		<h1 class="page__title">{title}</h1>
 		<p class="post-meta">{formattedDate}</p>
-		<slot />
+		<div class="prose">
+			<slot />
+		</div>
 	</div>
 </BaseLayout>

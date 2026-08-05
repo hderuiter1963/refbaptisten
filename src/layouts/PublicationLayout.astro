@@ -18,6 +18,8 @@ const categoryMeta = publicationCategories.find((c) => c.slug === category);
 	<div class="container page">
 		{categoryMeta && <p><a href={categoryMeta.href}>&larr; {categoryMeta.title}</a></p>}
 		<h1 class="page__title">{title}</h1>
-		<slot />
+		<div class="prose">
+			<slot />
+		</div>
 	</div>
 </BaseLayout>

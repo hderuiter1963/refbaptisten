@@ -9,7 +9,7 @@ const documents = (await getCollection('documents')).sort(
 );
 ---
 
-<PageLayout title="Documenten" description="Downloadbare documenten en formulieren.">
+<PageLayout title="Documenten" description="Downloadbare documenten en formulieren." prose={false}>
 	{documents.length === 0 ? (
 		<p>Er zijn nog geen documenten toegevoegd.</p>
 	) : (

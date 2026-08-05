@@ -7,7 +7,7 @@ import { getCategoryItems } from '../lib/publications';
 const items = await getCategoryItems('doop');
 ---
 
-<PageLayout title="Artikelen m.b.t. de doop" description="Verdieping en theologische reflectie over de betekenis van de doop.">
+<PageLayout title="Artikelen m.b.t. de doop" description="Verdieping en theologische reflectie over de betekenis van de doop." prose={false}>
 	{items.length === 0 ? (
 		<p>Er zijn nog geen artikelen in deze categorie toegevoegd.</p>
 	) : (
