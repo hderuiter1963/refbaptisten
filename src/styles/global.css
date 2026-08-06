@@ -615,6 +615,12 @@ img {
 	display: flex;
 	flex-direction: column;
 	gap: 0.4rem;
+	/* flex-basis:0 + min-width:0 i.p.v. het standaard 'auto': anders gebruikt
+	   de browser de ongewrapte (max-content) breedte van de lange bio-tekst
+	   om te bepalen of dit blok nog naast de foto past, en springt het
+	   daardoor onterecht naar een nieuwe regel op elke normale schermbreedte. */
+	flex: 1 1 0%;
+	min-width: 0;
 }
 
 .author-bio__note {
