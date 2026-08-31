@@ -4,6 +4,10 @@ Statische opvolger van de voormalige WordPress-site refbaptisten.nl, gebouwd
 met [Astro](https://astro.build) en gehost op [Vercel](https://vercel.com)
 (domein `www.refbaptisten.nl`, DNS bij Hostnet — zie "Hosting" hieronder).
 
+Zie [BESLISSINGEN.md](./BESLISSINGEN.md) voor het waarom achter de
+belangrijkste keuzes (migratie, hosting, contactformulier, statistieken,
+CMS, enz.) en [REDIRECTS.md](./REDIRECTS.md) voor de oude-URL-redirects.
+
 ## Projectstructuur
 
 ```
