@@ -53,34 +53,34 @@ const maxMonth = Math.max(1, ...monthCounts.map((m) => m.count));
 				{weekCounts.length === 0 ? (
 					<p>Nog geen gegevens.</p>
 				) : (
-					<ul class="stat-list">
-						{weekCounts.map((w) => (
-							<li class="stat-row">
-								<span class="stat-row__label">{w.label}</span>
-								<span class="stat-row__bar-track">
-									<span class="stat-row__bar-fill" style={`width: ${(w.count / maxWeek) * 100}%`} />
-								</span>
-								<strong class="stat-row__count">{w.count}</strong>
-							</li>
+					<div class="stat-chart">
+						{weekCounts.slice().reverse().map((w) => (
+							<div class="stat-chart__col">
+								<div class="stat-chart__bararea">
+									<span class="stat-chart__value">{w.count}</span>
+									<span class="stat-chart__bar" style={`height: ${(w.count / maxWeek) * 100}%`} />
+								</div>
+								<span class="stat-chart__label">{w.label}</span>
+							</div>
 						))}
-					</ul>
+					</div>
 				)}
 
 				<h2>Per maand</h2>
 				{monthCounts.length === 0 ? (
 					<p>Nog geen gegevens.</p>
 				) : (
-					<ul class="stat-list">
-						{monthCounts.map((m) => (
-							<li class="stat-row">
-								<span class="stat-row__label">{m.label}</span>
-								<span class="stat-row__bar-track">
-									<span class="stat-row__bar-fill" style={`width: ${(m.count / maxMonth) * 100}%`} />
-								</span>
-								<strong class="stat-row__count">{m.count}</strong>
-							</li>
+					<div class="stat-chart">
+						{monthCounts.slice().reverse().map((m) => (
+							<div class="stat-chart__col">
+								<div class="stat-chart__bararea">
+									<span class="stat-chart__value">{m.count}</span>
+									<span class="stat-chart__bar" style={`height: ${(m.count / maxMonth) * 100}%`} />
+								</div>
+								<span class="stat-chart__label">{m.label}</span>
+							</div>
 						))}
-					</ul>
+					</div>
 				)}
 
 				<p class="stat-footnote">
