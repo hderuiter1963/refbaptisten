@@ -671,6 +671,10 @@ img {
 
 .page__title {
 	margin-top: 0;
+	/* Kleiner dan de standaard h1 (die is voor de grote homepage-hero bedoeld) —
+	   gewone paginatitels (Berichten, Publicaties, elk artikel, enz.) hoeven
+	   niet zo dominant te zijn. */
+	font-size: clamp(1.8rem, 1.5rem + 1.2vw, 2.5rem);
 }
 
 /* ---------- Contactformulier ---------- */
