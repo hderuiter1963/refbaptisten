@@ -10,7 +10,7 @@ Eerste contact met een "Reformed Baptist Church" waar we de samenkomsten bezocht
 
 ---
 
-### Nederlandse gemeenten (under construction)
+## Nederlandse gemeenten (under construction)
 
 (neem contact op wanneer uw gemeente hieronder vermeld wil worden)
 
@@ -20,7 +20,7 @@ Eerste contact met een "Reformed Baptist Church" waar we de samenkomsten bezocht
 
 Zelf ben ik sinds 2016 als predikant verbonden aan **Baptistengemeente Het Lichtpunt in Doetinchem**. De gemeente is aangesloten bij de Unie-ABC. Meer informatie is te vinden op: [www.baptistenhetlichtpunt.net](http://www.baptistenhetlichtpunt.net/)
 
-### In het nieuws
+## In het nieuws
 
 In april en mei 2025 verschenen er in het _Reformatorisch Dagblad_ verschillende artikelen onder het thema: **"Opmars van de Reformatorische Baptisten gemeenten."**
 
@@ -40,6 +40,6 @@ Deze artikelen bieden een uitgebreid inzicht in de recente ontwikkelingen en dis
 
 ---
 
-### Buitenlandse gemeenten
+## Buitenlandse gemeenten
 
 [reformedreader.org/rbchurches.htm](http://www.reformedreader.org/rbchurches.htm)

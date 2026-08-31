@@ -16,7 +16,7 @@ const documents = (await getCollection('documents')).sort(
 		<ul class="card-grid">
 			{documents.map((doc) => (
 				<li class="card">
-					<h3><a href={doc.data.file}>{doc.data.title}</a></h3>
+					<h2><a href={doc.data.file}>{doc.data.title}</a></h2>
 					{doc.data.description && <p>{doc.data.description}</p>}
 				</li>
 			))}

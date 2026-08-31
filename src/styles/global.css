@@ -873,8 +873,16 @@ img {
 	border-radius: var(--radius) var(--radius) 0 0;
 }
 
+/* .card h2: categoriepagina's (Publicaties/Documenten) gebruiken h2 voor
+   kaarttitels (rechtstreeks na de h1, geen kop ertussen). .card h3: de
+   homepage-featurecards staan al na 2 h2's, dus h3 is daar wél correct.
+   Beide krijgen bewust dezelfde visuele grootte. */
+.card h2,
 .card h3 {
 	margin-top: 0;
+	font-size: 1.2rem;
+	font-weight: 700;
+	letter-spacing: -0.01em;
 }
 
 /* ---------- Footer ---------- */

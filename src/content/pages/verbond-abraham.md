@@ -49,7 +49,7 @@ Als teken van dit verbond ontving Abraham het voorschrift van de besnijdenis aan
 - De belofte aan zijn natuurlijke nageslacht vindt (gedeeltelijke) vervulling in het oude verbond, gesloten met Israël onder leiding van Mozes.
 - De belofte aan zijn geestelijke nageslacht wordt volledig vervuld in het nieuwe verbond, gerealiseerd door Jezus Christus. (Daarbij moet worden opgemerkt dat sommige beloften aan het natuurlijke zaad van Abraham nog toekomstig zijn en nog niet ten volle in vervulling zijn gegaan.)
 
-##### Samenvattend
+## Samenvattend
 
 Onderwerp van het verbond: Natuurlijke én geestelijke afstammelingen van Abraham
 

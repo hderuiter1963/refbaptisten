@@ -14,7 +14,7 @@ In het Nieuwe Testament zien we veel voorbeelden van geloofsdoop, maar geen enke
 
 **Centrale vraag:** Is de kinderdoop direct af te leiden vanuit de Schrift (Exegese) of is de kinderdoop indirect af te leiden uit de Schrift en heeft de traditie er een theologie van gemaakt (Eisegese)? Deze vraag is van belang aangezien de voorstanders van de kinderdoop het "Sola Scriptura" hoog in het vaandel hebben staan.
 
-##### Dooppraktijk in het Nieuwe Testament
+## Dooppraktijk in het Nieuwe Testament
 
 **Voorbeelden**: De doopteksten in het Nieuwe Testament (Hand. 2:41; 8:12, 36-38; 9:18; 10:48; 16:14-15, 33; 18:8) noemen mensen die het evangelie horen en geloven. Er is geen expliciet voorbeeld van kinderdoop.
 
@@ -22,7 +22,7 @@ In het Nieuwe Testament zien we veel voorbeelden van geloofsdoop, maar geen enke
 
 **Huishoudteksten:** Voorstanders wijzen o.a. op Handelingen 16 en 1 Korintiërs 1:16 (huis van Stefanas). Maar de context van deze huishoudteksten benadrukt: "zij geloofden" (Hand. 16:34). Handelingen 18:8 zegt: "Velen die het Woord hoorden, geloofden en lieten zich dopen." Kennelijk was het geloof bepalend voor de doop. Er is ook geen bewijs dat er zuigelingen bij waren.
 
-##### Exegese van de teksten over de betekenis van de doop
+## Exegese van de teksten over de betekenis van de doop
 
 Wanneer we Bijbelteksten over de betekenis van de doop nauwkeurig onderzoeken, dan zijn er 3 teksten die hiervoor in aanmerking komen.
 
@@ -44,13 +44,13 @@ Petrus spreekt over redding door de ark van Noach als type (vers 20). Acht mense
 
 _Implicatie voor kinderdoop:_ De nadruk ligt op een innerlijke houding en geloofsantwoord. Een baby kan geen vraag van een goed geweten tot God doen. Dit maakt de tekst lastig als basis voor kinderdoop.
 
-##### Samenvattend
+## Samenvattend
 
 - Alle drie teksten over wat de doop betekent, verbinden doop aan geloof, innerlijke verandering en opstanding met Christus.
 - Geen van deze passages biedt directe grond voor doop zonder geloof.
 - Verbondstheologie moet worden toegevoegd om kinderdoop te rechtvaardigen, wat het meer systematische theologie dan zuivere exegese maakt.
 
-#### Systematische theologie achter de kinderdoop
+## Systematische theologie achter de kinderdoop
 
 Aangezien er geen Bijbelteksten zijn die een directe link leggen tussen doop en kind, is de kinderdoop het resultaat van een systematisch-theologische redenatie. De volgende zeven punten geven een overzicht van de theologische redenatie zoals deze gebruikt wordt binnen de reformatorische kerken om de kinderdoop te rechtvaardigen.
 
@@ -64,7 +64,7 @@ Aangezien er geen Bijbelteksten zijn die een directe link leggen tussen doop en 
 
 **Korte conclusie na de zeven punten**: De onderbouwing van de kinderdoop steunt vooral op theologische redenering en traditie. De teksten worden vaak gelezen vanuit een vooraf aangenomen verbondsschema. Dit leidt tot eisegese in plaats van exegese.
 
-#### Conclusie
+## Conclusie
 
 - Exegetische bevindingen: doop is verbonden aan geloof, bekering en discipelschap.
 - Systematische aannames: kinderdoop wordt afgeleid uit analogieën en traditie.

@@ -8,13 +8,13 @@ image: "/images/berichten/muziek-en-zang.jpg"
 
 ![Muziek in de eredienst](/images/berichten/muziek-en-zang.jpg)
 
-#### 1. Inleiding
+## 1. Inleiding
 
 Muziek neemt in het christelijk geloof een bijzondere plaats in. Door de hele Bijbel heen zien we dat muziek een door God gegeven gave is om Hem te loven, het Woord te verkondigen, het hart te vormen en de gemeente te bouwen. In onze gemeente willen wij muziek niet beschouwen als een neutraal middel of een kwestie van smaak, maar als een bediening die geijkt moet zijn aan Gods Woord. Daarom baseren wij onze visie geheel op de Schrift.
 
 ---
 
-#### 2. Fundament: Muziek als antwoord op Gods openbaring
+## 2. Fundament: Muziek als antwoord op Gods openbaring
 
 De Bijbel laat zien dat muziek in de eredienst een antwoord is op wie God is en wat Hij heeft gedaan. In Exodus 15 barst IsraÃ«l uit in lofzang na de verlossing uit Egypte. In Openbaring 5 zingt de hemel over het Lam dat geslacht is. In Kolossenzen 3:16 wordt de gemeente opgeroepen om "met psalmen, lofzangen en geestelijke liederen" te zingen, als gevolg van het wonen van het Woord van Christus in het hart.
 
@@ -24,7 +24,7 @@ Muziek is dus geen autonoom element, maar staat ten dienste van het Woord. Het i
 
 ---
 
-#### 3. Doel van muziek in de gemeente
+## 3. Doel van muziek in de gemeente
 
 De Bijbel geeft muziek in de gemeente drie hoofdrollen:
 
@@ -39,13 +39,13 @@ In Psalm 40:4 zegt David: "Hij legde een nieuw lied in mijn mond, een loflied vo
 
 ---
 
-#### 4. Inhoud boven vorm: het belang van tekst
+## 4. Inhoud boven vorm: het belang van tekst
 
 Wij geloven dat de inhoud van een lied primair is. Jezus leert in Johannes 4:23 dat de Vader ware aanbidders zoekt "die Hem aanbidden in geest en in waarheid." Een lied moet dus theologisch zuiver zijn, gebaseerd op het Woord van God en in overeenstemming met het evangelie van Christus. Vorm, stijl en muzikale voorkeur zijn van secundair belang en moeten getoetst worden aan het doel van opbouw, orde en eer aan God (1 Kor. 14:26,40).
 
 ---
 
-#### 5. De plaats van psalmen, gezangen en geestelijke liederen
+## 5. De plaats van psalmen, gezangen en geestelijke liederen
 
 De Schrift zelf spreekt over drie typen liederen (Kol. 3:16; Ef. 5:19):
 
@@ -56,7 +56,7 @@ In onze gemeente erkennen wij de blijvende waarde van de Psalmen, maar ook de ru
 
 ---
 
-#### 6. Wie zingt? De roeping van de hele gemeente
+## 6. Wie zingt? De roeping van de hele gemeente
 
 In zowel het Oude als het Nieuwe Testament is zingen niet voorbehouden aan een selecte groep, maar een opdracht aan het hele volk van God:
 
@@ -67,7 +67,7 @@ De gemeente is geen publiek, maar een koor. Muzikale begeleiding dient het zinge
 
 ---
 
-#### 7. Orde, toewijding en geestelijke leiding
+## 7. Orde, toewijding en geestelijke leiding
 
 Muziek in de gemeente vraagt om geestelijk volwassen leiderschap. 1 Kronieken 25 laat zien dat musici in de tempel werden aangesteld "om te profeteren met harpen, luiten en cimbalen". Muziek is geestelijke bediening. Daarom moet muzikale leiding gedragen worden door toegewijde gelovigen die wandelen in heiliging, een roeping ervaren en zich onderschikken aan de oudsten (vgl. 1 Tim. 3; Hebr. 13:17).
 
@@ -75,13 +75,13 @@ In alles geldt: "Laat alle dingen op gepaste wijze en in goede orde gebeuren." â
 
 ---
 
-#### 8. Eenheid in verscheidenheid
+## 8. Eenheid in verscheidenheid
 
 In de gemeente is ruimte voor diversiteit in muzikale vorm, zolang de inhoud Schriftuurlijk is en het geheel bijdraagt aan de eenheid van het lichaam. Liederen moeten niet gekozen worden om persoonlijke voorkeur, maar op basis van hun inhoud en hun vermogen om de hele gemeente te dienen. Liederen die verwarring zaaien, theologisch twijfelachtig zijn, of emoties stimuleren los van de waarheid, dienen vermeden te worden.
 
 ---
 
-#### 9. Praktische uitgangspunten
+## 9. Praktische uitgangspunten
 
 a. Liederen worden getoetst op Bijbelse inhoud, gerichtheid op Christus en opbouw van de gemeente.
 
@@ -110,7 +110,7 @@ Voorbeelden van liedtypen die wij kritisch beoordelen zijn:
 
 ---
 
-#### 10. Slotwoord
+## 10. Slotwoord
 
 Muziek is een gave van God, een antwoord van de gelovige op het werk van Christus, en een instrument tot eer van de Vader door de Geest. In onze gemeente willen wij deze gave niet achteloos gebruiken, maar met eerbied, dankbaarheid en toewijding inzetten tot opbouw van het lichaam van Christus en tot verheerlijking van onze drie-enige God.
 

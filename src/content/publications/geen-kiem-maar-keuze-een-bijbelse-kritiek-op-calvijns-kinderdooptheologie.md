@@ -8,7 +8,7 @@ image: "/images/publicaties/geen-kiem-maar-keuze.jpg"
 
 ![Tarwekiem](/images/publicaties/geen-kiem-maar-keuze.jpg)
 
-#### "Een Bijbelse kritiek op Calvijns kinderdooptheologie"
+## "Een Bijbelse kritiek op Calvijns kinderdooptheologie"
 
 **Drie samenvattende observaties:**
 

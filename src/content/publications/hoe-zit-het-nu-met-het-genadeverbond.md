@@ -8,7 +8,7 @@ image: "/images/publicaties/genadeverbond.jpg"
 
 ![Johannes Calvijn](/images/publicaties/genadeverbond.jpg)
 
-#### Wat bedoelt men met het _genadeverbond_?
+## Wat bedoelt men met het _genadeverbond_?
 
 Het **genadeverbond** (_foedus gratiae_) is een theologisch begrip dat met name binnen de gereformeerde traditie wordt gebruikt. Het beschrijft Gods verbond met de zondige mens, waarin Hij op basis van genade verlossing aanbiedt, met Christus als Middelaar.
 
@@ -21,31 +21,31 @@ Het genadeverbond wordt vaak tegenover het _werkverbond_ geplaatst:
 
 ---
 
-##### Wanneer verschijnt de term _genadeverbond_ in de kerkgeschiedenis?
+### Wanneer verschijnt de term _genadeverbond_ in de kerkgeschiedenis?
 
-###### Vroege kerk (1e-4e eeuw)
+#### Vroege kerk (1e-4e eeuw)
 
 - De term **genadeverbond** werd in de eerste eeuwen van de kerk **niet** gebruikt.
 - Kerkvaders als Augustinus spreken wel over de _verbonden_ van God, maar vooral in termen van _oud_ en _nieuw_, _wet_ en _evangelie_.
 - Augustinus legde nadruk op de innerlijke genade die noodzakelijk is om Gods wil te doen, maar had geen volledig uitgewerkte verbondstheologie zoals in latere tijden.
 
-###### Middeleeuwen
+#### Middeleeuwen
 
 - De middeleeuwse theologie was sterk gericht op sacramenten en verdienstelijkheid. De gedachte van een genadeverbond zoals in de Reformatie kwam hier nauwelijks voor.
 
-###### Reformatie (16e eeuw)
+#### Reformatie (16e eeuw)
 
 - **Johannes Calvijn** legde een duidelijke basis voor een verbondstheologie, maar gebruikte de term _genadeverbond_ zelden expliciet. Hij sprak vooral over het "verbond der genade" in de context van de eenheid van het verbond vóór en ná Christus.
 - Bij Calvijn ligt de nadruk op het _ene verbond_ dat van Abraham tot Christus loopt, een voortzetting van Gods genadige omgang met Zijn volk.
 
-###### Nadere Reformatie en gereformeerde orthodoxie (17e eeuw)
+#### Nadere Reformatie en gereformeerde orthodoxie (17e eeuw)
 
 - Hier ontstaat het begrip _genadeverbond_ als technische term.
 - **Johannes Coccejus (1603-1669)** is een sleutelpersoon. Hij ontwikkelde een _heilshistorische_ verbondstheologie en gebruikte de term _genadeverbond_ expliciet.
 - Coccejus zag de hele Bijbelse geschiedenis als één ontwikkeling van het genadeverbond, dat begon na de zondeval in Genesis 3:15.
 - In tegenstelling tot Coccejus benadrukten anderen, zoals **Herman Witsius**, een meer _systematische_ aanpak, met duidelijke onderscheidingen tussen het werkverbond en het genadeverbond.
 
-###### Westminster Confessie (1646)
+#### Westminster Confessie (1646)
 
 Hier wordt het genadeverbond formeel omschreven:
 
@@ -54,7 +54,7 @@ Hier wordt het genadeverbond formeel omschreven:
 
 ---
 
-##### Verbond en doop in dit kader
+### Verbond en doop in dit kader
 
 Binnen de gereformeerde traditie wordt gesteld:
 
@@ -63,7 +63,7 @@ Binnen de gereformeerde traditie wordt gesteld:
 - De **doop** komt in de plaats van de besnijdenis.
 - Daarom mogen kinderen van gelovige ouders ook gedoopt worden, net als de jongetjes in Genesis 17 besneden werden.
 
-##### Kritische overweging
+### Kritische overweging
 
 > Het Nieuwe Testament zelf noemt de doop echter nooit het teken van het genadeverbond. Dat is een theologische hermeneutiek, niet een expliciete Bijbelse uitspraak.
 
@@ -73,7 +73,7 @@ Binnen de gereformeerde traditie wordt gesteld:
 
 ---
 
-##### Wat kun je dus zeggen als men zegt: "De doop is toch het teken van het genadeverbond?"
+### Wat kun je dus zeggen als men zegt: "De doop is toch het teken van het genadeverbond?"
 
 Mogelijk antwoord:
 

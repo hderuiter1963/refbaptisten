@@ -12,43 +12,43 @@ De [**1689 Baptistische Geloofsbelijdenis**](https://www.refbapheuvelrug.nl/wp-c
 
 Hieronder de hoofdlijnen:
 
-##### 1. De Schrift
+## 1. De Schrift
 
 De Bijbel is het volmaakte, gezaghebbende Woord van God. Alles wat nodig is voor geloof en leven is daarin geopenbaard.
 
-##### 2. God
+## 2. God
 
 Er is één ware, eeuwige en almachtige God – Vader, Zoon en Heilige Geest – volmaakt in heiligheid, wijsheid en liefde.
 
-##### 3. De mens en de zonde
+## 3. De mens en de zonde
 
 De mens is geschapen naar Gods beeld, maar door de zondeval totaal verdorven geraakt en buiten staat om zichzelf te redden.
 
-##### 4. Verlossing door Christus
+## 4. Verlossing door Christus
 
 Alleen door het verzoenend werk van Jezus Christus, Gods Zoon, is er redding mogelijk. Hij stierf voor Zijn volk, droeg hun straf, en stond op uit de dood.
 
-##### 5. Genade en verkiezing
+## 5. Genade en verkiezing
 
 God verkiest uit genade mensen tot zaligheid – niet op grond van hun werken, maar naar Zijn welbehagen. Het geloof is een gave van God.
 
-##### 6. Bekering en geloof
+## 6. Bekering en geloof
 
 Door de werking van de Heilige Geest wordt de mens wedergeboren. Bekering en geloof zijn noodzakelijke vruchten van dat werk.
 
-##### 7. Doop en Avondmaal
+## 7. Doop en Avondmaal
 
 Alleen gelovigen worden gedoopt, door onderdompeling, als teken van hun geloof in Christus. Het Avondmaal is voor wedergeboren gelovigen die wandelen in gehoorzaamheid.
 
-##### 8. De gemeente
+## 8. De gemeente
 
 De gemeente bestaat uit gelovigen die samenkomen onder het gezag van Christus. Elke gemeente is zelfstandig, geleid door oudsten en diakenen.
 
-##### 9. Het leven als christen
+## 9. Het leven als christen
 
 Christenen worden opgeroepen tot een heilig leven, in afhankelijkheid van Gods genade, met liefde tot God en de naaste.
 
-##### 10. Toekomstverwachting\*
+## 10. Toekomstverwachting\*
 
 Op Gods tijd zal Christus wederkomen om te oordelen en om Zijn volk voor eeuwig bij Zich te nemen in heerlijkheid.
 
@@ -58,7 +58,7 @@ Deze belijdenis helpt ons om gezamenlijk te belijden wat de Bijbel leert, en om 
 
 ---
 
-#### Vergelijking van belijdenissen
+## Vergelijking van belijdenissen
 
 Hier is een compacte vergelijking van de **1689 (Second London Baptist Confession)**, de **1644 (First London Baptist Confession)** en de **Heidelbergse Catechismus (1563)** — gericht op de grootste, praktische en theologische verschillen.
 
