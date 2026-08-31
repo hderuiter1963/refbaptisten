@@ -39,8 +39,4 @@ export const vooruitblik: VooruitblikItem[] = [
 		title: 'Kerkelijke denominaties',
 		text: 'bezinning op kerkstructuren. Na de reformatie is het christelijk landschap uiteengevallen in duizenden kerkgenootschappen. Was dit nu de bedoeling? Moeten we naar vrije kerken of juist terug naar Rome?',
 	},
-	{
-		title: 'Bezinning op evolutie en creatie, oude aarde of jonge aarde',
-		text: 'Is een dag in Genesis 1 een dag van 24-uur? Maakt het uberhaupt wat uit voor ons geloof.',
-	},
 ];
