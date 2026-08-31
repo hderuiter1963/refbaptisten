@@ -3,6 +3,7 @@
 // Zet de PDF's zelf in public/docs/ (zie public/docs/README.md).
 import { getCollection } from 'astro:content';
 import PageLayout from '../layouts/PageLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
 
 const documents = (await getCollection('documents')).sort(
 	(a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0)
@@ -15,10 +16,7 @@ const documents = (await getCollection('documents')).sort(
 	) : (
 		<ul class="card-grid">
 			{documents.map((doc) => (
-				<li class="card">
-					<h2><a href={doc.data.file}>{doc.data.title}</a></h2>
-					{doc.data.description && <p>{doc.data.description}</p>}
-				</li>
+				<ArticleCard href={doc.data.file} title={doc.data.title} description={doc.data.description} linkLabel="Download" />
 			))}
 		</ul>
 	)}

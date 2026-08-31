@@ -100,6 +100,30 @@ img {
 	border-radius: var(--radius-sm);
 }
 
+/* Brede vergelijkingstabellen in artikelen (bv. de-doop-van-het-kind...)
+   duwden op mobiel de hele pagina breder dan het scherm. De tabel zelf
+   wordt nu een scrollcontainer i.p.v. de pagina. */
+.prose table {
+	display: block;
+	overflow-x: auto;
+	max-width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 1.5rem;
+}
+
+.prose th,
+.prose td {
+	border: 1px solid var(--color-border);
+	padding: 0.6rem 0.8rem;
+	text-align: left;
+	vertical-align: top;
+}
+
+.prose th {
+	background: var(--color-surface);
+	font-weight: 700;
+}
+
 /* Standaardmaat voor losse foto's in lopende tekst (artikelen, Gemeenten,
    introteksten van de Publicaties-categorieën) — ongeacht hoe breed de
    tekstkolom is, blijft de foto een consistente, nette illustratiemaat.
@@ -107,6 +131,11 @@ img {
    eigen (al vaste) maatvoering. */
 .prose img {
 	display: block;
+	/* width:100% + max-width:30rem samen: zo groot als de kolom toelaat, met
+	   480px als bovengrens. Zonder width:100% blijft max-width alleen een
+	   bovengrens (nooit breder dán), maar krimpt de afbeelding niet mee met
+	   een smallere mobiele kolom — dat gaf horizontale overflow. */
+	width: 100%;
 	max-width: 30rem; /* ~480px */
 	margin: 0 auto 1.5rem;
 }
@@ -435,7 +464,10 @@ img {
 
 @media (max-width: 780px) {
 	.home-columns {
-		grid-template-columns: 1fr;
+		/* Zelfde reden als hierboven: kale 1fr claimt ruimte op basis van de
+		   inhoud (bv. een lange berichttitel), wat op mobiel horizontaal
+		   overflow van de hele pagina veroorzaakte. */
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 
@@ -528,7 +560,7 @@ img {
 
 @media (max-width: 780px) {
 	.scroll-section-pair__grid {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 3rem;
 	}
 }
@@ -782,7 +814,7 @@ img {
 
 @media (max-width: 780px) {
 	.page-with-scripture {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 

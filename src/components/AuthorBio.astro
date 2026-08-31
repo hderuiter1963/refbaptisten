@@ -6,7 +6,7 @@ import { author } from '../data/author';
 	<div class="container">
 		<h2>Over de auteur</h2>
 		<div class="author-bio__row">
-			<img src={author.photo} alt={author.name} class="author-bio__photo" width="188" height="300" />
+			<img src={author.photo} alt={author.name} class="author-bio__photo" width="188" height="300" loading="lazy" />
 			<div class="author-bio__text">
 				{author.note && <p class="author-bio__note">{author.note}</p>}
 				<p><strong>{author.name}</strong>: {author.bio}</p>
