@@ -11,6 +11,12 @@ import { featureCards, vooruitblik } from '../data/home';
 const recentPosts = (await getCollection('posts'))
 	.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
 	.slice(0, 4);
+
+// "Nieuw"-stempel: alleen bij berichten die nog maar kort geleden zijn
+// geplaatst, zodat het vanzelf weer verdwijnt i.p.v. permanent aan het
+// bovenste bericht te blijven plakken.
+const NEW_BADGE_DAYS = 30;
+const isNew = (date: Date) => Date.now() - date.getTime() < NEW_BADGE_DAYS * 24 * 60 * 60 * 1000;
 ---
 
 <BaseLayout title="Home" description="Reformatorische Baptisten — geworteld in de Bijbel, gevormd door de reformatie." showSolasBar={false}>
@@ -39,6 +45,7 @@ const recentPosts = (await getCollection('posts'))
 					{recentPosts.map((post) => (
 						<li>
 							<a href={`/${post.id}/`} title={post.data.title}>{post.data.title}</a>
+							{isNew(post.data.date) && <span class="badge-new">Nieuw</span>}
 							<time datetime={post.data.date.toISOString()}>
 								{post.data.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}
 							</time>

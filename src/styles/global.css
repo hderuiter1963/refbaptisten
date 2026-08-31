@@ -521,6 +521,22 @@ img {
 	flex-shrink: 0;
 }
 
+/* "Nieuw"-stempel: klein, schuin geplaatst label bij recent geplaatste
+   berichten (zie NEW_BADGE_DAYS in index.astro) — verdwijnt vanzelf weer. */
+.badge-new {
+	flex-shrink: 0;
+	display: inline-block;
+	background: var(--color-accent);
+	color: #fff;
+	font-size: 0.65rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	padding: 0.15rem 0.5rem;
+	border-radius: 4px;
+	transform: rotate(-8deg);
+}
+
 .vooruitblik-list li {
 	margin-bottom: 1.1em;
 }
