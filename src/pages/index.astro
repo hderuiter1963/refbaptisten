@@ -5,6 +5,7 @@ import AuthorBio from '../components/AuthorBio.astro';
 import { getCollection } from 'astro:content';
 import { geschiedenis, wieBepaalt } from '../data/homeSections';
 import { featureCards, vooruitblik } from '../data/home';
+import { getWorldNews } from '../lib/news';
 
 // "Recente berichten" komt nu rechtstreeks uit de content collection
 // (voorheen via een aparte WordPress-subapplicatie/widget geregeld).
@@ -17,6 +18,12 @@ const recentPosts = (await getCollection('posts'))
 // bovenste bericht te blijven plakken.
 const NEW_BADGE_DAYS = 30;
 const isNew = (date: Date) => Date.now() - date.getTime() < NEW_BADGE_DAYS * 24 * 60 * 60 * 1000;
+
+// Reformed Baptists wereldwijd: externe RSS-feeds, opgehaald tijdens de
+// build (zie src/lib/news.ts). Als alle bronnen falen, blijft dit gewoon
+// leeg en tonen we de sectie niet — geen kapotte homepage door een
+// onbereikbare externe site.
+const worldNews = await getWorldNews(3);
 ---
 
 <BaseLayout title="Home" description="Reformatorische Baptisten — geworteld in de Bijbel, gevormd door de reformatie." showSolasBar={false}>
@@ -68,6 +75,33 @@ const isNew = (date: Date) => Date.now() - date.getTime() < NEW_BADGE_DAYS * 24 
 			))}
 		</ul>
 	</div>
+
+	{worldNews.length > 0 && (
+		<section class="world-news">
+			<div class="container">
+				<h2>Reformed Baptists wereldwijd</h2>
+				<p class="world-news__intro">
+					Nieuws en artikelen van reformed-baptistische stemmen elders in de wereld.
+				</p>
+				<ul class="world-news__list">
+					{worldNews.map((item) => (
+						<li class="world-news__item">
+							<span class="world-news__source">{item.sourceName}</span>
+							<a href={item.link} target="_blank" rel="noopener noreferrer" class="world-news__title">
+								{item.title}
+							</a>
+							{item.snippet && <p class="world-news__snippet">{item.snippet}</p>}
+							{item.date && (
+								<time class="world-news__date" datetime={item.date.toISOString()}>
+									{item.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}
+								</time>
+							)}
+						</li>
+					))}
+				</ul>
+			</div>
+		</section>
+	)}
 
 	<section class="scroll-section-pair">
 		<div class="container scroll-section-pair__grid">

@@ -617,6 +617,87 @@ img {
 /* ---------- Scrollbare secties (Geschiedenis, Wie bepaalt, ...) ---------- */
 /* Twee (of meer) ScrollSection-kolommen naast elkaar in één band. */
 
+/* ---------- Homepage: "Reformed Baptists wereldwijd" (externe RSS) ---------- */
+
+.world-news {
+	padding-block: 2.5rem;
+	background: var(--color-bg-alt);
+}
+
+.world-news__intro {
+	color: var(--color-muted);
+	margin-top: 0;
+	max-width: 40rem;
+}
+
+.world-news__list {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 1.25rem;
+	list-style: none;
+	padding: 0;
+	margin: 1.5rem 0 0;
+}
+
+@media (max-width: 900px) {
+	.world-news__list {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.world-news__item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+	background: var(--color-bg);
+	box-shadow: var(--shadow);
+	padding: 1.25rem;
+}
+
+.world-news__source {
+	align-self: flex-start;
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--color-primary);
+	background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+	border-radius: 999px;
+	padding: 0.2rem 0.6rem;
+}
+
+.world-news__title {
+	font-weight: 700;
+	color: var(--color-text);
+	text-decoration: none;
+	line-height: 1.35;
+}
+
+.world-news__title:hover {
+	color: var(--color-accent);
+}
+
+/* Klein pijltje om aan te geven dat de link naar een externe site opent
+   (target="_blank"), zonder een los icon-lettertype nodig te hebben. */
+.world-news__title::after {
+	content: ' \2197';
+	font-weight: 400;
+}
+
+.world-news__snippet {
+	color: var(--color-muted);
+	font-size: 0.9rem;
+	margin: 0;
+	flex-grow: 1;
+}
+
+.world-news__date {
+	color: var(--color-muted);
+	font-size: 0.8rem;
+}
+
 .scroll-section-pair {
 	padding-block: 2.5rem;
 	background: var(--color-bg-alt);
