@@ -630,22 +630,22 @@ img {
 	max-width: 40rem;
 }
 
+/* Flexbox i.p.v. grid, zelfde reden als .card-grid hierboven: bij 5 bronnen
+   (oneven t.o.v. 3 kolommen) blijft een grid een "weeskaart" op de laatste
+   rij links laten hangen i.p.v. centreren. */
 .world-news__list {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
 	gap: 1.25rem;
 	list-style: none;
 	padding: 0;
 	margin: 1.5rem 0 0;
 }
 
-@media (max-width: 900px) {
-	.world-news__list {
-		grid-template-columns: minmax(0, 1fr);
-	}
-}
-
 .world-news__item {
+	flex: 0 1 18rem;
+	min-width: 15rem;
 	display: flex;
 	flex-direction: column;
 	gap: 0.4rem;

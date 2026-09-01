@@ -52,7 +52,10 @@ async function fetchSource(source: NewsSource): Promise<WorldNewsItem[]> {
 	}
 }
 
-export async function getWorldNews(limit = 3): Promise<WorldNewsItem[]> {
+// Standaard: precies 1 item per bron (zie newsSources.ts) — zo hoeft dit
+// getal niet handmatig bijgewerkt te worden als er een bron bij komt of
+// afgaat, en blijft de verdeling over bronnen altijd eerlijk.
+export async function getWorldNews(limit = newsSources.length): Promise<WorldNewsItem[]> {
 	const perSource = await Promise.all(newsSources.map(fetchSource));
 	const sortByDateDesc = (items: WorldNewsItem[]) =>
 		[...items].sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0));

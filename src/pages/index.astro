@@ -23,7 +23,7 @@ const isNew = (date: Date) => Date.now() - date.getTime() < NEW_BADGE_DAYS * 24 
 // build (zie src/lib/news.ts). Als alle bronnen falen, blijft dit gewoon
 // leeg en tonen we de sectie niet — geen kapotte homepage door een
 // onbereikbare externe site.
-const worldNews = await getWorldNews(3);
+const worldNews = await getWorldNews();
 ---
 
 <BaseLayout title="Home" description="Reformatorische Baptisten — geworteld in de Bijbel, gevormd door de reformatie." showSolasBar={false}>

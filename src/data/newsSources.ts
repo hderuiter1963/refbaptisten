@@ -28,4 +28,17 @@ export const newsSources: NewsSource[] = [
 		feedUrl: 'https://jrieck.blogspot.com/feeds/posts/default?alt=rss',
 		homepage: 'https://jrieck.blogspot.com/',
 	},
+	{
+		name: '9Marks',
+		feedUrl: 'https://9marks.org/feed/',
+		homepage: 'https://9marks.org/',
+	},
+	{
+		// Sola 5: netwerk van (o.a. reformed baptist) gemeenten in Zuidelijk
+		// Afrika — Zuid-Afrika, Malawi e.o. Erg actief, dus een goede
+		// aanvulling naast de rustigere Namibische stem hierboven.
+		name: 'Sola 5 (Zuidelijk Afrika)',
+		feedUrl: 'https://sola5.org/feed/',
+		homepage: 'https://sola5.org/',
+	},
 ];
