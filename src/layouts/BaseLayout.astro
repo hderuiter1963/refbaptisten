@@ -52,7 +52,10 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 		<Header>
 			{showSolasBar && <SolasBar />}
 		</Header>
-		<main>
+		<!-- data-pagefind-body: bakent voor Pagefind (zie /zoeken/) af welk deel
+		     van de pagina doorzoekbaar is, zodat header/nav/footer-tekst niet
+		     als "match" in elk zoekresultaat meekomt. -->
+		<main data-pagefind-body>
 			<slot />
 		</main>
 		<Footer />

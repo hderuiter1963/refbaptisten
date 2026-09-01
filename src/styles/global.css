@@ -26,6 +26,16 @@
 	--radius-sm: 8px;
 	--shadow: 0 1px 2px rgba(20, 21, 26, 0.04), 0 8px 24px rgba(20, 21, 26, 0.06);
 	--shadow-hover: 0 4px 12px rgba(20, 21, 26, 0.08), 0 16px 32px rgba(20, 21, 26, 0.1);
+
+	/* Pagefind-ui (zoekpagina, zie /zoeken/): eigen variabelen die het
+	   widget zelf leest, hier gekoppeld aan de bestaande kleuren zodat het
+	   meebeweegt met licht/donker i.p.v. Pagefind's eigen standaardkleuren. */
+	--pagefind-ui-primary: var(--color-primary);
+	--pagefind-ui-text: var(--color-text);
+	--pagefind-ui-background: var(--color-bg);
+	--pagefind-ui-border: var(--color-border);
+	--pagefind-ui-border-radius: var(--radius-sm);
+	--pagefind-ui-font: var(--font-sans);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -182,6 +192,19 @@ img {
 	display: flex;
 	align-items: center;
 	gap: 1.5rem;
+}
+
+.site-header__search {
+	font-size: 1.2rem;
+	line-height: 1;
+	text-decoration: none;
+	/* Iets groter klikvlak dan de tekstgrootte doet vermoeden. */
+	padding: 0.3rem;
+	border-radius: 999px;
+}
+
+.site-header__search:hover {
+	background: var(--color-bg-alt);
 }
 
 /* Subtiele knipoog naar de oorspronkelijke hero-beelden, nu als kleine
@@ -879,6 +902,16 @@ img {
 	   gewone paginatitels (Berichten, Publicaties, elk artikel, enz.) hoeven
 	   niet zo dominant te zijn. */
 	font-size: clamp(1.8rem, 1.5rem + 1.2vw, 2.5rem);
+}
+
+/* ---------- Zoekpagina (/zoeken/, Pagefind) ---------- */
+
+#search {
+	max-width: 40rem;
+}
+
+.search-unavailable {
+	color: var(--color-muted);
 }
 
 /* ---------- Contactformulier ---------- */

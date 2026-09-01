@@ -1,0 +1,30 @@
+---
+// Zoekpagina, aangedreven door Pagefind (https://pagefind.app/): een
+// kant-en-klare, volledig client-side zoekmachine die na elke build over de
+// gegenereerde HTML-pagina's draait (zie "postbuild" in package.json) en
+// geen eigen server/database nodig heeft — past bij de rest van de site,
+// die ook zoveel mogelijk statisch blijft.
+//
+// Let op: /pagefind/pagefind-ui.js bestaat pas ná een build (npm run
+// build), dus in `astro dev` werkt deze pagina niet — zie de foutmelding
+// hieronder die dan verschijnt i.p.v. een kapotte pagina.
+import PageLayout from '../layouts/PageLayout.astro';
+---
+
+<PageLayout title="Zoeken" description="Doorzoek alle berichten, publicaties en pagina's op deze site." prose={false}>
+	<div id="search"></div>
+	<p id="search-unavailable" class="search-unavailable" hidden>
+		Zoeken is momenteel niet beschikbaar. Probeer het later opnieuw.
+	</p>
+</PageLayout>
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+<script is:inline src="/pagefind/pagefind-ui.js"></script>
+<script is:inline>
+	if (typeof PagefindUI !== 'undefined') {
+		new PagefindUI({ element: '#search', showSubResults: true, showImages: false });
+	} else {
+		const fallback = document.getElementById('search-unavailable');
+		if (fallback) fallback.hidden = false;
+	}
+</script>

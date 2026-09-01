@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "postbuild": "pagefind --site dist/client",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -20,6 +21,7 @@
     "rss-parser": "^3.13.0"
   },
   "devDependencies": {
-    "@types/nodemailer": "^8.0.1"
+    "@types/nodemailer": "^8.0.1",
+    "pagefind": "^1.5.2"
   }
 }
