@@ -388,9 +388,24 @@ img {
 .hero-modern {
 	background: radial-gradient(circle at 15% -10%, #4a5aad 0%, transparent 55%),
 		linear-gradient(160deg, var(--color-primary-dark) 0%, var(--color-primary) 65%, #4b3a7a 100%);
+	background-size: 180% 180%;
 	color: #fff;
 	padding-block: clamp(2.25rem, 4vw, 4rem);
 	text-align: center;
+	animation: hero-modern-drift 24s ease-in-out infinite alternate;
+}
+
+/* Heel langzaam wat verschuiven in plaats van vast — subtiel, geen "gimmick".
+   prefers-reduced-motion hieronder zet 'm helemaal uit. */
+@keyframes hero-modern-drift {
+	0% { background-position: 0% 0%, 0% 0%; }
+	100% { background-position: 25% 15%, 100% 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-modern {
+		animation: none;
+	}
 }
 
 .hero-modern__eyebrow {
@@ -446,6 +461,36 @@ img {
 
 .solas-bar .solas {
 	margin-top: 0;
+}
+
+/* ---------- Homepage: citaat van de week ---------- */
+
+.verse-of-week {
+	background: color-mix(in srgb, var(--color-primary) 6%, var(--color-bg));
+	border-bottom: 1px solid var(--color-border);
+	padding-block: 1.75rem;
+	text-align: center;
+}
+
+.verse-of-week__quote {
+	max-width: 42rem;
+	margin: 0 auto;
+}
+
+.verse-of-week__quote p {
+	font-size: 1.15rem;
+	font-style: italic;
+	line-height: 1.5;
+	color: var(--color-text);
+	margin: 0 0 0.5rem;
+}
+
+.verse-of-week__quote cite {
+	display: block;
+	font-style: normal;
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: var(--color-muted);
 }
 
 /* ---------- Homepage: recente berichten / vooruitblik ---------- */

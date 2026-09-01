@@ -6,6 +6,7 @@ import { getCollection } from 'astro:content';
 import { geschiedenis, wieBepaalt } from '../data/homeSections';
 import { featureCards, vooruitblik } from '../data/home';
 import { getWorldNews } from '../lib/news';
+import { getQuoteOfTheWeek } from '../lib/weeklyQuote';
 
 // "Recente berichten" komt nu rechtstreeks uit de content collection
 // (voorheen via een aparte WordPress-subapplicatie/widget geregeld).
@@ -24,6 +25,8 @@ const isNew = (date: Date) => Date.now() - date.getTime() < NEW_BADGE_DAYS * 24 
 // leeg en tonen we de sectie niet — geen kapotte homepage door een
 // onbereikbare externe site.
 const worldNews = await getWorldNews();
+
+const quoteOfTheWeek = getQuoteOfTheWeek();
 ---
 
 <BaseLayout title="Home" description="Reformatorische Baptisten — geworteld in de Bijbel, gevormd door de reformatie." showSolasBar={false}>
@@ -41,6 +44,15 @@ const worldNews = await getWorldNews();
 				<li>Sola Christus</li>
 				<li>Soli Deo Gloria</li>
 			</ul>
+		</div>
+	</section>
+
+	<section class="verse-of-week">
+		<div class="container">
+			<blockquote class="verse-of-week__quote">
+				<p>&ldquo;{quoteOfTheWeek.text}&rdquo;</p>
+				<cite>&mdash; {quoteOfTheWeek.ref}</cite>
+			</blockquote>
 		</div>
 	</section>
 
