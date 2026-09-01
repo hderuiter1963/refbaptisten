@@ -74,5 +74,8 @@ export async function getWorldNews(limit = newsSources.length): Promise<WorldNew
 		}
 		round += 1;
 	}
-	return picked;
+	// De ronde-tegen-ronde selectie hierboven bepaalt alleen wélke items
+	// meedoen (eerlijk verdeeld over bronnen); voor het tonen sorteren we
+	// die selectie alsnog op datum, nieuwste eerst.
+	return sortByDateDesc(picked);
 }
