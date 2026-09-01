@@ -712,8 +712,11 @@ img {
 }
 
 .world-news__item {
-	flex: 0 1 18rem;
-	min-width: 15rem;
+	/* Basis afgestemd op precies 4 tegels naast elkaar op de volle
+	   containerbreedte (zie WORLD_NEWS_DISPLAY_COUNT in index.astro) —
+	   krapper dan bv. .card-grid, dat met minder/bredere tegels werkt. */
+	flex: 0 1 16rem;
+	min-width: 14rem;
 	display: flex;
 	flex-direction: column;
 	gap: 0.4rem;

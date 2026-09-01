@@ -24,7 +24,13 @@ const isNew = (date: Date) => Date.now() - date.getTime() < NEW_BADGE_DAYS * 24 
 // build (zie src/lib/news.ts). Als alle bronnen falen, blijft dit gewoon
 // leeg en tonen we de sectie niet — geen kapotte homepage door een
 // onbereikbare externe site.
-const worldNews = await getWorldNews();
+//
+// getWorldNews() raadpleegt en verdeelt nog steeds eerlijk over alle 5
+// bronnen (zie news.ts) — hier tonen we alleen de 4 nieuwste van die
+// selectie, zodat de tegels altijd netjes op één rij naast elkaar staan
+// i.p.v. een rij van 3 met daaronder een half-lege rij van 2.
+const WORLD_NEWS_DISPLAY_COUNT = 4;
+const worldNews = (await getWorldNews()).slice(0, WORLD_NEWS_DISPLAY_COUNT);
 
 const quoteOfTheWeek = getQuoteOfTheWeek();
 ---
