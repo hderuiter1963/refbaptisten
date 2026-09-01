@@ -688,8 +688,16 @@ img {
 /* ---------- Homepage: "Reformed Baptists wereldwijd" (externe RSS) ---------- */
 
 .world-news {
-	padding-block: 2.5rem;
+	/* Zelfde padding als .page, voor een consistente sectie-afstand over de
+	   hele homepage. */
+	padding-block: 2rem;
 	background: var(--color-bg-alt);
+}
+
+/* Zonder deze reset komt de standaard kop-marge nog eens bovenop de
+   padding hierboven (zelfde reden als .page > h2:first-child elders). */
+.world-news h2 {
+	margin-top: 0;
 }
 
 .world-news__intro {
