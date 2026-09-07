@@ -6,6 +6,9 @@ export const geschiedenis: ScrollItem[] = [
 	{
 		image: '/images/home/geschiedenis-spurgeon.jpg',
 		alt: 'Portret van Charles Spurgeon, prince of preachers',
+		// Vierkante afbeelding, kaart croppt naar 16:9: zonder dit werd de
+		// bovenkant van het hoofd afgesneden door de standaard centrering.
+		imagePosition: 'top',
 		title: 'Geschiedenis',
 		text: `De wortels gaan terug tot de <strong>17e eeuw</strong>, toen gelovigen in Engeland op basis van Gods Woord gemeenten vormden die zowel vasthielden aan de <strong>reformatorische geloofsleer</strong> als aan de <strong>doop op geloof</strong>. Deze zogeheten <strong>Particular Baptists</strong> legden hun geloof vast in&hellip;`,
 		href: '/historische-achtergrond/',

@@ -16,6 +16,11 @@ export interface ScrollItem {
 	text: string;
 	href: string;
 	linkLabel?: string;
+	// Optioneel: CSS object-position voor de foto (bv. 'top'). Nodig zodra een
+	// foto niet toevallig al 16:9 is — de kaart croppt altijd naar 16:9 (zie
+	// .scroll-card img in global.css), en de standaard centrering snijdt dan
+	// zomaar het belangrijkste deel van de foto weg (bv. iemands hoofd).
+	imagePosition?: string;
 }
 
 interface Props {
@@ -29,7 +34,12 @@ const { items } = Astro.props;
 	<div class="scroll-section__track">
 		{items.map((item) => (
 			<article class="scroll-card">
-				<img src={item.image} alt={item.alt} loading="lazy" />
+				<img
+					src={item.image}
+					alt={item.alt}
+					loading="lazy"
+					style={item.imagePosition ? `object-position: ${item.imagePosition}` : undefined}
+				/>
 				<h3>{item.title}</h3>
 				<p>
 					<Fragment set:html={item.text} />
