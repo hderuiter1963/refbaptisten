@@ -3,6 +3,14 @@
 // ook ververst in stille periodes waarin er verder niets aan de site
 // verandert. Wordt wekelijks aangeroepen door de cron job in vercel.json.
 //
+// LET OP: het cron-pad in vercel.json moet exact "/api/refresh-news/" zijn
+// (mét trailing slash). Deze site gebruikt trailingSlash:'always' (zie
+// astro.config.mjs), dus zonder slash geeft deze route een 308-redirect.
+// Vercel cron jobs volgen geen redirects — die tellen als afgeronde,
+// "geslaagde" aanroep zonder ooit de code hieronder uit te voeren. Precies
+// dat liet de wekelijkse verversing stilletjes falen (geen logs, geen
+// error, gewoon nooit een nieuwe deploy).
+//
 // Vereiste environment variables (instellen in Vercel: Settings →
 // Environment Variables, NIET in dit bestand of in git):
 //   DEPLOY_HOOK_URL  de Vercel Deploy Hook-URL die een build van `main`

@@ -25,12 +25,12 @@ const isNew = (date: Date) => Date.now() - date.getTime() < NEW_BADGE_DAYS * 24 
 // leeg en tonen we de sectie niet — geen kapotte homepage door een
 // onbereikbare externe site.
 //
-// getWorldNews() raadpleegt en verdeelt nog steeds eerlijk over alle 5
-// bronnen (zie news.ts) — hier tonen we alleen de 4 nieuwste van die
-// selectie, zodat de tegels altijd netjes op één rij naast elkaar staan
-// i.p.v. een rij van 3 met daaronder een half-lege rij van 2.
+// getWorldNews(N) haalt alle bronnen op (zie news.ts) en geeft gewoon de
+// N nieuwste artikelen terug, ongeacht van welke bron — 4 stuks, zodat de
+// tegels altijd netjes op één rij naast elkaar staan i.p.v. een rij van 3
+// met daaronder een half-lege rij van 2.
 const WORLD_NEWS_DISPLAY_COUNT = 4;
-const worldNews = (await getWorldNews()).slice(0, WORLD_NEWS_DISPLAY_COUNT);
+const worldNews = await getWorldNews(WORLD_NEWS_DISPLAY_COUNT);
 
 const quoteOfTheWeek = getQuoteOfTheWeek();
 ---

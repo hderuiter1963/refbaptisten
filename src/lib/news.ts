@@ -52,30 +52,17 @@ async function fetchSource(source: NewsSource): Promise<WorldNewsItem[]> {
 	}
 }
 
-// Standaard: precies 1 item per bron (zie newsSources.ts) — zo hoeft dit
-// getal niet handmatig bijgewerkt te worden als er een bron bij komt of
-// afgaat, en blijft de verdeling over bronnen altijd eerlijk.
-export async function getWorldNews(limit = newsSources.length): Promise<WorldNewsItem[]> {
+// Simpelweg de N meest recente items over alle bronnen samen, nieuwste
+// eerst — ongeacht welke bron dat is. Een bron met al even niets nieuws
+// (bv. Reformed Baptist Blog) valt dus vanzelf weg zodra andere bronnen
+// recentere artikelen hebben, en komt vanzelf terug zodra die bron weer
+// wat nieuws post. (Eerder verdeelden we bewust eerlijk over bronnen,
+// maar dat hield ook oudere artikelen zichtbaar terwijl er elders al
+// nieuwere waren — dat was niet de bedoeling.)
+export async function getWorldNews(limit: number): Promise<WorldNewsItem[]> {
 	const perSource = await Promise.all(newsSources.map(fetchSource));
-	const sortByDateDesc = (items: WorldNewsItem[]) =>
-		[...items].sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0));
-
-	// Ronde-tegen-ronde i.p.v. gewoon de N meest recente van alle bronnen
-	// samen: anders domineert de meest actieve bron (bv. een netwerk dat
-	// wekelijks post) het hele blokje en verdwijnt de bewust toegevoegde
-	// variatie (bv. de stem uit Namibië) uit beeld.
-	const queues = perSource.map(sortByDateDesc);
-	const picked: WorldNewsItem[] = [];
-	let round = 0;
-	while (picked.length < limit && queues.some((q) => q.length > round)) {
-		for (const queue of queues) {
-			if (picked.length >= limit) break;
-			if (queue[round]) picked.push(queue[round]);
-		}
-		round += 1;
-	}
-	// De ronde-tegen-ronde selectie hierboven bepaalt alleen wélke items
-	// meedoen (eerlijk verdeeld over bronnen); voor het tonen sorteren we
-	// die selectie alsnog op datum, nieuwste eerst.
-	return sortByDateDesc(picked);
+	return perSource
+		.flat()
+		.sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0))
+		.slice(0, limit);
 }
