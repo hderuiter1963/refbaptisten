@@ -37,7 +37,7 @@ export interface VooruitblikItem {
 export const vooruitblik: VooruitblikItem[] = [
 	{
 		title: 'Verbondslijn en verbondskind',
-		text: 'we volgen de lijn van Genesis 17 via Sinaï en Jeremia 31 naar Christus en het nieuwe verbond, met bijzondere aandacht voor natuurlijk nageslacht en geestelijk/relationeel kindschap. Daarna leggen we deze Bijbelse lijn naast Calvijns verbondstheologie en verbondskind.',
+		text: 'we volgen de lijn van Genesis 17 via Sinaï en Jeremia 31 naar Christus en het nieuwe verbond, met bijzondere aandacht voor natuurlijk nageslacht en geestelijk/relationeel kindschap. Daarna leggen we deze Bijbelse lijn naast Calvijns verbondstheologie.',
 	},
 	{
 		title: 'Kerkelijke denominaties',
