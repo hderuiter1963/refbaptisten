@@ -36,6 +36,10 @@ export interface VooruitblikItem {
 
 export const vooruitblik: VooruitblikItem[] = [
 	{
+		title: 'Verbondslijn en kinderdoop',
+		text: 'we volgen de lijn van Genesis 17 via Sinaï en Jeremia 31 naar Christus en het nieuwe verbond, met bijzondere aandacht voor natuurlijk nageslacht en geestelijk/relationeel kindschap. Daarna leggen we deze Bijbelse lijn naast Calvijns verbondstheologie en kinderdoop.',
+	},
+	{
 		title: 'Kerkelijke denominaties',
 		text: 'bezinning op kerkstructuren. Na de reformatie is het christelijk landschap uiteengevallen in duizenden kerkgenootschappen. Was dit nu de bedoeling? Moeten we naar vrije kerken of juist terug naar Rome?',
 	},
