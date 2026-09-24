@@ -1,7 +1,8 @@
 // Serverless functie die de site opnieuw laat bouwen, zodat het
 // "Reformed Baptists wereldwijd"-blok op de homepage (zie src/lib/news.ts)
 // ook ververst in stille periodes waarin er verder niets aan de site
-// verandert. Wordt wekelijks aangeroepen door de cron job in vercel.json.
+// verandert. Wordt 2x per week (zo, wo 03:00 UTC) aangeroepen door de
+// cron job in vercel.json.
 //
 // LET OP: het cron-pad in vercel.json moet exact "/api/refresh-news/" zijn
 // (mét trailing slash). Deze site gebruikt trailingSlash:'always' (zie
