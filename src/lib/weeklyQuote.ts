@@ -1,7 +1,8 @@
 // Bepaalt welk citaat uit weeklyQuotes.ts deze week getoond wordt. Puur een
 // functie van de datum (ISO-weeknummer + jaar) — geen state, geen opslag
-// nodig, en dankzij de wekelijkse rebuild (zie vercel.json) verandert het
-// vanzelf elke week, ook zonder dat er verder iets aan de site verandert.
+// nodig. Wordt op elke build opnieuw bepaald; dankzij de cron-rebuilds
+// (zie vercel.json, momenteel 2x per week) verschijnt een nieuwe week dus
+// ook vanzelf op de site, zonder dat er verder iets aan de site verandert.
 import { weeklyQuotes, type WeeklyQuote } from '../data/weeklyQuotes';
 
 function getIsoWeek(date: Date): number {

@@ -6,7 +6,8 @@ met [Astro](https://astro.build) en gehost op [Vercel](https://vercel.com)
 
 Zie [BESLISSINGEN.md](./BESLISSINGEN.md) voor het waarom achter de
 belangrijkste keuzes (migratie, hosting, contactformulier, statistieken,
-CMS, enz.) en [REDIRECTS.md](./REDIRECTS.md) voor de oude-URL-redirects.
+CMS, wereldnieuws-cron, zoekfunctie, enz.) en [REDIRECTS.md](./REDIRECTS.md)
+voor de oude-URL-redirects.
 
 ## Projectstructuur
 
@@ -29,6 +30,11 @@ src/
     navigation.ts           ← hoofdmenu (incl. dropdowns) & footer-links, siteMeta
     publicationCategories.ts ← de 4 Publicaties-subcategorieën
     home.ts / homeSections.ts / author.ts ← homepage-content (feature cards, scroll-secties, auteursbio)
+    newsSources.ts           ← RSS-bronnen voor "Reformed Baptists wereldwijd"
+    weeklyQuotes.ts          ← citaten-pool voor het wisselende weekcitaat
+  lib/
+    news.ts                  ← haalt/selecteert wereldnieuws-RSS op (build-time), zie "Wereldnieuws" hieronder
+    weeklyQuote.ts            ← bepaalt het citaat van de week o.b.v. ISO-weeknummer
   layouts/
     BaseLayout.astro        ← <html>, head (incl. OG/Twitter-tags, favicon), header/footer
     PageLayout.astro        ← titel + container voor gewone content-pagina's
@@ -41,6 +47,7 @@ src/
     systematisch-theologische-onderwerpen.astro, historische-achtergrond.astro
                                ← categorie-overzichten met eigen listing-logica
     contact.astro, api/contact.ts ← contactformulier (zie "Contactformulier" hieronder)
+    api/refresh-news.ts       ← cron-endpoint dat een rebuild triggert, zie "Wereldnieuws" hieronder
     statistiek.astro          ← verborgen paginaweergave-teller, zie "Statistiek" hieronder
     404.astro                 ← aangepaste foutpagina
     776-2.astro, 845-2.astro, missie-en-visie.astro, ...
@@ -48,6 +55,9 @@ src/
   middleware.ts              ← telt paginaweergaves voor /statistiek/ (geen redirects, zie REDIRECTS.md)
   styles/
     global.css                ← alle basisstyling (kleuren als CSS-variabelen bovenin)
+scripts/
+  copy-pagefind-to-vercel-output.mjs ← kopieert de Pagefind-zoekindex naar de Vercel-adapter output, zie "Zoekfunctie" hieronder
+vercel.json                  ← cron-config voor de wereldnieuws-verversing, zie "Wereldnieuws" hieronder
 ```
 
 Een nieuwe pagina toevoegen = een nieuw `.md`-bestand in `src/content/pages/`
@@ -74,7 +84,7 @@ gecentreerd blijft in plaats van links uit te lijnen.
 | `npm install`             | dependencies installeren                       |
 | `astro dev --background`  | lokale dev-server op de achtergrond starten (zie AGENTS.md/CLAUDE.md) |
 | `astro dev stop/status/logs` | achtergrond dev-server beheren              |
-| `npm run build`            | statische site + serverless functions bouwen naar `dist/` / `.vercel/output/` |
+| `npm run build`            | statische site + serverless functions bouwen naar `dist/` / `.vercel/output/`; draait via `postbuild` ook automatisch Pagefind (zie "Zoekfunctie") |
 
 `astro preview` werkt niet met de Vercel-adapter — gebruik de dev-server voor lokaal testen.
 
@@ -107,6 +117,53 @@ niet gelinkt in de navigatie**: Microsoft blokkeert basic SMTP-auth voor dit
 account (ook met een app-wachtwoord), waardoor verzenden nu mislukt. Code en
 pagina blijven intact voor als dit later opgepakt wordt (bv. via een andere
 mailprovider).
+
+## Wereldnieuws & weekcitaat (cron-rebuilds)
+
+De homepage toont "Reformed Baptists wereldwijd": de 4 meest recente
+artikelen over alle RSS-bronnen samen (`src/data/newsSources.ts`), en een
+wisselend "citaat van de week" (`src/data/weeklyQuotes.ts`). Beide worden
+**tijdens de build** bepaald (`src/lib/news.ts` / `src/lib/weeklyQuote.ts`)
+— bewust niet per bezoek, zodat de site statisch en snel blijft en niet
+afhankelijk is van de beschikbaarheid van externe sites. Als één RSS-bron
+faalt, verschijnt het blok gewoon met de overige bronnen.
+
+Omdat een build alleen gebeurt bij een git-push, triggert een cron-job
+(`vercel.json`, momenteel **2x per week: zo + wo, 03:00 UTC**) de
+serverless functie `src/pages/api/refresh-news.ts`, die een Vercel Deploy
+Hook aanroept om de site ook in stille periodes opnieuw te bouwen.
+
+Vereiste environment variables (Vercel dashboard → Settings → Environment
+Variables, **niet** in git):
+
+- `CRON_SECRET` — verifieert dat een verzoek aan `/api/refresh-news/`
+  echt van Vercel's cron komt (Vercel stuurt deze automatisch mee als
+  `Authorization: Bearer <CRON_SECRET>`-header).
+- `DEPLOY_HOOK_URL` — de Deploy Hook-URL (Project → Settings → Git →
+  Deploy Hooks) die een build van `main` start.
+
+**Twee valkuilen om niet opnieuw in te trappen** (kostten eerder weken
+stilzwijgende inactiviteit, zie BESLISSINGEN.md):
+
+1. Het cron-pad moet exact `/api/refresh-news/` zijn (mét trailing
+   slash) — deze site gebruikt `trailingSlash: 'always'`, en Vercel cron
+   jobs volgen geen redirects. Zonder de slash telt de 308-redirect als
+   een "voltooide" aanroep, zonder dat de code ooit draait.
+2. De kale Vercel-deployment-URL (niet het productiedomein) staat achter
+   Vercel Authentication — en de cron roept altijd die kale URL aan. Een
+   "Protection Bypass for Automation"-secret, ingesteld als
+   `VERCEL_AUTOMATION_BYPASS_SECRET` in Project Settings → Deployment
+   Protection, laat de cron daar wél langs.
+
+## Zoekfunctie (Pagefind)
+
+[Pagefind](https://pagefind.app) bouwt na elke `npm run build` (via het
+`postbuild`-script) een doorzoekbare index over alle pagina's met een
+`data-pagefind-body`-sectie. `scripts/copy-pagefind-to-vercel-output.mjs`
+kopieert die index vervolgens naar `.vercel/output/static/pagefind` — dat
+is nodig omdat de Vercel-adapter niet automatisch alles uit
+`dist/client/` meeneemt; zonder deze stap geeft `/pagefind/...` een 404
+in productie.
 
 ## SEO / metadata
 

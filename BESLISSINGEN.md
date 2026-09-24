@@ -106,8 +106,53 @@ tussenkomst. **Besluit: voorlopig niet doen** — de huidige workflow
 prima gezien het publicatietempo. Zou later alsnog opgepakt kunnen worden
 als zelfstandig kunnen publiceren wél gewenst is.
 
+## Wereldnieuws ("Reformed Baptists wereldwijd") & automatische verversing
+
+- **Build-time RSS i.p.v. live ophalen bij elk bezoek**: de site blijft zo
+  volledig statisch en snel, en een trage/onbereikbare externe bron kan de
+  bezoekerservaring niet vertragen of breken (zie README.md).
+- **Selectie: de 4 nieuwste artikelen over alle bronnen samen**, niet
+  eerlijk verdeeld per bron. Eerder werd bewust "rondje-tegen-rondje"
+  verdeeld (1 item per bron) om te voorkomen dat de meest actieve bron
+  (bv. Sola 5) de andere stemmen zou verdringen. Op expliciet verzoek van
+  de eigenaar teruggedraaid: een bron zonder recent nieuws mag gewoon
+  wegvallen zodra een andere bron actueler is, en komt vanzelf terug
+  zodra die bron weer post.
+- **Cron-frequentie: 2x per week (zo + wo)**, op verzoek verhoogd vanaf
+  aanvankelijk 1x per week (alleen zondag) — blijft binnen de Hobby-plan
+  limiet van maximaal 1x per dag per cron-expressie.
+- **Twee bugs die de automatische verversing weken lang stil lieten
+  falen** (geen foutmelding, gewoon nooit een nieuwe deploy — zie ook
+  README.md voor de technische details):
+  1. Vercel Authentication (Deployment Protection) schermde de kale
+     deployment-URL af waar de cron altijd tegenaan praat (niet het
+     productiedomein). Opgelost met een "Protection Bypass for
+     Automation"-secret (`VERCEL_AUTOMATION_BYPASS_SECRET`).
+  2. Het cron-pad stond zonder trailing slash, terwijl deze site
+     `trailingSlash: 'always'` gebruikt — Vercel cron jobs volgen geen
+     redirects en behandelen zo'n 308 als een voltooide aanroep. Pas
+     toen ook dit pad met een trailing slash werd geschreven
+     (`/api/refresh-news/`) werkte de cron voor het eerst echt end-to-end.
+- **Handmatig te verversen** (bv. na een gemiste run): de Vercel Deploy
+  Hook direct met een POST aanroepen start dezelfde rebuild als de cron
+  zelf zou doen.
+
+## Zoekfunctie (Pagefind)
+
+- **Pagefind gekozen** boven een externe zoekdienst (bv. Algolia): geen
+  account, geen kosten, geen externe dependency tijdens een bezoek — de
+  index wordt gewoon lokaal gebouwd bij elke `npm run build`.
+- **Productie-bug bij invoering**: `/pagefind/...` gaf een 404 op Vercel,
+  omdat de Vercel-adapter niet automatisch alles uit `dist/client/`
+  meeneemt naar de uiteindelijke output. Opgelost met een `postbuild`-
+  scriptje dat de gegenereerde index alsnog naar
+  `.vercel/output/static/pagefind` kopieert (zie README.md).
+
 ## Overig
 
 - **Auteur is sinds augustus 2026 met sabbatical**: een korte mededeling
   hierover staat naast de auteursfoto op de homepage (`src/data/author.ts`,
   veld `note` — leeg maken om te verbergen).
+- **Homepage: subtiele hero-animatie + wekelijks Bijbelcitaat** onder de
+  hero, dat elke week automatisch wisselt (zelfde cron-rebuild-mechanisme
+  als het wereldnieuws-blok, zie hierboven).
