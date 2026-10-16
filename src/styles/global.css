@@ -1214,3 +1214,9 @@ img {
 	font-size: 0.85rem;
 	color: #b9c4d1;
 }
+
+.world-news__translation {
+	margin: 0.4rem 0 0;
+	font-size: 0.8rem;
+	opacity: 0.75;
+}

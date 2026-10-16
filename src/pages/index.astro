@@ -106,9 +106,23 @@ const quoteOfTheWeek = getQuoteOfTheWeek();
 						<li class="world-news__item">
 							<span class="world-news__source">{item.sourceName}</span>
 							<a href={item.link} target="_blank" rel="noopener noreferrer" class="world-news__title">
-								{item.title}
+								{item.translated?.title ?? item.title}
 							</a>
-							{item.snippet && <p class="world-news__snippet">{item.snippet}</p>}
+							{(item.translated?.snippet ?? item.snippet) && (
+								<p class="world-news__snippet">{item.translated?.snippet ?? item.snippet}</p>
+							)}
+							{item.translated && (
+								<p class="world-news__translation">
+									Automatisch vertaald uit het Engels ·{' '}
+									<a
+										href={`https://translate.google.com/translate?sl=en&tl=nl&u=${encodeURIComponent(item.link)}`}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										Artikel vertaald lezen
+									</a>
+								</p>
+							)}
 							{item.date && (
 								<time class="world-news__date" datetime={item.date.toISOString()}>
 									{item.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}
