@@ -1,0 +1,224 @@
+---
+// Verborgen pagina: niet in het menu, niet in zoekmachines (noindex, robots.txt,
+// niet in de sitemap), alleen bereikbaar via /dominations/.
+// Interactieve verkenner voor DomiNations-statistieken (Councilors en Artifacts),
+// gedownload van dominations.fandom.com (CC-BY-SA) en opgeslagen in
+// src/data/dominations.json. Volledig statisch: filteren en sorteren gebeurt in de browser.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import data from '../data/dominations.json';
+---
+
+<BaseLayout title="DomiNations" description="DomiNations-statistieken." showSolasBar={false} noindex={true}>
+	<div class="container page dn">
+		<h1 class="page__title">DomiNations: Councilors &amp; Artifacts</h1>
+		<p class="stat-footnote">
+			Bron: dominations.fandom.com (CC-BY-SA), opgehaald op {data.fetched}. Alleen Legendary en Mythical artifacts hebben vaste stats;
+			gewone artifacts hebben willekeurige benefits. De indeling in aanval/verdediging/economie is een trefwoord-benadering.
+		</p>
+
+		<div class="dn-tabs" role="tablist">
+			<button class="dn-tab is-active" data-tab="c" role="tab">Councilors</button>
+			<button class="dn-tab" data-tab="a" role="tab">Artifacts</button>
+		</div>
+
+		<section id="dn-c">
+			<div class="dn-filters">
+				<input type="search" id="c-q" placeholder="Zoek councilor of benefit…" />
+				<select id="c-chamber"><option value="">Alle chambers</option><option>Primary</option><option>War</option></select>
+				<select id="c-domain"><option value="">Alle soorten</option><option>Offense</option><option>Defense</option><option>Economy</option><option>Other</option></select>
+			</div>
+			<div class="dn-tiles" id="c-tiles"></div>
+			<div class="dn-grid">
+				<div><h2>Gemiddelde waarde per zeldzaamheid</h2><div class="dn-bars" id="c-rarity"></div></div>
+				<div><h2>Meest voorkomende benefits</h2><div class="dn-hbars" id="c-top"></div></div>
+			</div>
+			<h2>Benefits per councilor <small id="c-count"></small></h2>
+			<div class="dn-tablewrap"><table class="dn-table" id="c-table"></table></div>
+		</section>
+
+		<section id="dn-a" hidden>
+			<div class="dn-filters">
+				<input type="search" id="a-q" placeholder="Zoek artifact of benefit…" />
+				<select id="a-klass"><option value="">Alle klassen</option><option>Legendary</option><option>Legendary War</option><option>Mythical</option><option>Mythical War</option></select>
+				<select id="a-domain"><option value="">Alle soorten</option><option>Offense</option><option>Defense</option><option>Economy</option><option>Other</option></select>
+			</div>
+			<div class="dn-tiles" id="a-tiles"></div>
+			<div class="dn-grid">
+				<div><h2>Gemiddelde stat per klasse</h2><div class="dn-bars" id="a-klassbars"></div></div>
+				<div><h2>Meest voorkomende benefits</h2><div class="dn-hbars" id="a-top"></div></div>
+			</div>
+			<h2>Artifacts <small id="a-count"></small></h2>
+			<p class="stat-footnote">Klik op een rij voor de benefits. Totaal = som van de absolute stat-waarden.</p>
+			<div class="dn-tablewrap"><table class="dn-table" id="a-table"></table></div>
+		</section>
+
+		<script id="dn-data" type="application/json" set:html={JSON.stringify(data)} />
+	</div>
+</BaseLayout>
+
+<script>
+	const D = JSON.parse(document.getElementById('dn-data')!.textContent!);
+	const RAR = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
+	const $ = (id: string) => document.getElementById(id) as any;
+	const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+	const fmt = (v: number) => (v > 0 ? '+' : '') + v + '%';
+	const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+	const r1 = (n: number) => (Math.round(n * 10) / 10).toLocaleString('nl-NL');
+
+	const tiles = (el: string, items: [string, string][]) =>
+		($(el).innerHTML = items.map(([l, v]) => `<div class="dn-tile"><b>${v}</b><span>${l}</span></div>`).join(''));
+	const bars = (el: string, items: [string, number][]) => {
+		const max = Math.max(1, ...items.map((i) => i[1]));
+		$(el).innerHTML = items
+			.map(([l, v]) => `<div class="dn-col"><span class="dn-val">${r1(v)}</span><div class="dn-bararea"><i style="height:${(v / max) * 100}%"></i></div><span class="dn-lab">${esc(l)}</span></div>`)
+			.join('');
+	};
+	const hbars = (el: string, items: [string, number][]) => {
+		const max = Math.max(1, ...items.map((i) => i[1]));
+		$(el).innerHTML = items
+			.map(([l, v]) => `<div class="dn-row"><span class="dn-rl">${esc(l)}</span><span class="dn-track"><i style="width:${(v / max) * 100}%"></i></span><span class="dn-rv">${v}</span></div>`)
+			.join('');
+	};
+	const topCounts = (names: string[], n = 10): [string, number][] => {
+		const m = new Map<string, number>();
+		names.forEach((x) => m.set(x, (m.get(x) ?? 0) + 1));
+		return [...m].sort((a, b) => b[1] - a[1]).slice(0, n);
+	};
+
+	// Sorteerbare tabel: cols = [label, sortWaarde(rij), weergave(rij)]
+	function table(el: string, cols: any[], rows: any[], state: { k: number; d: number }, onRow?: (r: any) => string) {
+		const sorted = rows.slice().sort((x, y) => {
+			const a = cols[state.k][1](x), b = cols[state.k][1](y);
+			return (typeof a === 'string' ? a.localeCompare(b, 'nl') : (a ?? -1e9) - (b ?? -1e9)) * state.d;
+		});
+		$(el).innerHTML =
+			`<thead><tr>${cols.map((c, i) => `<th data-k="${i}" class="${i === state.k ? (state.d > 0 ? 'asc' : 'desc') : ''}">${c[0]}</th>`).join('')}</tr></thead><tbody>` +
+			sorted.slice(0, 400).map((r) => `<tr${onRow ? ' class="dn-click"' : ''} data-id="${esc(String(r.id ?? ''))}">${cols.map((c) => `<td>${c[2](r)}</td>`).join('')}</tr>${onRow ? `<tr class="dn-detail" hidden><td colspan="${cols.length}">${onRow(r)}</td></tr>` : ''}`).join('') +
+			'</tbody>';
+		$(el).querySelectorAll('th').forEach((th: HTMLElement) =>
+			th.addEventListener('click', () => {
+				const k = +th.dataset.k!;
+				state.d = state.k === k ? -state.d : k === 0 ? 1 : -1;
+				state.k = k;
+				table(el, cols, rows, state, onRow);
+			}));
+		if (onRow) $(el).querySelectorAll('tr.dn-click').forEach((tr: HTMLElement) => tr.addEventListener('click', () => ((tr.nextElementSibling as HTMLElement).hidden = !(tr.nextElementSibling as HTMLElement).hidden)));
+	}
+
+	// ---------- Councilors ----------
+	const C = D.councilors.map(([n, ch, b, dom, rar, v]: any[]) => ({ n, ch, b, dom, rar, v }));
+	const cRows = new Map<string, any>();
+	C.forEach((r: any) => {
+		const key = `${r.n}|${r.ch}|${r.b}`;
+		if (!cRows.has(key)) cRows.set(key, { id: key, n: r.n, ch: r.ch, b: r.b, dom: r.dom, vals: {} });
+		cRows.get(key).vals[r.rar] = r.v;
+	});
+	const cAll = [...cRows.values()];
+	const cState = { k: 0, d: 1 };
+	function renderC() {
+		const q = $('c-q').value.toLowerCase(), ch = $('c-chamber').value, dom = $('c-domain').value;
+		const rows = cAll.filter((r) => (!ch || r.ch === ch) && (!dom || r.dom === dom) && (!q || (r.n + ' ' + r.b).toLowerCase().includes(q)));
+		const leg = rows.filter((r) => r.vals.Legendary != null);
+		tiles('c-tiles', [
+			['councilors', String(new Set(rows.map((r) => r.n)).size)],
+			['benefits (rijen)', String(rows.length)],
+			['gem. Legendary', r1(mean(leg.map((r) => Math.abs(r.vals.Legendary)))) + '%'],
+			['hoogste Legendary', leg.length ? r1(Math.max(...leg.map((r) => Math.abs(r.vals.Legendary)))) + '%' : '–'],
+		]);
+		bars('c-rarity', RAR.map((x) => [x, mean(rows.filter((r) => r.vals[x] != null).map((r) => Math.abs(r.vals[x])))]));
+		hbars('c-top', topCounts(leg.map((r) => r.b)));
+		$('c-count').textContent = `(${rows.length})`;
+		table('c-table', [
+			['Councilor', (r: any) => r.n, (r: any) => esc(r.n)],
+			['Chamber', (r: any) => r.ch, (r: any) => r.ch],
+			['Benefit', (r: any) => r.b, (r: any) => esc(r.b)],
+			['Soort', (r: any) => r.dom, (r: any) => r.dom],
+			...RAR.map((x) => [x, (r: any) => (r.vals[x] == null ? null : Math.abs(r.vals[x])), (r: any) => (r.vals[x] == null ? '' : fmt(r.vals[x]))]),
+		], rows, cState);
+	}
+	['c-q', 'c-chamber', 'c-domain'].forEach((id) => $(id).addEventListener('input', renderC));
+
+	// ---------- Artifacts ----------
+	const A = new Map<string, any>();
+	D.artifacts.forEach(([n, k, b, dom, st, v]: any[]) => {
+		const key = `${n}|${k}`;
+		if (!A.has(key)) A.set(key, { id: key, n, k, items: [] });
+		A.get(key).items.push({ b, dom, st, v });
+	});
+	const aAll = [...A.values()];
+	const aState = { k: 0, d: 1 };
+	function renderA() {
+		const q = $('a-q').value.toLowerCase(), kl = $('a-klass').value, dom = $('a-domain').value;
+		const rows = aAll
+			.filter((a) => !kl || a.k === kl)
+			.map((a) => {
+				const items = a.items.filter((i: any) => (!dom || i.dom === dom) && (!q || (a.n + ' ' + i.b).toLowerCase().includes(q)));
+				return { ...a, items, count: items.length, total: items.reduce((s: number, i: any) => s + Math.abs(i.v), 0) };
+			})
+			.filter((a) => a.count > 0);
+		const all = rows.flatMap((a) => a.items);
+		tiles('a-tiles', [
+			['artifacts', String(rows.length)],
+			['benefit-rijen', String(all.length)],
+			['gem. stat', r1(mean(all.map((i) => Math.abs(i.v)))) + '%'],
+			['gem. totaal/artifact', r1(mean(rows.map((a) => a.total)))],
+		]);
+		bars('a-klassbars', ['Legendary', 'Legendary War', 'Mythical', 'Mythical War'].map((k) => [k, mean(rows.filter((a) => a.k === k).flatMap((a) => a.items).map((i: any) => Math.abs(i.v)))]));
+		hbars('a-top', topCounts(all.map((i) => i.b)));
+		$('a-count').textContent = `(${rows.length})`;
+		table('a-table', [
+			['Artifact', (a: any) => a.n, (a: any) => esc(a.n)],
+			['Klasse', (a: any) => a.k, (a: any) => a.k],
+			['Benefits', (a: any) => a.count, (a: any) => a.count],
+			['Totaal', (a: any) => a.total, (a: any) => a.total],
+		], rows, aState, (a: any) => a.items.map((i: any) => `${esc(i.b)} <b>${fmt(i.v)}</b>`).join(' · '));
+	}
+	['a-q', 'a-klass', 'a-domain'].forEach((id) => $(id).addEventListener('input', renderA));
+
+	document.querySelectorAll('.dn-tab').forEach((t: any) =>
+		t.addEventListener('click', () => {
+			document.querySelectorAll('.dn-tab').forEach((x) => x.classList.toggle('is-active', x === t));
+			$('dn-c').hidden = t.dataset.tab !== 'c';
+			$('dn-a').hidden = t.dataset.tab !== 'a';
+		}));
+	renderC();
+	renderA();
+</script>
+
+<style is:global>
+	.dn h2 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
+	.dn h2 small { color: var(--color-muted); font-weight: 400; }
+	.dn-tabs { display: flex; gap: 0.5rem; margin: 1.25rem 0; }
+	.dn-tab { border: 1px solid var(--color-border); background: var(--color-bg-alt); color: var(--color-text); padding: 0.5rem 1.1rem; border-radius: 999px; font: inherit; cursor: pointer; }
+	.dn-tab.is-active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+	.dn-filters { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1rem; }
+	.dn-filters input, .dn-filters select { font: inherit; padding: 0.5rem 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text); }
+	.dn-filters input { flex: 1 1 14rem; }
+	.dn-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+	.dn-tile { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.75rem 1rem; display: flex; flex-direction: column; }
+	.dn-tile b { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+	.dn-tile span { font-size: 0.8rem; color: var(--color-muted); }
+	.dn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 2rem; }
+	.dn-bars { display: flex; align-items: flex-end; gap: 0.75rem; }
+	.dn-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+	.dn-bararea { height: 9rem; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+	.dn-bararea i { display: block; width: 70%; max-width: 2.5rem; min-height: 3px; background: var(--color-primary); border-radius: 4px 4px 0 0; }
+	.dn-val { font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 0.3rem; }
+	.dn-lab { font-size: 0.72rem; color: var(--color-muted); margin-top: 0.5rem; text-align: center; }
+	.dn-hbars { display: flex; flex-direction: column; gap: 0.4rem; }
+	.dn-row { display: grid; grid-template-columns: minmax(0, 11rem) 1fr 2rem; gap: 0.6rem; align-items: center; font-size: 0.85rem; }
+	.dn-rl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	.dn-track { background: var(--color-bg-alt); border-radius: 4px; height: 0.7rem; }
+	.dn-track i { display: block; height: 100%; background: var(--color-accent); border-radius: 4px; }
+	.dn-rv { text-align: right; font-variant-numeric: tabular-nums; color: var(--color-muted); }
+	.dn-tablewrap { overflow-x: auto; max-height: 36rem; overflow-y: auto; border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
+	.dn-table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+	.dn-table th { position: sticky; top: 0; background: var(--color-surface); text-align: left; padding: 0.5rem 0.7rem; cursor: pointer; white-space: nowrap; border-bottom: 1px solid var(--color-border); user-select: none; }
+	.dn-table th.asc::after { content: ' ▲'; font-size: 0.65rem; }
+	.dn-table th.desc::after { content: ' ▼'; font-size: 0.65rem; }
+	.dn-table td { padding: 0.4rem 0.7rem; border-bottom: 1px solid var(--color-border); font-variant-numeric: tabular-nums; }
+	.dn-click { cursor: pointer; }
+	.dn-click:hover { background: var(--color-bg-alt); }
+	.dn-detail td { background: var(--color-bg-alt); color: var(--color-muted); line-height: 1.7; }
+	.dn-detail td b { color: var(--color-text); }
+</style>

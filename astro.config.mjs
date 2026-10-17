@@ -47,13 +47,13 @@ export default defineConfig({
 
 	integrations: [
 		sitemap({
-			// Uitgesloten: de verborgen statistiekpagina, het (nog) niet
+			// Uitgesloten: de verborgen statistiek- en dominationspagina, het (nog) niet
 			// gelinkte contactformulier, en alle losse redirect-pagina's voor
 			// oude WordPress-URL's — die verwijzen alleen door en zijn zelf
 			// geen bestemming, dus horen niet in de sitemap.
 			filter: (page) => {
 				const path = new URL(page).pathname;
-				if (path === '/statistiek/' || path === '/contact/') return false;
+				if (path === '/statistiek/' || path === '/dominations/' || path === '/contact/') return false;
 				return !REDIRECT_SLUGS.some((slug) => path === `/${slug}/`);
 			},
 		}),

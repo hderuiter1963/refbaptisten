@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /statistiek/
+Disallow: /dominations/
 
 Sitemap: https://www.refbaptisten.nl/sitemap-index.xml
