@@ -122,8 +122,11 @@ import data from '../data/dominations.json';
 		const k = `${r.n}|${r.ch}`;
 		if (!CB.has(k)) CB.set(k, new Map());
 		const m = CB.get(k)!;
-		if (!m.has(r.b)) m.set(r.b, { b: r.b, dom: r.dom, Epic: null, Legendary: null });
-		m.get(r.b)[r.rar] = r.v;
+		// Dezelfde benefit kan meerdere keren voorkomen (aparte slots): neem de eerste entry
+		// waar deze zeldzaamheid nog leeg is, anders een nieuwe.
+		let e = [...m.values()].find((x) => x.b === r.b && x[r.rar] == null);
+		if (!e) { e = { b: r.b, dom: r.dom, Epic: null, Legendary: null }; m.set(`${r.b}#${m.size}`, e); }
+		e[r.rar] = r.v;
 	});
 	const cBen = (n: string, ch: string): any[] => [...(CB.get(`${n}|${ch}`)?.values() ?? [])];
 	const cScore = (n: string, ch: string, rar: string) => cBen(n, ch).reduce((s, x) => s + (x[rar] != null && inFocus(x.dom) ? Math.abs(x[rar]) : 0), 0);
