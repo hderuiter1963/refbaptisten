@@ -53,7 +53,7 @@ import data from '../data/dominations.json';
 				<select id="c-own"><option value="">Alle</option><option value="own">In bezit</option><option value="miss">Niet in bezit</option></select>
 				<select id="c-type"><option value="">Alle typen</option></select>
 			</div>
-			<p class="stat-footnote">De chamber-knop bepaalt welke benefits en scores je ziet. Bij een councilor in bezit kies je de zeldzaamheid en of hij live staat in Primary en/of War (dezelfde councilor kan in beide chambers zitten). Klik op een kolomkop om te sorteren.</p>
+			<p class="stat-footnote">De chamber-knop bepaalt welke benefits en scores je ziet. Primary en War zijn aparte kaarten: wat je ziet (bezit, zeldzaamheid, live) hoort bij de gekozen chamber. Heb je de councilor in beide chambers, schakel dan om en vink hem daar ook aan. Klik op een kolomkop om te sorteren.</p>
 			<div class="dn-tiles" id="c-tiles"></div>
 			<div class="dn-tablewrap"><table class="dn-table" id="c-table"></table></div>
 		</section>
@@ -143,23 +143,34 @@ import data from '../data/dominations.json';
 	const aScore = (a: any) => sumAbs(a.items.filter((i: any) => inFocus(i.dom)));
 
 	// ---------- Collectie (lokaal + server) ----------
-	type CM = { rar: string; p: boolean; w: boolean };
-	type Mine = { c: Record<string, CM>; a: string[]; aOff: string[]; lim: Record<string, number>; ov: Record<string, number> };
+	// Een councilor in Primary en dezelfde in War zijn twee aparte kaarten: elk met eigen zeldzaamheid en live-status.
+	type CM = { rar: string; live: boolean };
+	type Cards = { Primary?: CM; War?: CM };
+	type Mine = { c: Record<string, Cards>; a: string[]; aOff: string[]; lim: Record<string, number>; ov: Record<string, number> };
 	const KEY = 'dn-mine';
 	const blank = (): Mine => ({ c: {}, a: [], aOff: [], lim: {}, ov: {} });
 	// Leest ook het oude formaat (c als lijst met `off`) en maakt het schoon.
 	function norm(m: any): Mine {
 		const o = blank();
 		if (!m || typeof m !== 'object') return o;
-		// Oud formaat: één zetel `ch` + `live` (of `off`). Nieuw: aparte vlaggen p (Primary live) en w (War live).
-		const mk = (x: any): CM => {
-			const rar = x?.rar === 'Epic' ? 'Epic' : 'Legendary';
-			if (typeof x?.p === 'boolean' || typeof x?.w === 'boolean') return { rar, p: !!x.p, w: !!x.w };
-			const live = x?.live !== undefined ? x.live !== false : !x?.off;
-			return { rar, p: live && x?.ch === 'Primary', w: live && x?.ch !== 'Primary' };
+		// Leest ook eerdere formaten: {rar, ch, live|off} en {rar, p, w}.
+		const rarOf = (v: any) => (v === 'Epic' ? 'Epic' : 'Legendary');
+		const mk = (n: string, x: any): Cards => {
+			const o: Cards = {};
+			if (x?.Primary || x?.War) { (['Primary', 'War'] as const).forEach((ch) => { if (x[ch]) o[ch] = { rar: rarOf(x[ch].rar), live: x[ch].live !== false }; }); return o; }
+			const rar = rarOf(x?.rar);
+			if (typeof x?.p === 'boolean' || typeof x?.w === 'boolean') {
+				if (x.p) o.Primary = { rar, live: true };
+				if (x.w) o.War = { rar, live: true };
+				if (!x.p && !x.w) o[cBen(n, 'Primary').length ? 'Primary' : 'War'] = { rar, live: false };
+				return o;
+			}
+			o[x?.ch === 'Primary' ? 'Primary' : 'War'] = { rar, live: x?.live !== undefined ? x.live !== false : !x?.off };
+			return o;
 		};
-		if (Array.isArray(m.c)) m.c.forEach((x: any) => { if (x?.n && cNames.includes(x.n) && !o.c[x.n]) o.c[x.n] = mk(x); });
-		else if (m.c && typeof m.c === 'object') Object.entries<any>(m.c).forEach(([n, x]) => { if (cNames.includes(n)) o.c[n] = mk(x); });
+		const put = (n: string, x: any) => { if (cNames.includes(n)) { const c = mk(n, x); if (Object.keys(c).length) o.c[n] = { ...c, ...(o.c[n] ?? {}) }; } };
+		if (Array.isArray(m.c)) m.c.forEach((x: any) => { if (x?.n) put(x.n, x); });
+		else if (m.c && typeof m.c === 'object') Object.entries<any>(m.c).forEach(([n, x]) => put(n, x));
 		o.a = (Array.isArray(m.a) ? m.a : []).filter((id: any) => A.has(id));
 		o.aOff = (Array.isArray(m.aOff) ? m.aOff : []).filter((id: any) => A.has(id));
 		if (m.lim && typeof m.lim === 'object') ['cP', 'cW', 'aM', 'aW'].forEach((k) => { if (+m.lim[k] > 0) o.lim[k] = +m.lim[k]; });
@@ -236,19 +247,19 @@ import data from '../data/dominations.json';
 		const q = $('c-q').value.toLowerCase(), own = $('c-own').value, type = $('c-type').value;
 		const rows = cNames
 			.map((n) => {
-				const m = mine.c[n], bens = cBen(n, view);
-				return { id: n, n, type: TYPES[n] ?? '', own: !!m, p: !!m?.p, w: !!m?.w, rar: m?.rar ?? '', es: cScore(n, view, 'Epic'), ls: cScore(n, view, 'Legendary'), bens };
+				const m = mine.c[n]?.[view], other = view === 'Primary' ? 'War' : 'Primary', om = mine.c[n]?.[other], bens = cBen(n, view);
+				return { id: n, n, type: TYPES[n] ?? '', own: !!m, live: !!m?.live, rar: m?.rar ?? '', oth: om ? `${other}: ${om.rar}${om.live ? ' · live' : ''}` : '', es: cScore(n, view, 'Epic'), ls: cScore(n, view, 'Legendary'), bens };
 			})
 			.filter((r) => (!own || (own === 'own') === r.own) && (!type || r.type === type) && (!q || (r.n + ' ' + r.type + ' ' + r.bens.map((b: any) => b.b).join(' ')).toLowerCase().includes(q)));
 		const owned = rows.filter((r) => r.own);
-		tiles('c-tiles', [['getoond', String(rows.length)], ['in bezit', String(owned.length)], ['live Primary', String(owned.filter((r) => r.p).length)], ['live War', String(owned.filter((r) => r.w).length)], [`gem. Legendary Σ (${view})`, r1(mean(rows.map((r) => r.ls)))]]);
+		tiles('c-tiles', [['getoond', String(rows.length)], [`in bezit ${view}`, String(owned.length)], [`live ${view}`, String(owned.filter((r) => r.live).length)], [`gem. Legendary Σ (${view})`, r1(mean(rows.map((r) => r.ls)))]]);
 		table('c-table', [
-			['Bezit', (r: any) => +r.own, (r: any) => checkbox('c-own', r.id, r.own)],
+			[`Bezit ${view}`, (r: any) => +r.own, (r: any) => checkbox('c-own', r.id, r.own)],
 			['Councilor', (r: any) => r.n, (r: any) => `<b>${esc(r.n)}</b>`],
 			['Type', (r: any) => r.type, (r: any) => esc(r.type)],
 			['Rarity', (r: any) => r.rar, (r: any) => (r.own ? select('c-rar', r.id, RAR, r.rar) : '')],
-			['Live Primary', (r: any) => +r.p, (r: any) => (r.own ? checkbox('c-p', r.id, r.p) : '')],
-			['Live War', (r: any) => +r.w, (r: any) => (r.own ? checkbox('c-w', r.id, r.w) : '')],
+			[`Live ${view}`, (r: any) => +(r.own && r.live), (r: any) => (r.own ? checkbox('c-live', r.id, r.live) : '')],
+			[`Andere chamber`, (r: any) => r.oth, (r: any) => (r.oth ? `<span class="stat-footnote">${r.oth}</span>` : '')],
 			[`Epic Σ ${view}`, (r: any) => r.es, (r: any) => (r.es ? r1(r.es) : '')],
 			[`Legendary Σ ${view}`, (r: any) => r.ls, (r: any) => (r.ls ? r1(r.ls) : '–')],
 			[`Benefits ${view} (Epic → Legendary)`, (r: any) => r.bens.length, (r: any) => (r.bens.length ? r.bens.map((b: any) => `<span class="dn-ben">${esc(b.b)} ${numCell(`c|${r.n}|${view}|${b.i}|Epic`, b.Epic, b.E0)} → ${numCell(`c|${r.n}|${view}|${b.i}|Legendary`, b.Legendary, b.L0)}</span>`).join('') : '<span class="stat-footnote">Geen benefits in deze chamber</span>')],
@@ -258,10 +269,12 @@ import data from '../data/dominations.json';
 		const t = e.target, id = t.dataset.id, act = t.dataset.act;
 		if (!act) return;
 		if (act === 'ov') return setOv(t);
-		if (act === 'c-own') { if (t.checked) { const ch = cBen(id, view).length ? view : view === 'War' ? 'Primary' : 'War'; mine.c[id] = { rar: 'Legendary', p: ch === 'Primary', w: ch === 'War' }; } else delete mine.c[id]; }
-		else if (act === 'c-p') mine.c[id].p = t.checked;
-		else if (act === 'c-w') mine.c[id].w = t.checked;
-		else if (act === 'c-rar') mine.c[id].rar = t.value;
+		if (act === 'c-own') {
+			if (t.checked) mine.c[id] = { ...(mine.c[id] ?? {}), [view]: { rar: 'Legendary', live: true } };
+			else { delete mine.c[id]?.[view as 'Primary' | 'War']; if (!mine.c[id]?.Primary && !mine.c[id]?.War) delete mine.c[id]; }
+		}
+		else if (act === 'c-live') mine.c[id][view as 'Primary' | 'War']!.live = t.checked;
+		else if (act === 'c-rar') mine.c[id][view as 'Primary' | 'War']!.rar = t.value;
 		saveMine();
 	});
 	['c-q', 'c-own', 'c-type'].forEach((id) => $(id).addEventListener('input', renderC));
@@ -309,17 +322,18 @@ import data from '../data/dominations.json';
 			if (!tot.has(b)) tot.set(b, { dom, c: 0, a: 0 });
 			tot.get(b)![key] += v;
 		};
-		const seats = (m: CM) => [...(m.p ? ['Primary'] : []), ...(m.w ? ['War'] : [])];
-		const liveC = Object.entries(mine.c).filter(([, m]) => m.p || m.w);
-		liveC.forEach(([n, m]) => seats(m).forEach((ch) => cBen(n, ch).forEach((x) => { if (x[m.rar] != null) add(x.b, x.dom, 'c', x[m.rar]); })));
-		const off = new Set(mine.aOff), ownedA = mine.a.map((id) => A.get(id)).filter(Boolean);
+		// Alle kaarten als lijst: {n, ch, rar, live}
+		const cards = Object.entries(mine.c).flatMap(([n, c]) => (['Primary', 'War'] as const).filter((ch) => c[ch]).map((ch) => ({ n, ch, rar: c[ch]!.rar, live: c[ch]!.live })));
+		const liveC = cards.filter((k) => k.live);
+		liveC.forEach((k) => cBen(k.n, k.ch).forEach((x) => { if (x[k.rar] != null) add(x.b, x.dom, 'c', x[k.rar]); }));
+				const off = new Set(mine.aOff), ownedA = mine.a.map((id) => A.get(id)).filter(Boolean);
 		const liveA = ownedA.filter((a: any) => !off.has(a.id));
 		liveA.forEach((a: any) => a.items.forEach((x: any) => add(x.b, x.dom, 'a', x.v)));
 
 		const rows = [...tot].map(([b, o]) => ({ id: b, b, dom: o.dom, c: o.c, a: o.a, t: o.c + o.a })).filter((r) => inFocus(r.dom));
 		const dom = (d: string) => rows.filter((r) => r.dom === d).reduce((s, r) => s + Math.abs(r.t), 0);
 		const lim = mine.lim, cnt = (n: number, l: number) => `${n}${l ? '/' + l : ''}${l && n > l ? ' ⚠' : ''}`;
-		const cP = liveC.filter(([, m]) => m.p).length, cW = liveC.filter(([, m]) => m.w).length;
+		const cP = liveC.filter((k) => k.ch === 'Primary').length, cW = liveC.filter((k) => k.ch === 'War').length;
 		const aW = liveA.filter((a: any) => a.k.includes('War')).length, aM = liveA.length - aW;
 		tiles('m-tiles', [['Primary live', cnt(cP, lim.cP)], ['War live', cnt(cW, lim.cW)], ['artifacts main live', cnt(aM, lim.aM)], ['artifacts war live', cnt(aW, lim.aW)], ['aanval', r1(dom('Offense'))], ['verdediging', r1(dom('Defense'))], ['economie', r1(dom('Economy'))]]);
 		table('m-totals', [
@@ -332,17 +346,11 @@ import data from '../data/dominations.json';
 
 		const adv: string[] = [];
 		const list = (title: string, items: string[], note = '') => adv.push(`<div><h3>${title}</h3>${note ? `<p class="stat-footnote">${note}</p>` : ''}${items.length ? '<ol>' + items.map((x) => `<li>${x}</li>`).join('') + '</ol>' : '<p class="stat-footnote">Niets te adviseren.</p>'}</div>`);
-		const ups = Object.entries(mine.c).filter(([, m]) => m.rar === 'Epic').map(([n, m]) => {
-			const chs = seats(m).length ? seats(m) : ['Primary', 'War'];
-			return { n, chs, gain: chs.reduce((g, ch) => g + cScore(n, ch, 'Legendary') - cScore(n, ch, 'Epic'), 0) };
-		}).filter((x) => x.gain > 0).sort((x, y) => y.gain - x.gain).slice(0, 6);
-		list('Councilors naar Legendary', ups.map((u) => `<b>${esc(u.n)}</b> (${u.chs.join(' + ')}): +${r1(u.gain)}`), 'Winst in stat-punten (binnen je focus).');
-		const best = cNames.filter((n) => !mine.c[n]).map((n) => {
-			const per = ['Primary', 'War'].map((ch) => ({ ch, v: cScore(n, ch, 'Legendary') })).sort((x, y) => y.v - x.v)[0];
-			return { n, ...per };
-		}).filter((x) => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 6);
-		list('Councilors om te zoeken (Legendary)', best.map((x) => `<b>${esc(x.n)}</b> in ${x.ch}-chamber: ${r1(x.v)}`), 'Je hebt ze nog niet; getoond is de beste chamber.');
-		const mUp = ownedA.map((a: any) => {
+		const ups = cards.filter((k) => k.rar === 'Epic').map((k) => ({ k, gain: cScore(k.n, k.ch, 'Legendary') - cScore(k.n, k.ch, 'Epic') })).filter((x) => x.gain > 0).sort((x, y) => y.gain - x.gain).slice(0, 6);
+		list('Councilors naar Legendary', ups.map((u) => `<b>${esc(u.k.n)}</b> (${u.k.ch}): +${r1(u.gain)}`), 'Winst in stat-punten (binnen je focus).');
+		const best = cNames.flatMap((n) => (['Primary', 'War'] as const).filter((ch) => !mine.c[n]?.[ch]).map((ch) => ({ n, ch, v: cScore(n, ch, 'Legendary') }))).filter((x) => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 6);
+		list('Councilor-kaarten om te zoeken (Legendary)', best.map((x) => `<b>${esc(x.n)}</b> in ${x.ch}: ${r1(x.v)}`), 'Kaarten die je nog niet hebt, per chamber.');
+				const mUp = ownedA.map((a: any) => {
 			const m2 = a.k.startsWith('Legendary') ? A.get(`${a.n}|${a.k.replace('Legendary', 'Mythical')}`) : null;
 			return m2 ? { a, gain: aScore(m2) - aScore(a) } : null;
 		}).filter((x: any) => x && x.gain > 0).sort((x: any, y: any) => y.gain - x.gain).slice(0, 6) as any[];
@@ -351,7 +359,7 @@ import data from '../data/dominations.json';
 		const bestA = aAll.filter((a) => !have.has(a.id)).map((a) => ({ a, v: aScore(a) })).filter((x) => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 6);
 		list('Sterkste artifacts die je mist', bestA.map((x) => `<b>${esc(x.a.n)}</b> (${x.a.k}): ${r1(x.v)}`));
 		const sleeping = [
-			...Object.entries(mine.c).filter(([, m]) => !m.p && !m.w).map(([n, m]) => { const b = ['Primary', 'War'].map((ch) => ({ ch, v: cScore(n, ch, m.rar) })).sort((x, y) => y.v - x.v)[0]; return { t: `${esc(n)} (${b.ch}, ${m.rar})`, v: b.v }; }),
+			...cards.filter((k) => !k.live).map((k) => ({ t: `${esc(k.n)} (${k.ch}, ${k.rar})`, v: cScore(k.n, k.ch, k.rar) })),
 			...ownedA.filter((a: any) => off.has(a.id)).map((a: any) => ({ t: `${esc(a.n)} (${a.k})`, v: aScore(a) })),
 		].filter((x) => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 6);
 		list('In bezit maar niet live', sleeping.map((x) => `<b>${x.t}</b>: ${r1(x.v)}`), 'Overweeg deze live te zetten als je slots het toelaten.');
