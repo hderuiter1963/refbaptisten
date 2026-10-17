@@ -54,7 +54,13 @@ import data from '../data/dominations.json';
 		</section>
 
 		<section id="dn-m" hidden>
-			<p class="stat-footnote">Je invoer blijft alleen in deze browser bewaard (localStorage), niet op de server. De stats zijn basiswaarden van de wiki (zonder levels).</p>
+			<p class="stat-footnote">Je collectie wordt in deze browser bewaard en, na inloggen, ook op de server (dan blijft ze bestaan na het wissen van je browser en werkt ze op al je apparaten). De stats zijn basiswaarden van de wiki (zonder levels).</p>
+			<div class="dn-filters dn-login">
+				<input type="password" id="m-pw" placeholder="Wachtwoord" autocomplete="current-password" />
+				<button class="dn-btn dn-btn--p" id="m-login">Inloggen</button>
+				<button class="dn-btn" id="m-logout" hidden>Uitloggen</button>
+				<span id="m-status" class="stat-footnote">Niet ingelogd: alleen lokaal opgeslagen.</span>
+			</div>
 			<div class="dn-filters">
 				<label>Focus <select id="m-focus"><option value="">Alles</option><option>Offense</option><option>Defense</option><option>Economy</option></select></label>
 				<button class="dn-btn" id="m-export">Exporteer</button>
@@ -226,7 +232,38 @@ import data from '../data/dominations.json';
 		return { c: [], a: [] };
 	};
 	let mine: Mine = loadMine();
-	const saveMine = () => { try { localStorage.setItem(KEY, JSON.stringify(mine)); } catch {} renderM(); };
+	const saveMine = () => { try { localStorage.setItem(KEY, JSON.stringify(mine)); } catch {} renderM(); schedulePush(); };
+	// ---- Server-opslag (zie src/pages/api/dominations.ts) ----
+	const KEYSTORE = 'dn-key';
+	let pw = '';
+	try { pw = localStorage.getItem(KEYSTORE) || ''; } catch {}
+	let pushTimer: any;
+	const status = (t: string) => { $('m-status').textContent = t; };
+	const api = (method: string, body?: string) => fetch('/api/dominations/', { method, headers: { 'x-dn-key': pw, ...(body ? { 'Content-Type': 'application/json' } : {}) }, body });
+	const isEmpty = (m: Mine) => !m.c.length && !m.a.length;
+	const setLimInputs = () => ['cP', 'cW', 'aM', 'aW'].forEach((k) => ($('lim-' + k).value = mine.lim?.[k] || ''));
+	function schedulePush() {
+		if (!pw) return;
+		clearTimeout(pushTimer);
+		status('Opslaan…');
+		pushTimer = setTimeout(async () => {
+			try { const r = await api('PUT', JSON.stringify(mine)); status(r.ok ? 'Opgeslagen op de server ✓' : (await r.json()).error || 'Opslaan mislukt'); }
+			catch { status('Opslaan mislukt (geen verbinding).'); }
+		}, 600);
+	}
+	async function pull() {
+		if (!pw) return;
+		status('Laden…');
+		try {
+			const r = await api('GET'), j = await r.json();
+			if (r.status === 401) { pw = ''; try { localStorage.removeItem(KEYSTORE); } catch {} $('m-logout').hidden = true; return status('Wachtwoord onjuist.'); }
+			if (!r.ok) return status(j.error || 'Laden mislukt');
+			$('m-logout').hidden = false; $('m-login').hidden = true; $('m-pw').hidden = true;
+			if (j.mine && !isEmpty(j.mine)) { mine = j.mine; try { localStorage.setItem(KEY, JSON.stringify(mine)); } catch {} setLimInputs(); renderM(); status('Ingelogd, collectie geladen van de server ✓'); }
+			else if (!isEmpty(mine)) { schedulePush(); }
+			else status('Ingelogd. Voeg items toe; ze worden op de server bewaard.');
+		} catch { status('Server niet bereikbaar, lokaal opgeslagen.'); }
+	}
 	const cNames = [...new Set<string>(C.map((r: any) => r.n))].sort((x, y) => x.localeCompare(y, 'nl'));
 	$('mc-name').innerHTML = cNames.map((n) => `<option>${esc(n)}</option>`).join('');
 	$('mc-rar').innerHTML = RAR.map((r) => `<option${r === 'Legendary' ? ' selected' : ''}>${r}</option>`).join('');
@@ -328,6 +365,11 @@ import data from '../data/dominations.json';
 		try { const m = JSON.parse(t); if (Array.isArray(m.c) && Array.isArray(m.a)) { mine = m; ['cP', 'cW', 'aM', 'aW'].forEach((k) => ($('lim-' + k).value = m.lim?.[k] || '')); saveMine(); } else throw 0; } catch { alert('Ongeldige tekst.'); }
 	});
 
+	$('m-login').addEventListener('click', () => { pw = $('m-pw').value; if (!pw) return; try { localStorage.setItem(KEYSTORE, pw); } catch {} $('m-pw').value = ''; pull(); });
+	$('m-pw').addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Enter') $('m-login').click(); });
+	$('m-logout').addEventListener('click', () => { pw = ''; try { localStorage.removeItem(KEYSTORE); } catch {} $('m-logout').hidden = true; $('m-login').hidden = false; $('m-pw').hidden = false; status('Uitgelogd: alleen lokaal opgeslagen.'); });
+	pull();
+
 	document.querySelectorAll('.dn-tab').forEach((t: any) =>
 		t.addEventListener('click', () => {
 			document.querySelectorAll('.dn-tab').forEach((x) => x.classList.toggle('is-active', x === t));
@@ -388,4 +430,5 @@ import data from '../data/dominations.json';
 	.dn-on { font-size: 0.8rem; margin-right: 0.4rem; cursor: pointer; }
 	.dn-lim { align-items: center; font-size: 0.85rem; }
 	.dn-lim input { width: 4rem; padding: 0.3rem 0.4rem; }
+	.dn-login input { max-width: 14rem; }
 </style>
