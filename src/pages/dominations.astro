@@ -14,7 +14,7 @@ import data from '../data/dominations.json';
 		<h1 class="page__title">DomiNations: Councilors &amp; Artifacts</h1>
 		<p class="stat-footnote">
 			Bron: dominations.fandom.com (CC-BY-SA), opgehaald op {data.fetched}. Amelia Earhart (alleen War, Legendary) en Galileo Galilei (alleen Primary, Epic) zijn handmatig toegevoegd omdat de wiki ze nog mist.
-			Alleen Legendary en Mythical artifacts hebben vaste stats. Stats zijn basiswaarden (zonder levels). Klopt een percentage niet meer? Zet "Waarden bewerken" aan en pas het zelf aan; jouw waarde overschrijft de wiki en wordt bij je collectie bewaard. De indeling in aanval/verdediging/economie is een trefwoord-benadering.
+			Alleen Legendary en Mythical artifacts hebben vaste stats. Stats zijn basiswaarden (zonder levels). Klopt een percentage niet meer? Zet "Waarden bewerken" aan: je kunt dan percentages en namen aanpassen, benefits verwijderen of toevoegen, en Primary en War van een councilor wisselen. Alles wordt bij je collectie bewaard. De indeling in aanval/verdediging/economie is een trefwoord-benadering.
 		</p>
 
 		<div class="dn-box">
@@ -127,11 +127,28 @@ import data from '../data/dominations.json';
 		// Dezelfde benefit kan meerdere keren voorkomen (aparte slots): neem de eerste entry
 		// waar deze zeldzaamheid nog leeg is, anders een nieuwe.
 		let e = [...m.values()].find((x) => x.b === r.b && x[r.rar] == null);
-		if (!e) { e = { b: r.b, dom: r.dom, i: m.size, Epic: null, Legendary: null }; m.set(`${r.b}#${m.size}`, e); }
+		if (!e) { e = { b: r.b, dom: r.dom, i: m.size, ch: r.ch, Epic: null, Legendary: null }; m.set(`${r.b}#${m.size}`, e); }
 		e[r.rar] = r.v;
 	});
 	CB.forEach((m) => m.forEach((e) => { e.E0 = e.Epic; e.L0 = e.Legendary; }));
-	const cBen = (n: string, ch: string): any[] => [...(CB.get(`${n}|${ch}`)?.values() ?? [])];
+	// Soort (aanval/verdediging/economie) op basis van trefwoorden, voor zelf toegevoegde of hernoemde benefits.
+	const domainOf = (b: string) => {
+		const x = b.toLowerCase(), has = (ks: string[]) => ks.some((k) => x.includes(k));
+		if (has(['oil', 'gold', 'food', 'resource', 'loot', 'vault', 'storage', 'production', 'citizen', 'farm', 'mine', 'forest', 'refund', 'library', 'research', 'upgrade', 'build', 'construction', 'trade', 'capacity', 'income', 'tax', 'wood', 'stone', 'iron', 'coin', 'cost', 'crown', 'diamond'])) return 'Economy';
+		if (has(['defend', 'tower', 'wall', 'air defense', 'sentry', 'fortress', 'castle', 'trap', 'bunker', 'sabotage', 'enemy', 'invading', 'garrison', 'turret', 'radar', 'patrol', 'sniper', 'mortar', 'artillery', 'flak', 'moat'])) return 'Defense';
+		if (has(['damage', 'hitpoint', 'infantry', 'cavalry', 'tank', 'apc', 'helicopter', 'bomber', 'fighter', 'general', 'siege', 'raider', 'trooper', 'mercenar', 'deploy', 'attack', 'troop', 'bazooka', 'mrl', 'guerrilla', 'commando', 'paratroop', 'supply', 'sapper', 'healing', 'army', 'victory', 'hero'])) return 'Offense';
+		return 'Other';
+	};
+	// Benefits van een councilor in een chamber, na jouw aanpassingen: gewisseld (sw), verborgen (hd),
+	// hernoemd (nm) en zelf toegevoegd (cx).
+	const cBen = (n: string, ch: string): any[] => {
+		const src = mine.sw.includes(n) ? (ch === 'Primary' ? 'War' : 'Primary') : ch;
+		const base = [...(CB.get(`${n}|${src}`)?.values() ?? [])]
+			.filter((e) => !mine.hd.includes(`c|${n}|${src}|${e.i}`))
+			.map((e) => { const nm = mine.nm[`c|${n}|${src}|${e.i}`]; return nm ? { ...e, b0: e.b, b: nm, dom: domainOf(nm) } : e; });
+		const custom = (mine.cx[`${n}|${ch}`] ?? []).map((x, ci) => ({ b: x.b, dom: domainOf(x.b), i: ci, ch, custom: true, Epic: x.Epic, Legendary: x.Legendary, E0: x.Epic, L0: x.Legendary }));
+		return [...base, ...custom];
+	};
 	const cScore = (n: string, ch: string, rar: string) => cBen(n, ch).reduce((s, x) => s + (x[rar] != null && inFocus(x.dom) ? Math.abs(x[rar]) : 0), 0);
 	const A = new Map<string, any>();
 	D.artifacts.forEach(([n, k, b, dom, st, v]: any[]) => {
@@ -146,9 +163,9 @@ import data from '../data/dominations.json';
 	// Een councilor in Primary en dezelfde in War zijn twee aparte kaarten: elk met eigen zeldzaamheid en live-status.
 	type CM = { rar: string; live: boolean };
 	type Cards = { Primary?: CM; War?: CM };
-	type Mine = { c: Record<string, Cards>; a: string[]; aOff: string[]; lim: Record<string, number>; ov: Record<string, number> };
+	type Mine = { c: Record<string, Cards>; a: string[]; aOff: string[]; lim: Record<string, number>; ov: Record<string, number>; cx: Record<string, { b: string; Epic: number | null; Legendary: number | null }[]>; nm: Record<string, string>; hd: string[]; sw: string[] };
 	const KEY = 'dn-mine';
-	const blank = (): Mine => ({ c: {}, a: [], aOff: [], lim: {}, ov: {} });
+	const blank = (): Mine => ({ c: {}, a: [], aOff: [], lim: {}, ov: {}, cx: {}, nm: {}, hd: [], sw: [] });
 	// Leest ook het oude formaat (c als lijst met `off`) en maakt het schoon.
 	function norm(m: any): Mine {
 		const o = blank();
@@ -175,11 +192,17 @@ import data from '../data/dominations.json';
 		o.aOff = (Array.isArray(m.aOff) ? m.aOff : []).filter((id: any) => A.has(id));
 		if (m.lim && typeof m.lim === 'object') ['cP', 'cW', 'aM', 'aW'].forEach((k) => { if (+m.lim[k] > 0) o.lim[k] = +m.lim[k]; });
 		if (m.ov && typeof m.ov === 'object') Object.entries<any>(m.ov).forEach(([k, v]) => { if (/^[ca]\|/.test(k) && Number.isFinite(+v) && Math.abs(+v) <= 1000 && v !== null && v !== '') o.ov[k] = +v; });
+		const num = (v: any) => (v !== null && v !== '' && Number.isFinite(+v) && Math.abs(+v) <= 1000 ? +v : null);
+		if (m.cx && typeof m.cx === 'object') Object.entries<any>(m.cx).forEach(([k, list]) => { if (/^[^|]+\|(Primary|War)$/.test(k) && Array.isArray(list)) o.cx[k] = list.slice(0, 20).map((x: any) => ({ b: String(x?.b ?? '').slice(0, 60), Epic: num(x?.Epic), Legendary: num(x?.Legendary) })); });
+		if (m.nm && typeof m.nm === 'object') Object.entries<any>(m.nm).forEach(([k, v]) => { if (/^c\|/.test(k) && typeof v === 'string' && v.trim()) o.nm[k] = v.slice(0, 60); });
+		if (Array.isArray(m.hd)) o.hd = m.hd.filter((k: any) => typeof k === 'string' && /^c\|/.test(k));
+		if (Array.isArray(m.sw)) o.sw = m.sw.filter((n: any) => cNames.includes(n));
 		return o;
 	}
 	let mine: Mine = blank();
 	try { mine = norm(JSON.parse(localStorage.getItem(KEY) || 'null')); } catch {}
-	const isEmpty = (m: Mine) => !Object.keys(m.c).length && !m.a.length && !Object.keys(m.ov).length;
+	const isEmpty = (m: Mine) => !Object.keys(m.c).length && !m.a.length && !changes(m);
+	const changes = (m: Mine) => Object.keys(m.ov).length + Object.keys(m.nm).length + m.hd.length + m.sw.length + Object.values(m.cx).reduce((s, l) => s + l.length, 0);
 	const KEYSTORE = 'dn-key';
 	let pw = '';
 	try { pw = localStorage.getItem(KEYSTORE) || ''; } catch {}
@@ -204,6 +227,12 @@ import data from '../data/dominations.json';
 	};
 	function setOv(t: any) {
 		const key = t.dataset.key, orig = t.dataset.orig === '' ? null : +t.dataset.orig, raw = t.value.trim(), v = raw === '' ? null : +raw;
+		if (key.startsWith('x|')) {
+			const [, n, ch, ci, rar] = key.split('|');
+			const x = mine.cx[`${n}|${ch}`]?.[+ci];
+			if (x) (x as any)[rar] = v !== null && Number.isFinite(v) ? v : null;
+			return saveMine(true);
+		}
 		if (v === null || !Number.isFinite(v) || v === orig) { delete mine.ov[key]; t.value = orig ?? ''; }
 		else mine.ov[key] = v;
 		t.classList.toggle('dn-ov', key in mine.ov);
@@ -243,6 +272,20 @@ import data from '../data/dominations.json';
 	const checkbox = (act: string, id: string, on: boolean) => `<input type="checkbox" data-act="${act}" data-id="${esc(id)}"${on ? ' checked' : ''} />`;
 	const select = (act: string, id: string, opts: string[], cur: string) => `<select data-act="${act}" data-id="${esc(id)}">${opts.map((o) => `<option${o === cur ? ' selected' : ''}>${o}</option>`).join('')}</select>`;
 
+	function benCell(r: any) {
+		const swapped = mine.sw.includes(r.n);
+		const line = (b: any) => {
+			const k = b.custom ? `x|${r.n}|${view}|${b.i}` : `c|${r.n}|${b.ch}|${b.i}`;
+			const name = !editMode ? esc(b.b) : b.custom
+				? `<input type="text" class="dn-name dn-ov" data-act="xn" data-id="${esc(r.n)}" data-ci="${b.i}" value="${esc(b.b)}" />`
+				: `<input type="text" class="dn-name${mine.nm[k] ? ' dn-ov' : ''}" data-act="nm" data-key="${esc(k)}" data-orig="${esc(b.b0 ?? b.b)}" value="${esc(b.b)}" />`;
+			const del = editMode ? `<button class="dn-x" data-act="${b.custom ? 'xdel' : 'hide'}" data-id="${esc(r.n)}" data-key="${esc(k)}" data-ci="${b.i}" title="Verwijder deze benefit">✕</button>` : '';
+			return `<span class="dn-ben">${name} ${numCell(`${k}|Epic`, b.Epic, b.E0)} → ${numCell(`${k}|Legendary`, b.Legendary, b.L0)} ${del}</span>`;
+		};
+		const tools = editMode ? `<div class="dn-tools"><button class="dn-btn" data-act="xadd" data-id="${esc(r.n)}">+ benefit toevoegen</button> <button class="dn-btn${swapped ? ' dn-btn--p' : ''}" data-act="swap" data-id="${esc(r.n)}" title="Wissel de wiki-benefits van Primary en War voor deze councilor">⇄ Primary/War wisselen${swapped ? ' (aan)' : ''}</button></div>` : '';
+		const hidden = mine.hd.filter((h) => h.startsWith(`c|${r.n}|`)).length;
+		return (r.bens.length ? r.bens.map(line).join('') : '<span class="stat-footnote">Geen benefits in deze chamber</span>') + (editMode && hidden ? ` <span class="stat-footnote">(${hidden} wiki-benefit(s) verborgen)</span>` : '') + tools;
+	}
 	function renderC() {
 		const q = $('c-q').value.toLowerCase(), own = $('c-own').value, type = $('c-type').value;
 		const rows = cNames
@@ -262,19 +305,36 @@ import data from '../data/dominations.json';
 			[`Andere chamber`, (r: any) => r.oth, (r: any) => (r.oth ? `<span class="stat-footnote">${r.oth}</span>` : '')],
 			[`Epic Σ ${view}`, (r: any) => r.es, (r: any) => (r.es ? r1(r.es) : '')],
 			[`Legendary Σ ${view}`, (r: any) => r.ls, (r: any) => (r.ls ? r1(r.ls) : '–')],
-			[`Benefits ${view} (Epic → Legendary)`, (r: any) => r.bens.length, (r: any) => (r.bens.length ? r.bens.map((b: any) => `<span class="dn-ben">${esc(b.b)} ${numCell(`c|${r.n}|${view}|${b.i}|Epic`, b.Epic, b.E0)} → ${numCell(`c|${r.n}|${view}|${b.i}|Legendary`, b.Legendary, b.L0)}</span>`).join('') : '<span class="stat-footnote">Geen benefits in deze chamber</span>')],
+			[`Benefits ${view} (Epic → Legendary)`, (r: any) => r.bens.length, (r: any) => benCell(r)],
 		], rows, cState);
 	}
 	$('c-table').addEventListener('change', (e: any) => {
 		const t = e.target, id = t.dataset.id, act = t.dataset.act;
 		if (!act) return;
 		if (act === 'ov') return setOv(t);
+		if (act === 'nm') {
+			const v = t.value.trim();
+			if (!v || v === t.dataset.orig) delete mine.nm[t.dataset.key]; else mine.nm[t.dataset.key] = v.slice(0, 60);
+			return saveMine(true);
+		}
+		if (act === 'xn') { const x = mine.cx[`${id}|${view}`]?.[+t.dataset.ci]; if (x) x.b = t.value.trim().slice(0, 60); return saveMine(true); }
 		if (act === 'c-own') {
 			if (t.checked) mine.c[id] = { ...(mine.c[id] ?? {}), [view]: { rar: 'Legendary', live: true } };
 			else { delete mine.c[id]?.[view as 'Primary' | 'War']; if (!mine.c[id]?.Primary && !mine.c[id]?.War) delete mine.c[id]; }
 		}
 		else if (act === 'c-live') mine.c[id][view as 'Primary' | 'War']!.live = t.checked;
 		else if (act === 'c-rar') mine.c[id][view as 'Primary' | 'War']!.rar = t.value;
+		saveMine();
+	});
+	$('c-table').addEventListener('click', (e: any) => {
+		const t = e.target.closest('button[data-act]');
+		if (!t) return;
+		const id = t.dataset.id, act = t.dataset.act, ck = `${id}|${view}`;
+		if (act === 'xadd') (mine.cx[ck] ??= []).push({ b: 'Nieuwe benefit', Epic: null, Legendary: null });
+		else if (act === 'xdel') { mine.cx[ck].splice(+t.dataset.ci, 1); if (!mine.cx[ck].length) delete mine.cx[ck]; }
+		else if (act === 'hide') mine.hd.push(t.dataset.key);
+		else if (act === 'swap') mine.sw = mine.sw.includes(id) ? mine.sw.filter((x) => x !== id) : [...mine.sw, id];
+		else return;
 		saveMine();
 	});
 	['c-q', 'c-own', 'c-type'].forEach((id) => $(id).addEventListener('input', renderC));
@@ -366,7 +426,7 @@ import data from '../data/dominations.json';
 		$('m-advice').innerHTML = adv.join('');
 	}
 	function updateOvButton() {
-		const n = Object.keys(mine.ov).length;
+		const n = changes(mine);
 		$('m-ovreset').hidden = !n;
 		$('m-ovreset').textContent = `Reset aanpassingen (${n})`;
 	}
@@ -380,7 +440,7 @@ import data from '../data/dominations.json';
 		$('m-edit').textContent = editMode ? 'Klaar met bewerken' : 'Waarden bewerken';
 		renderAll();
 	});
-	$('m-ovreset').addEventListener('click', () => { if (confirm('Al je aangepaste percentages terugzetten naar de wiki-waarden?')) { mine.ov = {}; saveMine(); } });
+	$('m-ovreset').addEventListener('click', () => { if (confirm('Al je aanpassingen (percentages, namen, verwijderde, toegevoegde benefits en gewisselde chambers) terugzetten naar de wiki?')) { mine.ov = {}; mine.nm = {}; mine.hd = []; mine.sw = []; mine.cx = {}; saveMine(); } });
 	['cP', 'cW', 'aM', 'aW'].forEach((k) => $('lim-' + k).addEventListener('input', () => { mine.lim[k] = Math.max(0, +$('lim-' + k).value || 0); saveMine(); }));
 	$('m-clear').addEventListener('click', () => { if (confirm('Je hele collectie wissen?')) { mine = blank(); setLimInputs(); saveMine(); } });
 	$('m-export').addEventListener('click', () => prompt('Kopieer deze tekst om je collectie te bewaren:', JSON.stringify(mine)));
@@ -439,5 +499,10 @@ import data from '../data/dominations.json';
 	.dn-ben { display: inline-block; margin: 0 0.9rem 0.15rem 0; color: var(--color-muted); white-space: nowrap; }
 	.dn-ben b { color: var(--color-text); }
 	.dn-num { width: 3.6rem; font: inherit; font-size: 0.8rem; padding: 0.1rem 0.25rem; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text); }
+	.dn-name { width: 12rem; font: inherit; font-size: 0.8rem; padding: 0.1rem 0.3rem; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text); }
+	.dn-x { border: 0; background: none; color: var(--color-muted); cursor: pointer; font-size: 0.8rem; padding: 0 0.2rem; }
+	.dn-x:hover { color: #c0341d; }
+	.dn-tools { margin-top: 0.4rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+	.dn-tools .dn-btn { font-size: 0.78rem; padding: 0.25rem 0.6rem; }
 	.dn-ov { color: var(--color-accent) !important; border-color: var(--color-accent); }
 </style>
