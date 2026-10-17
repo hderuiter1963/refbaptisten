@@ -14,7 +14,7 @@ import data from '../data/dominations.json';
 		<h1 class="page__title">DomiNations: Councilors &amp; Artifacts</h1>
 		<p class="stat-footnote">
 			Bron: dominations.fandom.com (CC-BY-SA), opgehaald op {data.fetched}. Amelia Earhart (alleen War, Legendary) en Galileo Galilei (alleen Primary, Epic) zijn handmatig toegevoegd omdat de wiki ze nog mist.
-			Alleen Legendary en Mythical artifacts hebben vaste stats. Stats zijn basiswaarden (zonder levels). De indeling in aanval/verdediging/economie is een trefwoord-benadering.
+			Alleen Legendary en Mythical artifacts hebben vaste stats. Stats zijn basiswaarden (zonder levels). Klopt een percentage niet meer? Zet "Waarden bewerken" aan en pas het zelf aan; jouw waarde overschrijft de wiki en wordt bij je collectie bewaard. De indeling in aanval/verdediging/economie is een trefwoord-benadering.
 		</p>
 
 		<div class="dn-box">
@@ -31,6 +31,8 @@ import data from '../data/dominations.json';
 				<label>Councilors War <input type="number" min="0" id="lim-cW" /></label>
 				<label>Artifacts main <input type="number" min="0" id="lim-aM" /></label>
 				<label>Artifacts war <input type="number" min="0" id="lim-aW" /></label>
+				<button class="dn-btn" id="m-edit">Waarden bewerken</button>
+				<button class="dn-btn" id="m-ovreset" hidden>Reset aanpassingen</button>
 				<button class="dn-btn" id="m-export">Exporteer</button>
 				<button class="dn-btn" id="m-import">Importeer</button>
 				<button class="dn-btn" id="m-clear">Alles wissen</button>
@@ -125,25 +127,26 @@ import data from '../data/dominations.json';
 		// Dezelfde benefit kan meerdere keren voorkomen (aparte slots): neem de eerste entry
 		// waar deze zeldzaamheid nog leeg is, anders een nieuwe.
 		let e = [...m.values()].find((x) => x.b === r.b && x[r.rar] == null);
-		if (!e) { e = { b: r.b, dom: r.dom, Epic: null, Legendary: null }; m.set(`${r.b}#${m.size}`, e); }
+		if (!e) { e = { b: r.b, dom: r.dom, i: m.size, Epic: null, Legendary: null }; m.set(`${r.b}#${m.size}`, e); }
 		e[r.rar] = r.v;
 	});
+	CB.forEach((m) => m.forEach((e) => { e.E0 = e.Epic; e.L0 = e.Legendary; }));
 	const cBen = (n: string, ch: string): any[] => [...(CB.get(`${n}|${ch}`)?.values() ?? [])];
 	const cScore = (n: string, ch: string, rar: string) => cBen(n, ch).reduce((s, x) => s + (x[rar] != null && inFocus(x.dom) ? Math.abs(x[rar]) : 0), 0);
 	const A = new Map<string, any>();
 	D.artifacts.forEach(([n, k, b, dom, st, v]: any[]) => {
 		const key = `${n}|${k}`;
 		if (!A.has(key)) A.set(key, { id: key, n, k, items: [] });
-		A.get(key).items.push({ b, dom, st, v });
+		A.get(key).items.push({ b, dom, st, v, v0: v, i: A.get(key).items.length });
 	});
 	const aAll = [...A.values()].map((a) => ({ ...a, exh: a.k.includes('War') ? 'War' : 'Main' }));
 	const aScore = (a: any) => sumAbs(a.items.filter((i: any) => inFocus(i.dom)));
 
 	// ---------- Collectie (lokaal + server) ----------
 	type CM = { rar: string; p: boolean; w: boolean };
-	type Mine = { c: Record<string, CM>; a: string[]; aOff: string[]; lim: Record<string, number> };
+	type Mine = { c: Record<string, CM>; a: string[]; aOff: string[]; lim: Record<string, number>; ov: Record<string, number> };
 	const KEY = 'dn-mine';
-	const blank = (): Mine => ({ c: {}, a: [], aOff: [], lim: {} });
+	const blank = (): Mine => ({ c: {}, a: [], aOff: [], lim: {}, ov: {} });
 	// Leest ook het oude formaat (c als lijst met `off`) en maakt het schoon.
 	function norm(m: any): Mine {
 		const o = blank();
@@ -160,11 +163,12 @@ import data from '../data/dominations.json';
 		o.a = (Array.isArray(m.a) ? m.a : []).filter((id: any) => A.has(id));
 		o.aOff = (Array.isArray(m.aOff) ? m.aOff : []).filter((id: any) => A.has(id));
 		if (m.lim && typeof m.lim === 'object') ['cP', 'cW', 'aM', 'aW'].forEach((k) => { if (+m.lim[k] > 0) o.lim[k] = +m.lim[k]; });
+		if (m.ov && typeof m.ov === 'object') Object.entries<any>(m.ov).forEach(([k, v]) => { if (/^[ca]\|/.test(k) && Number.isFinite(+v) && Math.abs(+v) <= 1000 && v !== null && v !== '') o.ov[k] = +v; });
 		return o;
 	}
 	let mine: Mine = blank();
 	try { mine = norm(JSON.parse(localStorage.getItem(KEY) || 'null')); } catch {}
-	const isEmpty = (m: Mine) => !Object.keys(m.c).length && !m.a.length;
+	const isEmpty = (m: Mine) => !Object.keys(m.c).length && !m.a.length && !Object.keys(m.ov).length;
 	const KEYSTORE = 'dn-key';
 	let pw = '';
 	try { pw = localStorage.getItem(KEYSTORE) || ''; } catch {}
@@ -172,9 +176,31 @@ import data from '../data/dominations.json';
 	const status = (t: string) => { $('m-status').textContent = t; };
 	const api = (method: string, body?: string) => fetch('/api/dominations/', { method, headers: { 'x-dn-key': pw, ...(body ? { 'Content-Type': 'application/json' } : {}) }, body });
 	const setLimInputs = () => ['cP', 'cW', 'aM', 'aW'].forEach((k) => ($('lim-' + k).value = mine.lim[k] || ''));
-	function saveMine() {
+	// Eigen aanpassingen (mine.ov) leggen we over de wiki-waarden heen.
+	function applyOv() {
+		const ov = mine.ov;
+		CB.forEach((m, k) => {
+			const [n, ch] = k.split('|');
+			m.forEach((e) => RAR.forEach((r) => { const key = `c|${n}|${ch}|${e.i}|${r}`; e[r] = key in ov ? ov[key] : r === 'Epic' ? e.E0 : e.L0; }));
+		});
+		A.forEach((a) => a.items.forEach((it: any) => { const key = `a|${a.id}|${it.i}`; it.v = key in ov ? ov[key] : it.v0; }));
+	}
+	let editMode = false;
+	const numCell = (key: string, cur: number | null, orig: number | null) => {
+		const changed = cur !== orig;
+		if (editMode) return `<input type="number" step="any" class="dn-num${changed ? ' dn-ov' : ''}" data-act="ov" data-key="${esc(key)}" data-orig="${orig ?? ''}" value="${cur ?? ''}" />%`;
+		return cur == null ? '–' : `<b${changed ? ` class="dn-ov" title="wiki: ${orig == null ? 'leeg' : fmt(orig)}"` : ''}>${fmt(cur)}</b>`;
+	};
+	function setOv(t: any) {
+		const key = t.dataset.key, orig = t.dataset.orig === '' ? null : +t.dataset.orig, raw = t.value.trim(), v = raw === '' ? null : +raw;
+		if (v === null || !Number.isFinite(v) || v === orig) { delete mine.ov[key]; t.value = orig ?? ''; }
+		else mine.ov[key] = v;
+		t.classList.toggle('dn-ov', key in mine.ov);
+		saveMine(true);
+	}
+	function saveMine(light = false) {
 		try { localStorage.setItem(KEY, JSON.stringify(mine)); } catch {}
-		renderAll();
+		if (light) { applyOv(); renderM(); updateOvButton(); } else renderAll();
 		if (!pw) return;
 		clearTimeout(pushTimer);
 		status('Opslaan…');
@@ -225,12 +251,13 @@ import data from '../data/dominations.json';
 			['Live War', (r: any) => +r.w, (r: any) => (r.own ? checkbox('c-w', r.id, r.w) : '')],
 			[`Epic Σ ${view}`, (r: any) => r.es, (r: any) => (r.es ? r1(r.es) : '')],
 			[`Legendary Σ ${view}`, (r: any) => r.ls, (r: any) => (r.ls ? r1(r.ls) : '–')],
-			[`Benefits ${view} (Epic → Legendary)`, (r: any) => r.bens.length, (r: any) => (r.bens.length ? r.bens.map((b: any) => `<span class="dn-ben">${esc(b.b)} <b>${b.Epic != null ? fmt(b.Epic) : '–'} → ${b.Legendary != null ? fmt(b.Legendary) : '–'}</b></span>`).join('') : '<span class="stat-footnote">Geen benefits in deze chamber</span>')],
+			[`Benefits ${view} (Epic → Legendary)`, (r: any) => r.bens.length, (r: any) => (r.bens.length ? r.bens.map((b: any) => `<span class="dn-ben">${esc(b.b)} ${numCell(`c|${r.n}|${view}|${b.i}|Epic`, b.Epic, b.E0)} → ${numCell(`c|${r.n}|${view}|${b.i}|Legendary`, b.Legendary, b.L0)}</span>`).join('') : '<span class="stat-footnote">Geen benefits in deze chamber</span>')],
 		], rows, cState);
 	}
 	$('c-table').addEventListener('change', (e: any) => {
 		const t = e.target, id = t.dataset.id, act = t.dataset.act;
 		if (!act) return;
+		if (act === 'ov') return setOv(t);
 		if (act === 'c-own') { if (t.checked) { const ch = cBen(id, view).length ? view : view === 'War' ? 'Primary' : 'War'; mine.c[id] = { rar: 'Legendary', p: ch === 'Primary', w: ch === 'War' }; } else delete mine.c[id]; }
 		else if (act === 'c-p') mine.c[id].p = t.checked;
 		else if (act === 'c-w') mine.c[id].w = t.checked;
@@ -261,12 +288,13 @@ import data from '../data/dominations.json';
 			['Klasse', (r: any) => r.k, (r: any) => r.k],
 			['Aantal', (r: any) => r.items.length, (r: any) => r.items.length],
 			['Totaal', (r: any) => r.score, (r: any) => r1(r.score)],
-			['Benefits', (r: any) => r.items.length, (r: any) => r.items.map((i: any) => `<span class="dn-ben">${esc(i.b)} <b>${fmt(i.v)}</b></span>`).join('')],
+			['Benefits', (r: any) => r.items.length, (r: any) => r.items.map((i: any) => `<span class="dn-ben">${esc(i.b)} ${numCell(`a|${r.id}|${i.i}`, i.v, i.v0)}</span>`).join('')],
 		], rows, aState);
 	}
 	$('a-table').addEventListener('change', (e: any) => {
 		const t = e.target, id = t.dataset.id, act = t.dataset.act;
 		if (!act) return;
+		if (act === 'ov') return setOv(t);
 		if (act === 'a-own') { if (t.checked) { if (!mine.a.includes(id)) mine.a.push(id); } else { mine.a = mine.a.filter((x) => x !== id); mine.aOff = mine.aOff.filter((x) => x !== id); } }
 		else if (act === 'a-live') mine.aOff = t.checked ? mine.aOff.filter((x) => x !== id) : [...new Set([...mine.aOff, id])];
 		saveMine();
@@ -329,10 +357,22 @@ import data from '../data/dominations.json';
 		list('In bezit maar niet live', sleeping.map((x) => `<b>${x.t}</b>: ${r1(x.v)}`), 'Overweeg deze live te zetten als je slots het toelaten.');
 		$('m-advice').innerHTML = adv.join('');
 	}
-	function renderAll() { renderC(); renderA(); renderM(); }
+	function updateOvButton() {
+		const n = Object.keys(mine.ov).length;
+		$('m-ovreset').hidden = !n;
+		$('m-ovreset').textContent = `Reset aanpassingen (${n})`;
+	}
+	function renderAll() { applyOv(); renderC(); renderA(); renderM(); updateOvButton(); }
 
 	// ---------- Bediening ----------
 	$('m-focus').addEventListener('input', renderAll);
+	$('m-edit').addEventListener('click', () => {
+		editMode = !editMode;
+		$('m-edit').classList.toggle('dn-btn--p', editMode);
+		$('m-edit').textContent = editMode ? 'Klaar met bewerken' : 'Waarden bewerken';
+		renderAll();
+	});
+	$('m-ovreset').addEventListener('click', () => { if (confirm('Al je aangepaste percentages terugzetten naar de wiki-waarden?')) { mine.ov = {}; saveMine(); } });
 	['cP', 'cW', 'aM', 'aW'].forEach((k) => $('lim-' + k).addEventListener('input', () => { mine.lim[k] = Math.max(0, +$('lim-' + k).value || 0); saveMine(); }));
 	$('m-clear').addEventListener('click', () => { if (confirm('Je hele collectie wissen?')) { mine = blank(); setLimInputs(); saveMine(); } });
 	$('m-export').addEventListener('click', () => prompt('Kopieer deze tekst om je collectie te bewaren:', JSON.stringify(mine)));
@@ -390,4 +430,6 @@ import data from '../data/dominations.json';
 	.dn-owned td { background: color-mix(in srgb, var(--color-primary) 7%, transparent); }
 	.dn-ben { display: inline-block; margin: 0 0.9rem 0.15rem 0; color: var(--color-muted); white-space: nowrap; }
 	.dn-ben b { color: var(--color-text); }
+	.dn-num { width: 3.6rem; font: inherit; font-size: 0.8rem; padding: 0.1rem 0.25rem; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text); }
+	.dn-ov { color: var(--color-accent) !important; border-color: var(--color-accent); }
 </style>

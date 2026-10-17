@@ -73,7 +73,7 @@ export const PUT: APIRoute = async ({ request }) => {
 	if (!mine || typeof mine.c !== 'object' || mine.c === null || !Array.isArray(mine.a)) return json({ ok: false, error: 'Ongeldige data.' }, 400);
 
 	try {
-		await kv.set(DATA_KEY, { c: mine.c, a: mine.a, aOff: mine.aOff ?? [], lim: mine.lim ?? {} });
+		await kv.set(DATA_KEY, { c: mine.c, a: mine.a, aOff: mine.aOff ?? [], lim: mine.lim ?? {}, ov: mine.ov ?? {} });
 		return json({ ok: true });
 	} catch {
 		return json({ ok: false, error: 'Opslag (KV) is niet bereikbaar.' }, 502);
