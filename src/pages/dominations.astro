@@ -19,6 +19,7 @@ import data from '../data/dominations.json';
 		<div class="dn-tabs" role="tablist">
 			<button class="dn-tab is-active" data-tab="c" role="tab">Councilors</button>
 			<button class="dn-tab" data-tab="a" role="tab">Artifacts</button>
+			<button class="dn-tab" data-tab="m" role="tab">Mijn collectie</button>
 		</div>
 
 		<section id="dn-c">
@@ -50,6 +51,41 @@ import data from '../data/dominations.json';
 			<h2>Artifacts <small id="a-count"></small></h2>
 			<p class="stat-footnote">Klik op een rij voor de benefits. Totaal = som van de absolute stat-waarden.</p>
 			<div class="dn-tablewrap"><table class="dn-table" id="a-table"></table></div>
+		</section>
+
+		<section id="dn-m" hidden>
+			<p class="stat-footnote">Je invoer blijft alleen in deze browser bewaard (localStorage), niet op de server. De stats zijn basiswaarden van de wiki (zonder levels).</p>
+			<div class="dn-filters">
+				<label>Focus <select id="m-focus"><option value="">Alles</option><option>Offense</option><option>Defense</option><option>Economy</option></select></label>
+				<button class="dn-btn" id="m-export">Exporteer</button>
+				<button class="dn-btn" id="m-import">Importeer</button>
+				<button class="dn-btn" id="m-clear">Alles wissen</button>
+			</div>
+			<div class="dn-grid">
+				<div>
+					<h2>Mijn councilors</h2>
+					<div class="dn-filters">
+						<select id="mc-name"></select>
+						<select id="mc-rar"></select>
+						<select id="mc-ch"><option>Primary</option><option>War</option></select>
+						<button class="dn-btn dn-btn--p" id="mc-add">Toevoegen</button>
+					</div>
+					<div id="mc-list"></div>
+				</div>
+				<div>
+					<h2>Mijn artifacts</h2>
+					<div class="dn-filters">
+						<select id="ma-name"></select>
+						<button class="dn-btn dn-btn--p" id="ma-add">Toevoegen</button>
+					</div>
+					<div id="ma-list"></div>
+				</div>
+			</div>
+			<div class="dn-tiles" id="m-tiles"></div>
+			<h2>Mijn totalen per benefit</h2>
+			<div class="dn-tablewrap"><table class="dn-table" id="m-totals"></table></div>
+			<h2>Verbeteradvies</h2>
+			<div class="dn-grid" id="m-advice"></div>
 		</section>
 
 		<script id="dn-data" type="application/json" set:html={JSON.stringify(data)} />
@@ -175,14 +211,105 @@ import data from '../data/dominations.json';
 	}
 	['a-q', 'a-klass', 'a-domain'].forEach((id) => $(id).addEventListener('input', renderA));
 
+	// ---------- Mijn collectie ----------
+	type Mine = { c: { n: string; rar: string; ch: string }[]; a: string[] };
+	const KEY = 'dn-mine';
+	const loadMine = (): Mine => {
+		try { const m = JSON.parse(localStorage.getItem(KEY) || ''); if (m && Array.isArray(m.c) && Array.isArray(m.a)) return m; } catch {}
+		return { c: [], a: [] };
+	};
+	let mine: Mine = loadMine();
+	const saveMine = () => { try { localStorage.setItem(KEY, JSON.stringify(mine)); } catch {} renderM(); };
+	const cNames = [...new Set<string>(C.map((r: any) => r.n))].sort((x, y) => x.localeCompare(y, 'nl'));
+	$('mc-name').innerHTML = cNames.map((n) => `<option>${esc(n)}</option>`).join('');
+	$('mc-rar').innerHTML = RAR.map((r) => `<option${r === 'Legendary' ? ' selected' : ''}>${r}</option>`).join('');
+	$('ma-name').innerHTML = aAll.slice().sort((x, y) => x.n.localeCompare(y.n, 'nl') || x.k.localeCompare(y.k)).map((a) => `<option value="${esc(a.id)}">${esc(a.n)} (${a.k})</option>`).join('');
+	const sumAbs = (xs: any[]) => xs.reduce((s: number, x: any) => s + Math.abs(x.v), 0);
+	// Benefits van een councilor bij een rarity: alleen waarden die op die rarity al bestaan.
+	const cBenefits = (n: string, ch: string, rar: string) => C.filter((r: any) => r.n === n && r.ch === ch && r.rar === rar);
+	const inFocus = (dom: string) => !$('m-focus').value || dom === $('m-focus').value;
+	const btnRm = (kind: string, i: number) => `<button class="dn-btn" data-rm="${kind}" data-i="${i}" title="Verwijder">✕</button>`;
+
+	function renderM() {
+		const tot = new Map<string, { dom: string; c: number; a: number }>();
+		const add = (b: string, dom: string, key: 'c' | 'a', v: number) => {
+			if (!tot.has(b)) tot.set(b, { dom, c: 0, a: 0 });
+			tot.get(b)![key] += v;
+		};
+		$('mc-list').innerHTML = mine.c.length ? mine.c.map((m, i) => {
+			const bs = cBenefits(m.n, m.ch, m.rar);
+			bs.forEach((r: any) => add(r.b, r.dom, 'c', r.v));
+			const ri = RAR.indexOf(m.rar), next = ri < 4 ? sumAbs(cBenefits(m.n, m.ch, RAR[ri + 1])) - sumAbs(bs) : 0;
+			return `<div class="dn-own"><div><b>${esc(m.n)}</b> · ${m.rar} · ${m.ch} ${btnRm('c', i)}</div><div class="dn-own__b">${bs.length ? bs.map((r: any) => `${esc(r.b)} <b>${fmt(r.v)}</b>`).join(' · ') : 'Geen benefits op deze zeldzaamheid/chamber'}${next > 0 ? `<br><em>Volgende rarity: +${r1(next)} stat-punten</em>` : ''}</div></div>`;
+		}).join('') : '<p class="stat-footnote">Nog geen councilors toegevoegd.</p>';
+		const mineA = mine.a.map((id) => A.get(id)).filter(Boolean);
+		$('ma-list').innerHTML = mineA.length ? mineA.map((a: any, i: number) => {
+			a.items.forEach((x: any) => add(x.b, x.dom, 'a', x.v));
+			return `<div class="dn-own"><div><b>${esc(a.n)}</b> · ${a.k} · totaal ${sumAbs(a.items)} ${btnRm('a', i)}</div><div class="dn-own__b">${a.items.map((x: any) => `${esc(x.b)} <b>${fmt(x.v)}</b>`).join(' · ')}</div></div>`;
+		}).join('') : '<p class="stat-footnote">Nog geen artifacts toegevoegd.</p>';
+
+		const rows = [...tot].map(([b, o]) => ({ id: b, b, dom: o.dom, c: o.c, a: o.a, t: o.c + o.a })).filter((r) => inFocus(r.dom));
+		const dom = (d: string) => rows.filter((r) => r.dom === d).reduce((s, r) => s + Math.abs(r.t), 0);
+		tiles('m-tiles', [['councilors', String(mine.c.length)], ['artifacts', String(mineA.length)], ['aanval', r1(dom('Offense'))], ['verdediging', r1(dom('Defense'))], ['economie', r1(dom('Economy'))]]);
+		table('m-totals', [
+			['Benefit', (r: any) => r.b, (r: any) => esc(r.b)],
+			['Soort', (r: any) => r.dom, (r: any) => r.dom],
+			['Councilors', (r: any) => Math.abs(r.c), (r: any) => (r.c ? fmt(r.c) : '')],
+			['Artifacts', (r: any) => Math.abs(r.a), (r: any) => (r.a ? fmt(r.a) : '')],
+			['Totaal', (r: any) => Math.abs(r.t), (r: any) => `<b>${fmt(r.t)}</b>`],
+		], rows, mState);
+
+		// Adviezen
+		const adv: string[] = [];
+		const list = (title: string, items: string[], note = '') => adv.push(`<div><h3>${title}</h3>${note ? `<p class="stat-footnote">${note}</p>` : ''}${items.length ? '<ol>' + items.map((x) => `<li>${x}</li>`).join('') + '</ol>' : '<p class="stat-footnote">Niets te adviseren.</p>'}</div>`);
+		const ups = mine.c.map((m) => {
+			const ri = RAR.indexOf(m.rar); if (ri >= 4) return null;
+			const f = (rar: string) => sumAbs(cBenefits(m.n, m.ch, rar).filter((r: any) => inFocus(r.dom)));
+			return { m, gain: f(RAR[ri + 1]) - f(m.rar) };
+		}).filter((x: any) => x && x.gain > 0).sort((x: any, y: any) => y.gain - x.gain).slice(0, 6) as any[];
+		list('Councilors upgraden', ups.map((u) => `<b>${esc(u.m.n)}</b> ${u.m.rar} → ${RAR[RAR.indexOf(u.m.rar) + 1]}: +${r1(u.gain)}`), 'Winst in stat-punten (binnen je focus).');
+		const owned = new Set(mine.c.map((m) => m.n));
+		const best = cNames.filter((n) => !owned.has(n)).map((n) => {
+			const per = ['Primary', 'War'].map((ch) => ({ ch, v: sumAbs(C.filter((r: any) => r.n === n && r.ch === ch && r.rar === 'Legendary' && inFocus(r.dom))) }));
+			return per.sort((x, y) => y.v - x.v)[0] && { n, ...per.sort((x, y) => y.v - x.v)[0] };
+		}).filter((x: any) => x && x.v > 0).sort((x: any, y: any) => y.v - x.v).slice(0, 6) as any[];
+		list('Councilors om te zoeken (Legendary)', best.map((x) => `<b>${esc(x.n)}</b> in ${x.ch}-chamber: ${r1(x.v)}`), 'Je hebt ze nog niet; getoond is de beste chamber.');
+		const mUp = mineA.map((a: any) => {
+			const to = a.k.replace('Legendary', 'Mythical'), m2 = a.k.startsWith('Legendary') ? A.get(`${a.n}|${to}`) : null;
+			if (!m2) return null;
+			const f = (x: any) => sumAbs(x.items.filter((i: any) => inFocus(i.dom)));
+			return { a, gain: f(m2) - f(a) };
+		}).filter((x: any) => x && x.gain > 0).sort((x: any, y: any) => y.gain - x.gain).slice(0, 6) as any[];
+		list('Artifacts naar Mythical', mUp.map((u) => `<b>${esc(u.a.n)}</b> (${u.a.k}): +${r1(u.gain)}`), 'Beschikbare Mythical-variant van een artifact dat je al hebt.');
+		const ownedA = new Set(mine.a);
+		const bestA = aAll.filter((a) => !ownedA.has(a.id)).map((a) => ({ a, v: sumAbs(a.items.filter((i: any) => inFocus(i.dom))) })).filter((x) => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 6);
+		list('Sterkste artifacts die je mist', bestA.map((x) => `<b>${esc(x.a.n)}</b> (${x.a.k}): ${r1(x.v)}`));
+		$('m-advice').innerHTML = adv.join('');
+		$('mc-list').querySelectorAll('[data-rm]').forEach((b: HTMLElement) => b.addEventListener('click', () => { mine.c.splice(+b.dataset.i!, 1); saveMine(); }));
+		$('ma-list').querySelectorAll('[data-rm]').forEach((b: HTMLElement) => b.addEventListener('click', () => { mine.a.splice(+b.dataset.i!, 1); saveMine(); }));
+	}
+	const mState = { k: 4, d: -1 };
+	$('mc-add').addEventListener('click', () => { mine.c.push({ n: $('mc-name').value, rar: $('mc-rar').value, ch: $('mc-ch').value }); saveMine(); });
+	$('ma-add').addEventListener('click', () => { if (!mine.a.includes($('ma-name').value)) mine.a.push($('ma-name').value); saveMine(); });
+	$('m-focus').addEventListener('input', renderM);
+	$('m-clear').addEventListener('click', () => { if (confirm('Je hele collectie wissen?')) { mine = { c: [], a: [] }; saveMine(); } });
+	$('m-export').addEventListener('click', () => prompt('Kopieer deze tekst om je collectie te bewaren:', JSON.stringify(mine)));
+	$('m-import').addEventListener('click', () => {
+		const t = prompt('Plak eerder geëxporteerde collectie-tekst:');
+		if (!t) return;
+		try { const m = JSON.parse(t); if (Array.isArray(m.c) && Array.isArray(m.a)) { mine = m; saveMine(); } else throw 0; } catch { alert('Ongeldige tekst.'); }
+	});
+
 	document.querySelectorAll('.dn-tab').forEach((t: any) =>
 		t.addEventListener('click', () => {
 			document.querySelectorAll('.dn-tab').forEach((x) => x.classList.toggle('is-active', x === t));
 			$('dn-c').hidden = t.dataset.tab !== 'c';
 			$('dn-a').hidden = t.dataset.tab !== 'a';
+			$('dn-m').hidden = t.dataset.tab !== 'm';
 		}));
 	renderC();
 	renderA();
+	renderM();
 </script>
 
 <style is:global>
@@ -221,4 +348,12 @@ import data from '../data/dominations.json';
 	.dn-click:hover { background: var(--color-bg-alt); }
 	.dn-detail td { background: var(--color-bg-alt); color: var(--color-muted); line-height: 1.7; }
 	.dn-detail td b { color: var(--color-text); }
+	.dn-btn { font: inherit; font-size: 0.85rem; padding: 0.4rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg-alt); color: var(--color-text); cursor: pointer; }
+	.dn-btn--p { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+	.dn-own { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.5rem 0.75rem; margin-bottom: 0.5rem; font-size: 0.85rem; }
+	.dn-own .dn-btn { float: right; padding: 0 0.5rem; }
+	.dn-own__b { color: var(--color-muted); line-height: 1.6; margin-top: 0.25rem; }
+	.dn-own__b b { color: var(--color-text); }
+	.dn h3 { font-size: 1rem; margin: 0 0 0.4rem; }
+	.dn ol { padding-left: 1.2rem; font-size: 0.9rem; line-height: 1.7; }
 </style>
