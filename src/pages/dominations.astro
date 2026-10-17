@@ -1,9 +1,10 @@
 ---
 // Verborgen pagina: niet in het menu, niet in zoekmachines (noindex, robots.txt,
 // niet in de sitemap), alleen bereikbaar via /dominations/.
-// Interactieve verkenner voor DomiNations-statistieken (Councilors en Artifacts),
+// Lijst van alle DomiNations-Councilors (Epic/Legendary) en -Artifacts (Legendary/Mythical),
 // gedownload van dominations.fandom.com (CC-BY-SA) en opgeslagen in
-// src/data/dominations.json. Volledig statisch: filteren en sorteren gebeurt in de browser.
+// src/data/dominations.json. Per item vink je "in bezit" en "live" aan; de collectie
+// wordt lokaal bewaard en (na inloggen) op de server via /api/dominations/.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import data from '../data/dominations.json';
 ---
@@ -12,94 +13,65 @@ import data from '../data/dominations.json';
 	<div class="container page dn">
 		<h1 class="page__title">DomiNations: Councilors &amp; Artifacts</h1>
 		<p class="stat-footnote">
-			Bron: dominations.fandom.com (CC-BY-SA), opgehaald op {data.fetched}. Amelia Earhart (alleen War, Legendary) is handmatig toegevoegd omdat de wiki haar nog mist. Alleen Legendary en Mythical artifacts hebben vaste stats;
-			gewone artifacts hebben willekeurige benefits. De indeling in aanval/verdediging/economie is een trefwoord-benadering.
+			Bron: dominations.fandom.com (CC-BY-SA), opgehaald op {data.fetched}. Amelia Earhart (alleen War, Legendary) is handmatig toegevoegd omdat de wiki haar nog mist.
+			Alleen Legendary en Mythical artifacts hebben vaste stats. Stats zijn basiswaarden (zonder levels). De indeling in aanval/verdediging/economie is een trefwoord-benadering.
 		</p>
+
+		<div class="dn-box">
+			<div class="dn-filters dn-login">
+				<input type="password" id="m-pw" placeholder="Wachtwoord" autocomplete="current-password" />
+				<button class="dn-btn dn-btn--p" id="m-login">Inloggen</button>
+				<button class="dn-btn" id="m-logout" hidden>Uitloggen</button>
+				<span id="m-status" class="stat-footnote">Niet ingelogd: alleen in deze browser opgeslagen.</span>
+			</div>
+			<div class="dn-filters dn-lim">
+				<label>Focus <select id="m-focus"><option value="">Alles</option><option>Offense</option><option>Defense</option><option>Economy</option></select></label>
+				<span>Live slots (0 = onbeperkt):</span>
+				<label>Councilors Primary <input type="number" min="0" id="lim-cP" /></label>
+				<label>Councilors War <input type="number" min="0" id="lim-cW" /></label>
+				<label>Artifacts main <input type="number" min="0" id="lim-aM" /></label>
+				<label>Artifacts war <input type="number" min="0" id="lim-aW" /></label>
+				<button class="dn-btn" id="m-export">Exporteer</button>
+				<button class="dn-btn" id="m-import">Importeer</button>
+				<button class="dn-btn" id="m-clear">Alles wissen</button>
+			</div>
+		</div>
 
 		<div class="dn-tabs" role="tablist">
 			<button class="dn-tab is-active" data-tab="c" role="tab">Councilors</button>
 			<button class="dn-tab" data-tab="a" role="tab">Artifacts</button>
-			<button class="dn-tab" data-tab="m" role="tab">Mijn collectie</button>
 		</div>
 
 		<section id="dn-c">
 			<div class="dn-filters">
 				<input type="search" id="c-q" placeholder="Zoek councilor of benefit…" />
-				<select id="c-chamber"><option value="">Alle chambers</option><option>Primary</option><option>War</option></select>
-				<select id="c-domain"><option value="">Alle soorten</option><option>Offense</option><option>Defense</option><option>Economy</option><option>Other</option></select>
+				<div class="dn-seg" id="c-view" role="group" aria-label="Chamber">
+					<button data-v="Primary" class="is-active">Primary</button><button data-v="War">War</button>
+				</div>
+				<select id="c-own"><option value="">Alle</option><option value="own">In bezit</option><option value="miss">Niet in bezit</option></select>
+				<select id="c-type"><option value="">Alle typen</option></select>
 			</div>
+			<p class="stat-footnote">De chamber-knop bepaalt welke benefits en scores je ziet. Bij een councilor in bezit kies je zeldzaamheid, zetel en of hij live staat. Klik op een kolomkop om te sorteren.</p>
 			<div class="dn-tiles" id="c-tiles"></div>
-			<div class="dn-grid">
-				<div><h2>Gemiddelde waarde per zeldzaamheid</h2><div class="dn-bars" id="c-rarity"></div></div>
-				<div><h2>Meest voorkomende benefits</h2><div class="dn-hbars" id="c-top"></div></div>
-			</div>
-			<h2>Benefits per councilor <small id="c-count"></small></h2>
 			<div class="dn-tablewrap"><table class="dn-table" id="c-table"></table></div>
 		</section>
 
 		<section id="dn-a" hidden>
 			<div class="dn-filters">
 				<input type="search" id="a-q" placeholder="Zoek artifact of benefit…" />
+				<select id="a-exh"><option value="">Main + War</option><option value="Main">Main exhibit</option><option value="War">War exhibit</option></select>
 				<select id="a-klass"><option value="">Alle klassen</option><option>Legendary</option><option>Legendary War</option><option>Mythical</option><option>Mythical War</option></select>
-				<select id="a-domain"><option value="">Alle soorten</option><option>Offense</option><option>Defense</option><option>Economy</option><option>Other</option></select>
+				<select id="a-own"><option value="">Alle</option><option value="own">In bezit</option><option value="miss">Niet in bezit</option></select>
 			</div>
 			<div class="dn-tiles" id="a-tiles"></div>
-			<div class="dn-grid">
-				<div><h2>Gemiddelde stat per klasse</h2><div class="dn-bars" id="a-klassbars"></div></div>
-				<div><h2>Meest voorkomende benefits</h2><div class="dn-hbars" id="a-top"></div></div>
-			</div>
-			<h2>Artifacts <small id="a-count"></small></h2>
-			<p class="stat-footnote">Klik op een rij voor de benefits. Totaal = som van de absolute stat-waarden.</p>
 			<div class="dn-tablewrap"><table class="dn-table" id="a-table"></table></div>
 		</section>
 
-		<section id="dn-m" hidden>
-			<p class="stat-footnote">Je collectie wordt in deze browser bewaard en, na inloggen, ook op de server (dan blijft ze bestaan na het wissen van je browser en werkt ze op al je apparaten). De stats zijn basiswaarden van de wiki (zonder levels).</p>
-			<div class="dn-filters dn-login">
-				<input type="password" id="m-pw" placeholder="Wachtwoord" autocomplete="current-password" />
-				<button class="dn-btn dn-btn--p" id="m-login">Inloggen</button>
-				<button class="dn-btn" id="m-logout" hidden>Uitloggen</button>
-				<span id="m-status" class="stat-footnote">Niet ingelogd: alleen lokaal opgeslagen.</span>
-			</div>
-			<div class="dn-filters">
-				<label>Focus <select id="m-focus"><option value="">Alles</option><option>Offense</option><option>Defense</option><option>Economy</option></select></label>
-				<button class="dn-btn" id="m-export">Exporteer</button>
-				<button class="dn-btn" id="m-import">Importeer</button>
-				<button class="dn-btn" id="m-clear">Alles wissen</button>
-			</div>
-			<div class="dn-filters dn-lim">
-				<span>Live slots (0 = onbeperkt):</span>
-				<label>Councilors Primary <input type="number" min="0" id="lim-cP" /></label>
-				<label>Councilors War <input type="number" min="0" id="lim-cW" /></label>
-				<label>Artifacts main <input type="number" min="0" id="lim-aM" /></label>
-				<label>Artifacts war <input type="number" min="0" id="lim-aW" /></label>
-			</div>
-			<div class="dn-grid">
-				<div>
-					<h2>Mijn councilors</h2>
-					<div class="dn-filters">
-						<select id="mc-name"></select>
-						<select id="mc-rar"></select>
-						<select id="mc-ch"><option>Primary</option><option>War</option></select>
-						<button class="dn-btn dn-btn--p" id="mc-add">Toevoegen</button>
-					</div>
-					<div id="mc-list"></div>
-				</div>
-				<div>
-					<h2>Mijn artifacts</h2>
-					<div class="dn-filters">
-						<select id="ma-name"></select>
-						<button class="dn-btn dn-btn--p" id="ma-add">Toevoegen</button>
-					</div>
-					<div id="ma-list"></div>
-				</div>
-			</div>
-			<div class="dn-tiles" id="m-tiles"></div>
-			<h2>Mijn totalen per benefit</h2>
-			<div class="dn-tablewrap"><table class="dn-table" id="m-totals"></table></div>
-			<h2>Verbeteradvies</h2>
-			<div class="dn-grid" id="m-advice"></div>
-		</section>
+		<h2>Mijn stats (live items)</h2>
+		<div class="dn-tiles" id="m-tiles"></div>
+		<div class="dn-tablewrap"><table class="dn-table" id="m-totals"></table></div>
+		<h2>Verbeteradvies</h2>
+		<div class="dn-grid" id="m-advice"></div>
 
 		<script id="dn-data" type="application/json" set:html={JSON.stringify(data)} />
 	</div>
@@ -107,142 +79,92 @@ import data from '../data/dominations.json';
 
 <script>
 	const D = JSON.parse(document.getElementById('dn-data')!.textContent!);
-	const RAR = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
+	const RAR = ['Epic', 'Legendary'];
 	const $ = (id: string) => document.getElementById(id) as any;
-	const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+	const esc = (s: string) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 	const fmt = (v: number) => (v > 0 ? '+' : '') + v + '%';
 	const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
 	const r1 = (n: number) => (Math.round(n * 10) / 10).toLocaleString('nl-NL');
-
+	const sumAbs = (xs: any[]) => xs.reduce((s: number, x: any) => s + Math.abs(x.v), 0);
 	const tiles = (el: string, items: [string, string][]) =>
 		($(el).innerHTML = items.map(([l, v]) => `<div class="dn-tile"><b>${v}</b><span>${l}</span></div>`).join(''));
-	const bars = (el: string, items: [string, number][]) => {
-		const max = Math.max(1, ...items.map((i) => i[1]));
-		$(el).innerHTML = items
-			.map(([l, v]) => `<div class="dn-col"><span class="dn-val">${r1(v)}</span><div class="dn-bararea"><i style="height:${(v / max) * 100}%"></i></div><span class="dn-lab">${esc(l)}</span></div>`)
-			.join('');
-	};
-	const hbars = (el: string, items: [string, number][]) => {
-		const max = Math.max(1, ...items.map((i) => i[1]));
-		$(el).innerHTML = items
-			.map(([l, v]) => `<div class="dn-row"><span class="dn-rl">${esc(l)}</span><span class="dn-track"><i style="width:${(v / max) * 100}%"></i></span><span class="dn-rv">${v}</span></div>`)
-			.join('');
-	};
-	const topCounts = (names: string[], n = 10): [string, number][] => {
-		const m = new Map<string, number>();
-		names.forEach((x) => m.set(x, (m.get(x) ?? 0) + 1));
-		return [...m].sort((a, b) => b[1] - a[1]).slice(0, n);
-	};
+	const inFocus = (dom: string) => !$('m-focus').value || dom === $('m-focus').value;
 
 	// Sorteerbare tabel: cols = [label, sortWaarde(rij), weergave(rij)]
-	function table(el: string, cols: any[], rows: any[], state: { k: number; d: number }, onRow?: (r: any) => string) {
+	function table(el: string, cols: any[], rows: any[], state: { k: number; d: number }) {
 		const sorted = rows.slice().sort((x, y) => {
 			const a = cols[state.k][1](x), b = cols[state.k][1](y);
 			return (typeof a === 'string' ? a.localeCompare(b, 'nl') : (a ?? -1e9) - (b ?? -1e9)) * state.d;
 		});
+		const wrap = $(el).parentElement, top = wrap.scrollTop;
 		$(el).innerHTML =
 			`<thead><tr>${cols.map((c, i) => `<th data-k="${i}" class="${i === state.k ? (state.d > 0 ? 'asc' : 'desc') : ''}">${c[0]}</th>`).join('')}</tr></thead><tbody>` +
-			sorted.slice(0, 400).map((r) => `<tr${onRow ? ' class="dn-click"' : ''} data-id="${esc(String(r.id ?? ''))}">${cols.map((c) => `<td>${c[2](r)}</td>`).join('')}</tr>${onRow ? `<tr class="dn-detail" hidden><td colspan="${cols.length}">${onRow(r)}</td></tr>` : ''}`).join('') +
+			sorted.map((r) => `<tr class="${r.own ? 'dn-owned' : ''}">${cols.map((c) => `<td>${c[2](r)}</td>`).join('')}</tr>`).join('') +
 			'</tbody>';
+		wrap.scrollTop = top;
 		$(el).querySelectorAll('th').forEach((th: HTMLElement) =>
 			th.addEventListener('click', () => {
 				const k = +th.dataset.k!;
-				state.d = state.k === k ? -state.d : k === 0 ? 1 : -1;
+				const first = rows.length ? cols[k][1](rows[0]) : '';
+				state.d = state.k === k ? -state.d : typeof first === 'string' ? 1 : -1;
 				state.k = k;
-				table(el, cols, rows, state, onRow);
+				table(el, cols, rows, state);
 			}));
-		if (onRow) $(el).querySelectorAll('tr.dn-click').forEach((tr: HTMLElement) => tr.addEventListener('click', () => ((tr.nextElementSibling as HTMLElement).hidden = !(tr.nextElementSibling as HTMLElement).hidden)));
 	}
 
-	// ---------- Councilors ----------
-	const C = D.councilors.map(([n, ch, b, dom, rar, v]: any[]) => ({ n, ch, b, dom, rar, v }));
-	const cRows = new Map<string, any>();
+	// ---------- Data ----------
+	const C = D.councilors.filter((r: any[]) => RAR.includes(r[4])).map(([n, ch, b, dom, rar, v]: any[]) => ({ n, ch, b, dom, rar, v }));
+	const TYPES: Record<string, string> = D.types;
+	const cNames = [...new Set<string>(C.map((r: any) => r.n))].sort((x, y) => x.localeCompare(y, 'nl'));
+	// councilor|chamber -> benefits met Epic- en Legendary-waarde
+	const CB = new Map<string, Map<string, any>>();
 	C.forEach((r: any) => {
-		const key = `${r.n}|${r.ch}|${r.b}`;
-		if (!cRows.has(key)) cRows.set(key, { id: key, n: r.n, ch: r.ch, b: r.b, dom: r.dom, vals: {} });
-		cRows.get(key).vals[r.rar] = r.v;
+		const k = `${r.n}|${r.ch}`;
+		if (!CB.has(k)) CB.set(k, new Map());
+		const m = CB.get(k)!;
+		if (!m.has(r.b)) m.set(r.b, { b: r.b, dom: r.dom, Epic: null, Legendary: null });
+		m.get(r.b)[r.rar] = r.v;
 	});
-	const cAll = [...cRows.values()];
-	const cState = { k: 0, d: 1 };
-	function renderC() {
-		const q = $('c-q').value.toLowerCase(), ch = $('c-chamber').value, dom = $('c-domain').value;
-		const rows = cAll.filter((r) => (!ch || r.ch === ch) && (!dom || r.dom === dom) && (!q || (r.n + ' ' + r.b).toLowerCase().includes(q)));
-		const leg = rows.filter((r) => r.vals.Legendary != null);
-		tiles('c-tiles', [
-			['councilors', String(new Set(rows.map((r) => r.n)).size)],
-			['benefits (rijen)', String(rows.length)],
-			['gem. Legendary', r1(mean(leg.map((r) => Math.abs(r.vals.Legendary)))) + '%'],
-			['hoogste Legendary', leg.length ? r1(Math.max(...leg.map((r) => Math.abs(r.vals.Legendary)))) + '%' : '–'],
-		]);
-		bars('c-rarity', RAR.map((x) => [x, mean(rows.filter((r) => r.vals[x] != null).map((r) => Math.abs(r.vals[x])))]));
-		hbars('c-top', topCounts(leg.map((r) => r.b)));
-		$('c-count').textContent = `(${rows.length})`;
-		table('c-table', [
-			['Councilor', (r: any) => r.n, (r: any) => esc(r.n)],
-			['Chamber', (r: any) => r.ch, (r: any) => r.ch],
-			['Benefit', (r: any) => r.b, (r: any) => esc(r.b)],
-			['Soort', (r: any) => r.dom, (r: any) => r.dom],
-			...RAR.map((x) => [x, (r: any) => (r.vals[x] == null ? null : Math.abs(r.vals[x])), (r: any) => (r.vals[x] == null ? '' : fmt(r.vals[x]))]),
-		], rows, cState);
-	}
-	['c-q', 'c-chamber', 'c-domain'].forEach((id) => $(id).addEventListener('input', renderC));
-
-	// ---------- Artifacts ----------
+	const cBen = (n: string, ch: string): any[] => [...(CB.get(`${n}|${ch}`)?.values() ?? [])];
+	const cScore = (n: string, ch: string, rar: string) => cBen(n, ch).reduce((s, x) => s + (x[rar] != null && inFocus(x.dom) ? Math.abs(x[rar]) : 0), 0);
 	const A = new Map<string, any>();
 	D.artifacts.forEach(([n, k, b, dom, st, v]: any[]) => {
 		const key = `${n}|${k}`;
 		if (!A.has(key)) A.set(key, { id: key, n, k, items: [] });
 		A.get(key).items.push({ b, dom, st, v });
 	});
-	const aAll = [...A.values()];
-	const aState = { k: 0, d: 1 };
-	function renderA() {
-		const q = $('a-q').value.toLowerCase(), kl = $('a-klass').value, dom = $('a-domain').value;
-		const rows = aAll
-			.filter((a) => !kl || a.k === kl)
-			.map((a) => {
-				const items = a.items.filter((i: any) => (!dom || i.dom === dom) && (!q || (a.n + ' ' + i.b).toLowerCase().includes(q)));
-				return { ...a, items, count: items.length, total: items.reduce((s: number, i: any) => s + Math.abs(i.v), 0) };
-			})
-			.filter((a) => a.count > 0);
-		const all = rows.flatMap((a) => a.items);
-		tiles('a-tiles', [
-			['artifacts', String(rows.length)],
-			['benefit-rijen', String(all.length)],
-			['gem. stat', r1(mean(all.map((i) => Math.abs(i.v)))) + '%'],
-			['gem. totaal/artifact', r1(mean(rows.map((a) => a.total)))],
-		]);
-		bars('a-klassbars', ['Legendary', 'Legendary War', 'Mythical', 'Mythical War'].map((k) => [k, mean(rows.filter((a) => a.k === k).flatMap((a) => a.items).map((i: any) => Math.abs(i.v)))]));
-		hbars('a-top', topCounts(all.map((i) => i.b)));
-		$('a-count').textContent = `(${rows.length})`;
-		table('a-table', [
-			['Artifact', (a: any) => a.n, (a: any) => esc(a.n)],
-			['Klasse', (a: any) => a.k, (a: any) => a.k],
-			['Benefits', (a: any) => a.count, (a: any) => a.count],
-			['Totaal', (a: any) => a.total, (a: any) => a.total],
-		], rows, aState, (a: any) => a.items.map((i: any) => `${esc(i.b)} <b>${fmt(i.v)}</b>`).join(' · '));
-	}
-	['a-q', 'a-klass', 'a-domain'].forEach((id) => $(id).addEventListener('input', renderA));
+	const aAll = [...A.values()].map((a) => ({ ...a, exh: a.k.includes('War') ? 'War' : 'Main' }));
+	const aScore = (a: any) => sumAbs(a.items.filter((i: any) => inFocus(i.dom)));
 
-	// ---------- Mijn collectie ----------
-	type Mine = { c: { n: string; rar: string; ch: string; off?: boolean }[]; a: string[]; aOff?: string[]; lim?: Record<string, number> };
+	// ---------- Collectie (lokaal + server) ----------
+	type CM = { rar: string; ch: string; live: boolean };
+	type Mine = { c: Record<string, CM>; a: string[]; aOff: string[]; lim: Record<string, number> };
 	const KEY = 'dn-mine';
-	const loadMine = (): Mine => {
-		try { const m = JSON.parse(localStorage.getItem(KEY) || ''); if (m && Array.isArray(m.c) && Array.isArray(m.a)) return m; } catch {}
-		return { c: [], a: [] };
-	};
-	let mine: Mine = loadMine();
-	const saveMine = () => { try { localStorage.setItem(KEY, JSON.stringify(mine)); } catch {} renderM(); schedulePush(); };
-	// ---- Server-opslag (zie src/pages/api/dominations.ts) ----
+	const blank = (): Mine => ({ c: {}, a: [], aOff: [], lim: {} });
+	// Leest ook het oude formaat (c als lijst met `off`) en maakt het schoon.
+	function norm(m: any): Mine {
+		const o = blank();
+		if (!m || typeof m !== 'object') return o;
+		if (Array.isArray(m.c)) m.c.forEach((x: any) => { if (x?.n && cNames.includes(x.n) && !o.c[x.n]) o.c[x.n] = { rar: x.rar === 'Epic' ? 'Epic' : 'Legendary', ch: x.ch === 'Primary' ? 'Primary' : 'War', live: !x.off }; });
+		else if (m.c && typeof m.c === 'object') Object.entries<any>(m.c).forEach(([n, x]) => { if (cNames.includes(n)) o.c[n] = { rar: x?.rar === 'Epic' ? 'Epic' : 'Legendary', ch: x?.ch === 'Primary' ? 'Primary' : 'War', live: x?.live !== false }; });
+		o.a = (Array.isArray(m.a) ? m.a : []).filter((id: any) => A.has(id));
+		o.aOff = (Array.isArray(m.aOff) ? m.aOff : []).filter((id: any) => A.has(id));
+		if (m.lim && typeof m.lim === 'object') ['cP', 'cW', 'aM', 'aW'].forEach((k) => { if (+m.lim[k] > 0) o.lim[k] = +m.lim[k]; });
+		return o;
+	}
+	let mine: Mine = blank();
+	try { mine = norm(JSON.parse(localStorage.getItem(KEY) || 'null')); } catch {}
+	const isEmpty = (m: Mine) => !Object.keys(m.c).length && !m.a.length;
 	const KEYSTORE = 'dn-key';
 	let pw = '';
 	try { pw = localStorage.getItem(KEYSTORE) || ''; } catch {}
 	let pushTimer: any;
 	const status = (t: string) => { $('m-status').textContent = t; };
 	const api = (method: string, body?: string) => fetch('/api/dominations/', { method, headers: { 'x-dn-key': pw, ...(body ? { 'Content-Type': 'application/json' } : {}) }, body });
-	const isEmpty = (m: Mine) => !m.c.length && !m.a.length;
-	const setLimInputs = () => ['cP', 'cW', 'aM', 'aW'].forEach((k) => ($('lim-' + k).value = mine.lim?.[k] || ''));
-	function schedulePush() {
+	const setLimInputs = () => ['cP', 'cW', 'aM', 'aW'].forEach((k) => ($('lim-' + k).value = mine.lim[k] || ''));
+	function saveMine() {
+		try { localStorage.setItem(KEY, JSON.stringify(mine)); } catch {}
+		renderAll();
 		if (!pw) return;
 		clearTimeout(pushTimer);
 		status('Opslaan…');
@@ -259,48 +181,108 @@ import data from '../data/dominations.json';
 			if (r.status === 401) { pw = ''; try { localStorage.removeItem(KEYSTORE); } catch {} $('m-logout').hidden = true; return status('Wachtwoord onjuist.'); }
 			if (!r.ok) return status(j.error || 'Laden mislukt');
 			$('m-logout').hidden = false; $('m-login').hidden = true; $('m-pw').hidden = true;
-			if (j.mine && !isEmpty(j.mine)) { mine = j.mine; try { localStorage.setItem(KEY, JSON.stringify(mine)); } catch {} setLimInputs(); renderM(); status('Ingelogd, collectie geladen van de server ✓'); }
-			else if (!isEmpty(mine)) { schedulePush(); }
-			else status('Ingelogd. Voeg items toe; ze worden op de server bewaard.');
+			const srv = norm(j.mine);
+			if (!isEmpty(srv)) { mine = srv; try { localStorage.setItem(KEY, JSON.stringify(mine)); } catch {} setLimInputs(); renderAll(); status('Ingelogd, collectie geladen van de server ✓'); }
+			else if (!isEmpty(mine)) saveMine();
+			else status('Ingelogd. Vink items aan; ze worden op de server bewaard.');
 		} catch { status('Server niet bereikbaar, lokaal opgeslagen.'); }
 	}
-	const cNames = [...new Set<string>(C.map((r: any) => r.n))].sort((x, y) => x.localeCompare(y, 'nl'));
-	$('mc-name').innerHTML = cNames.map((n) => `<option>${esc(n)}</option>`).join('');
-	$('mc-rar').innerHTML = RAR.map((r) => `<option${r === 'Legendary' ? ' selected' : ''}>${r}</option>`).join('');
-	$('ma-name').innerHTML = aAll.slice().sort((x, y) => x.n.localeCompare(y.n, 'nl') || x.k.localeCompare(y.k)).map((a) => `<option value="${esc(a.id)}">${esc(a.n)} (${a.k})</option>`).join('');
-	const sumAbs = (xs: any[]) => xs.reduce((s: number, x: any) => s + Math.abs(x.v), 0);
-	// Benefits van een councilor bij een rarity: alleen waarden die op die rarity al bestaan.
-	const cBenefits = (n: string, ch: string, rar: string) => C.filter((r: any) => r.n === n && r.ch === ch && r.rar === rar);
-	const inFocus = (dom: string) => !$('m-focus').value || dom === $('m-focus').value;
-	const btnRm = (kind: string, i: number) => `<button class="dn-btn" data-rm="${kind}" data-i="${i}" title="Verwijder">✕</button>`;
 
+	// ---------- Councilors ----------
+	let view = 'Primary';
+	const cState = { k: 7, d: -1 };
+	const typeSel = $('c-type');
+	[...new Set(Object.values(TYPES))].sort().forEach((t) => typeSel.insertAdjacentHTML('beforeend', `<option>${esc(t as string)}</option>`));
+	const checkbox = (act: string, id: string, on: boolean) => `<input type="checkbox" data-act="${act}" data-id="${esc(id)}"${on ? ' checked' : ''} />`;
+	const select = (act: string, id: string, opts: string[], cur: string) => `<select data-act="${act}" data-id="${esc(id)}">${opts.map((o) => `<option${o === cur ? ' selected' : ''}>${o}</option>`).join('')}</select>`;
+
+	function renderC() {
+		const q = $('c-q').value.toLowerCase(), own = $('c-own').value, type = $('c-type').value;
+		const rows = cNames
+			.map((n) => {
+				const m = mine.c[n], bens = cBen(n, view);
+				return { id: n, n, type: TYPES[n] ?? '', own: !!m, live: !!m?.live, rar: m?.rar ?? '', seat: m?.ch ?? '', es: cScore(n, view, 'Epic'), ls: cScore(n, view, 'Legendary'), bens };
+			})
+			.filter((r) => (!own || (own === 'own') === r.own) && (!type || r.type === type) && (!q || (r.n + ' ' + r.type + ' ' + r.bens.map((b: any) => b.b).join(' ')).toLowerCase().includes(q)));
+		const owned = rows.filter((r) => r.own);
+		tiles('c-tiles', [['getoond', String(rows.length)], ['in bezit', String(owned.length)], ['live', String(owned.filter((r) => r.live).length)], [`gem. Legendary Σ (${view})`, r1(mean(rows.map((r) => r.ls)))]]);
+		table('c-table', [
+			['Bezit', (r: any) => +r.own, (r: any) => checkbox('c-own', r.id, r.own)],
+			['Live', (r: any) => +(r.own && r.live), (r: any) => (r.own ? checkbox('c-live', r.id, r.live) : '')],
+			['Councilor', (r: any) => r.n, (r: any) => `<b>${esc(r.n)}</b>`],
+			['Type', (r: any) => r.type, (r: any) => esc(r.type)],
+			['Rarity', (r: any) => r.rar, (r: any) => (r.own ? select('c-rar', r.id, RAR, r.rar) : '')],
+			['Zetel', (r: any) => r.seat, (r: any) => (r.own ? select('c-seat', r.id, ['Primary', 'War'], r.seat) : '')],
+			[`Epic Σ ${view}`, (r: any) => r.es, (r: any) => (r.es ? r1(r.es) : '')],
+			[`Legendary Σ ${view}`, (r: any) => r.ls, (r: any) => (r.ls ? r1(r.ls) : '–')],
+			[`Benefits ${view} (Epic → Legendary)`, (r: any) => r.bens.length, (r: any) => (r.bens.length ? r.bens.map((b: any) => `<span class="dn-ben">${esc(b.b)} <b>${b.Epic != null ? fmt(b.Epic) : '–'} → ${b.Legendary != null ? fmt(b.Legendary) : '–'}</b></span>`).join('') : '<span class="stat-footnote">Geen benefits in deze chamber</span>')],
+		], rows, cState);
+	}
+	$('c-table').addEventListener('change', (e: any) => {
+		const t = e.target, id = t.dataset.id, act = t.dataset.act;
+		if (!act) return;
+		if (act === 'c-own') { if (t.checked) mine.c[id] = { rar: 'Legendary', ch: cBen(id, view).length ? view : view === 'War' ? 'Primary' : 'War', live: true }; else delete mine.c[id]; }
+		else if (act === 'c-live') mine.c[id].live = t.checked;
+		else if (act === 'c-rar') mine.c[id].rar = t.value;
+		else if (act === 'c-seat') mine.c[id].ch = t.value;
+		saveMine();
+	});
+	['c-q', 'c-own', 'c-type'].forEach((id) => $(id).addEventListener('input', renderC));
+	$('c-view').querySelectorAll('button').forEach((b: HTMLElement) => b.addEventListener('click', () => {
+		view = b.dataset.v!;
+		$('c-view').querySelectorAll('button').forEach((x: HTMLElement) => x.classList.toggle('is-active', x === b));
+		renderC();
+	}));
+
+	// ---------- Artifacts ----------
+	const aState = { k: 5, d: -1 };
+	function renderA() {
+		const q = $('a-q').value.toLowerCase(), exh = $('a-exh').value, kl = $('a-klass').value, own = $('a-own').value;
+		const off = new Set(mine.aOff), have = new Set(mine.a);
+		const rows = aAll
+			.filter((a) => (!exh || a.exh === exh) && (!kl || a.k === kl) && (!own || (own === 'own') === have.has(a.id)) && (!q || (a.n + ' ' + a.items.map((i: any) => i.b).join(' ')).toLowerCase().includes(q)))
+			.map((a) => ({ ...a, own: have.has(a.id), live: have.has(a.id) && !off.has(a.id), score: aScore(a) }));
+		const owned = rows.filter((r) => r.own);
+		tiles('a-tiles', [['getoond', String(rows.length)], ['in bezit', String(owned.length)], ['live', String(owned.filter((r) => r.live).length)], ['gem. totaal', r1(mean(rows.map((r) => r.score)))]]);
+		table('a-table', [
+			['Bezit', (r: any) => +r.own, (r: any) => checkbox('a-own', r.id, r.own)],
+			['Live', (r: any) => +r.live, (r: any) => (r.own ? checkbox('a-live', r.id, r.live) : '')],
+			['Artifact', (r: any) => r.n, (r: any) => `<b>${esc(r.n)}</b>`],
+			['Klasse', (r: any) => r.k, (r: any) => r.k],
+			['Aantal', (r: any) => r.items.length, (r: any) => r.items.length],
+			['Totaal', (r: any) => r.score, (r: any) => r1(r.score)],
+			['Benefits', (r: any) => r.items.length, (r: any) => r.items.map((i: any) => `<span class="dn-ben">${esc(i.b)} <b>${fmt(i.v)}</b></span>`).join('')],
+		], rows, aState);
+	}
+	$('a-table').addEventListener('change', (e: any) => {
+		const t = e.target, id = t.dataset.id, act = t.dataset.act;
+		if (!act) return;
+		if (act === 'a-own') { if (t.checked) { if (!mine.a.includes(id)) mine.a.push(id); } else { mine.a = mine.a.filter((x) => x !== id); mine.aOff = mine.aOff.filter((x) => x !== id); } }
+		else if (act === 'a-live') mine.aOff = t.checked ? mine.aOff.filter((x) => x !== id) : [...new Set([...mine.aOff, id])];
+		saveMine();
+	});
+	['a-q', 'a-exh', 'a-klass', 'a-own'].forEach((id) => $(id).addEventListener('input', renderA));
+
+	// ---------- Mijn stats + advies ----------
+	const mState = { k: 4, d: -1 };
 	function renderM() {
 		const tot = new Map<string, { dom: string; c: number; a: number }>();
 		const add = (b: string, dom: string, key: 'c' | 'a', v: number) => {
 			if (!tot.has(b)) tot.set(b, { dom, c: 0, a: 0 });
 			tot.get(b)![key] += v;
 		};
-		$('mc-list').innerHTML = mine.c.length ? mine.c.map((m, i) => {
-			const bs = cBenefits(m.n, m.ch, m.rar);
-			if (!m.off) bs.forEach((r: any) => add(r.b, r.dom, 'c', r.v));
-			const ri = RAR.indexOf(m.rar), next = ri < 4 ? sumAbs(cBenefits(m.n, m.ch, RAR[ri + 1])) - sumAbs(bs) : 0;
-			return `<div class="dn-own${m.off ? ' dn-own--off' : ''}"><div><label class="dn-on"><input type="checkbox" data-on="c" data-i="${i}"${m.off ? '' : ' checked'} /> Live</label> <b>${esc(m.n)}</b> · ${m.rar} · ${m.ch} ${btnRm('c', i)}</div><div class="dn-own__b">${bs.length ? bs.map((r: any) => `${esc(r.b)} <b>${fmt(r.v)}</b>`).join(' · ') : 'Geen benefits op deze zeldzaamheid/chamber'}${next > 0 ? `<br><em>Volgende rarity: +${r1(next)} stat-punten</em>` : ''}</div></div>`;
-		}).join('') : '<p class="stat-footnote">Nog geen councilors toegevoegd.</p>';
-		const mineA = mine.a.map((id) => A.get(id)).filter(Boolean);
-		const aOff = new Set(mine.aOff ?? []);
-		$('ma-list').innerHTML = mineA.length ? mineA.map((a: any, i: number) => {
-			if (!aOff.has(a.id)) a.items.forEach((x: any) => add(x.b, x.dom, 'a', x.v));
-			return `<div class="dn-own${aOff.has(a.id) ? ' dn-own--off' : ''}"><div><label class="dn-on"><input type="checkbox" data-on="a" data-i="${i}"${aOff.has(a.id) ? '' : ' checked'} /> Live</label> <b>${esc(a.n)}</b> · ${a.k} · totaal ${sumAbs(a.items)} ${btnRm('a', i)}</div><div class="dn-own__b">${a.items.map((x: any) => `${esc(x.b)} <b>${fmt(x.v)}</b>`).join(' · ')}</div></div>`;
-		}).join('') : '<p class="stat-footnote">Nog geen artifacts toegevoegd.</p>';
+		const liveC = Object.entries(mine.c).filter(([, m]) => m.live);
+		liveC.forEach(([n, m]) => cBen(n, m.ch).forEach((x) => { if (x[m.rar] != null) add(x.b, x.dom, 'c', x[m.rar]); }));
+		const off = new Set(mine.aOff), ownedA = mine.a.map((id) => A.get(id)).filter(Boolean);
+		const liveA = ownedA.filter((a: any) => !off.has(a.id));
+		liveA.forEach((a: any) => a.items.forEach((x: any) => add(x.b, x.dom, 'a', x.v)));
 
 		const rows = [...tot].map(([b, o]) => ({ id: b, b, dom: o.dom, c: o.c, a: o.a, t: o.c + o.a })).filter((r) => inFocus(r.dom));
 		const dom = (d: string) => rows.filter((r) => r.dom === d).reduce((s, r) => s + Math.abs(r.t), 0);
-		const lim = mine.lim ?? {};
-		const cnt = (n: number, l: number) => `${n}${l ? '/' + l : ''}`;
-		const cP = mine.c.filter((m) => !m.off && m.ch === 'Primary').length, cW = mine.c.filter((m) => !m.off && m.ch === 'War').length;
-		const liveA = mineA.filter((a: any) => !aOff.has(a.id)), aW = liveA.filter((a: any) => a.k.includes('War')).length, aM = liveA.length - aW;
-		const over = (n: number, l: number) => (l && n > l ? ' ⚠' : '');
-		tiles('m-tiles', [['Primary live', cnt(cP, lim.cP) + over(cP, lim.cP)], ['War live', cnt(cW, lim.cW) + over(cW, lim.cW)], ['artifacts main live', cnt(aM, lim.aM) + over(aM, lim.aM)], ['artifacts war live', cnt(aW, lim.aW) + over(aW, lim.aW)], ['aanval', r1(dom('Offense'))], ['verdediging', r1(dom('Defense'))], ['economie', r1(dom('Economy'))]]);
+		const lim = mine.lim, cnt = (n: number, l: number) => `${n}${l ? '/' + l : ''}${l && n > l ? ' ⚠' : ''}`;
+		const cP = liveC.filter(([, m]) => m.ch === 'Primary').length, cW = liveC.length - cP;
+		const aW = liveA.filter((a: any) => a.k.includes('War')).length, aM = liveA.length - aW;
+		tiles('m-tiles', [['Primary live', cnt(cP, lim.cP)], ['War live', cnt(cW, lim.cW)], ['artifacts main live', cnt(aM, lim.aM)], ['artifacts war live', cnt(aW, lim.aW)], ['aanval', r1(dom('Offense'))], ['verdediging', r1(dom('Defense'))], ['economie', r1(dom('Economy'))]]);
 		table('m-totals', [
 			['Benefit', (r: any) => r.b, (r: any) => esc(r.b)],
 			['Soort', (r: any) => r.dom, (r: any) => r.dom],
@@ -309,126 +291,89 @@ import data from '../data/dominations.json';
 			['Totaal', (r: any) => Math.abs(r.t), (r: any) => `<b>${fmt(r.t)}</b>`],
 		], rows, mState);
 
-		// Adviezen
 		const adv: string[] = [];
 		const list = (title: string, items: string[], note = '') => adv.push(`<div><h3>${title}</h3>${note ? `<p class="stat-footnote">${note}</p>` : ''}${items.length ? '<ol>' + items.map((x) => `<li>${x}</li>`).join('') + '</ol>' : '<p class="stat-footnote">Niets te adviseren.</p>'}</div>`);
-		const ups = mine.c.map((m) => {
-			const ri = RAR.indexOf(m.rar); if (ri >= 4) return null;
-			const f = (rar: string) => sumAbs(cBenefits(m.n, m.ch, rar).filter((r: any) => inFocus(r.dom)));
-			return { m, gain: f(RAR[ri + 1]) - f(m.rar) };
-		}).filter((x: any) => x && x.gain > 0).sort((x: any, y: any) => y.gain - x.gain).slice(0, 6) as any[];
-		list('Councilors upgraden', ups.map((u) => `<b>${esc(u.m.n)}</b> ${u.m.rar} → ${RAR[RAR.indexOf(u.m.rar) + 1]}: +${r1(u.gain)}`), 'Winst in stat-punten (binnen je focus).');
-		const owned = new Set(mine.c.map((m) => m.n));
-		const best = cNames.filter((n) => !owned.has(n)).map((n) => {
-			const per = ['Primary', 'War'].map((ch) => ({ ch, v: sumAbs(C.filter((r: any) => r.n === n && r.ch === ch && r.rar === 'Legendary' && inFocus(r.dom))) }));
-			return per.sort((x, y) => y.v - x.v)[0] && { n, ...per.sort((x, y) => y.v - x.v)[0] };
-		}).filter((x: any) => x && x.v > 0).sort((x: any, y: any) => y.v - x.v).slice(0, 6) as any[];
+		const ups = Object.entries(mine.c).filter(([, m]) => m.rar === 'Epic').map(([n, m]) => ({ n, m, gain: cScore(n, m.ch, 'Legendary') - cScore(n, m.ch, 'Epic') })).filter((x) => x.gain > 0).sort((x, y) => y.gain - x.gain).slice(0, 6);
+		list('Councilors naar Legendary', ups.map((u) => `<b>${esc(u.n)}</b> (${u.m.ch}): +${r1(u.gain)}`), 'Winst in stat-punten (binnen je focus).');
+		const best = cNames.filter((n) => !mine.c[n]).map((n) => {
+			const per = ['Primary', 'War'].map((ch) => ({ ch, v: cScore(n, ch, 'Legendary') })).sort((x, y) => y.v - x.v)[0];
+			return { n, ...per };
+		}).filter((x) => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 6);
 		list('Councilors om te zoeken (Legendary)', best.map((x) => `<b>${esc(x.n)}</b> in ${x.ch}-chamber: ${r1(x.v)}`), 'Je hebt ze nog niet; getoond is de beste chamber.');
-		const mUp = mineA.map((a: any) => {
-			const to = a.k.replace('Legendary', 'Mythical'), m2 = a.k.startsWith('Legendary') ? A.get(`${a.n}|${to}`) : null;
-			if (!m2) return null;
-			const f = (x: any) => sumAbs(x.items.filter((i: any) => inFocus(i.dom)));
-			return { a, gain: f(m2) - f(a) };
+		const mUp = ownedA.map((a: any) => {
+			const m2 = a.k.startsWith('Legendary') ? A.get(`${a.n}|${a.k.replace('Legendary', 'Mythical')}`) : null;
+			return m2 ? { a, gain: aScore(m2) - aScore(a) } : null;
 		}).filter((x: any) => x && x.gain > 0).sort((x: any, y: any) => y.gain - x.gain).slice(0, 6) as any[];
-		list('Artifacts naar Mythical', mUp.map((u) => `<b>${esc(u.a.n)}</b> (${u.a.k}): +${r1(u.gain)}`), 'Beschikbare Mythical-variant van een artifact dat je al hebt.');
-		const ownedA = new Set(mine.a);
-		const bestA = aAll.filter((a) => !ownedA.has(a.id)).map((a) => ({ a, v: sumAbs(a.items.filter((i: any) => inFocus(i.dom))) })).filter((x) => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 6);
+		list('Artifacts naar Mythical', mUp.map((u) => `<b>${esc(u.a.n)}</b> (${u.a.k}): +${r1(u.gain)}`), 'Mythical-variant van een artifact dat je al hebt.');
+		const have = new Set(mine.a);
+		const bestA = aAll.filter((a) => !have.has(a.id)).map((a) => ({ a, v: aScore(a) })).filter((x) => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 6);
 		list('Sterkste artifacts die je mist', bestA.map((x) => `<b>${esc(x.a.n)}</b> (${x.a.k}): ${r1(x.v)}`));
 		const sleeping = [
-			...mine.c.filter((m) => m.off).map((m) => ({ t: `${esc(m.n)} (${m.ch}, ${m.rar})`, v: sumAbs(cBenefits(m.n, m.ch, m.rar).filter((r: any) => inFocus(r.dom))) })),
-			...mineA.filter((a: any) => aOff.has(a.id)).map((a: any) => ({ t: `${esc(a.n)} (${a.k})`, v: sumAbs(a.items.filter((i: any) => inFocus(i.dom))) })),
+			...Object.entries(mine.c).filter(([, m]) => !m.live).map(([n, m]) => ({ t: `${esc(n)} (${m.ch}, ${m.rar})`, v: cScore(n, m.ch, m.rar) })),
+			...ownedA.filter((a: any) => off.has(a.id)).map((a: any) => ({ t: `${esc(a.n)} (${a.k})`, v: aScore(a) })),
 		].filter((x) => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 6);
-		list('Niet live maar sterk', sleeping.map((x) => `<b>${x.t}</b>: ${r1(x.v)}`), 'Overweeg deze live te zetten als je slots het toelaten.');
+		list('In bezit maar niet live', sleeping.map((x) => `<b>${x.t}</b>: ${r1(x.v)}`), 'Overweeg deze live te zetten als je slots het toelaten.');
 		$('m-advice').innerHTML = adv.join('');
-		$('mc-list').querySelectorAll('[data-rm]').forEach((b: HTMLElement) => b.addEventListener('click', () => { mine.c.splice(+b.dataset.i!, 1); saveMine(); }));
-		document.querySelectorAll('#dn-m input[data-on]').forEach((b: any) => b.addEventListener('change', () => {
-			const i = +b.dataset.i;
-			if (b.dataset.on === 'c') mine.c[i].off = !b.checked;
-			else { const id = mine.a[i], o = new Set(mine.aOff ?? []); b.checked ? o.delete(id) : o.add(id); mine.aOff = [...o]; }
-			saveMine();
-		}));
-		$('ma-list').querySelectorAll('[data-rm]').forEach((b: HTMLElement) => b.addEventListener('click', () => { mine.a.splice(+b.dataset.i!, 1); saveMine(); }));
 	}
-	const mState = { k: 4, d: -1 };
-	$('mc-add').addEventListener('click', () => { mine.c.push({ n: $('mc-name').value, rar: $('mc-rar').value, ch: $('mc-ch').value }); saveMine(); });
-	$('ma-add').addEventListener('click', () => { if (!mine.a.includes($('ma-name').value)) mine.a.push($('ma-name').value); saveMine(); });
-	['cP', 'cW', 'aM', 'aW'].forEach((k) => {
-		$('lim-' + k).value = mine.lim?.[k] || '';
-		$('lim-' + k).addEventListener('input', () => { mine.lim = { ...(mine.lim ?? {}), [k]: Math.max(0, +$('lim-' + k).value || 0) }; saveMine(); });
-	});
-	$('m-focus').addEventListener('input', renderM);
-	$('m-clear').addEventListener('click', () => { if (confirm('Je hele collectie wissen?')) { mine = { c: [], a: [] }; ['cP', 'cW', 'aM', 'aW'].forEach((k) => ($('lim-' + k).value = '')); saveMine(); } });
+	function renderAll() { renderC(); renderA(); renderM(); }
+
+	// ---------- Bediening ----------
+	$('m-focus').addEventListener('input', renderAll);
+	['cP', 'cW', 'aM', 'aW'].forEach((k) => $('lim-' + k).addEventListener('input', () => { mine.lim[k] = Math.max(0, +$('lim-' + k).value || 0); saveMine(); }));
+	$('m-clear').addEventListener('click', () => { if (confirm('Je hele collectie wissen?')) { mine = blank(); setLimInputs(); saveMine(); } });
 	$('m-export').addEventListener('click', () => prompt('Kopieer deze tekst om je collectie te bewaren:', JSON.stringify(mine)));
 	$('m-import').addEventListener('click', () => {
 		const t = prompt('Plak eerder geëxporteerde collectie-tekst:');
 		if (!t) return;
-		try { const m = JSON.parse(t); if (Array.isArray(m.c) && Array.isArray(m.a)) { mine = m; ['cP', 'cW', 'aM', 'aW'].forEach((k) => ($('lim-' + k).value = m.lim?.[k] || '')); saveMine(); } else throw 0; } catch { alert('Ongeldige tekst.'); }
+		try { mine = norm(JSON.parse(t)); setLimInputs(); saveMine(); } catch { alert('Ongeldige tekst.'); }
 	});
-
 	$('m-login').addEventListener('click', () => { pw = $('m-pw').value; if (!pw) return; try { localStorage.setItem(KEYSTORE, pw); } catch {} $('m-pw').value = ''; pull(); });
 	$('m-pw').addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Enter') $('m-login').click(); });
-	$('m-logout').addEventListener('click', () => { pw = ''; try { localStorage.removeItem(KEYSTORE); } catch {} $('m-logout').hidden = true; $('m-login').hidden = false; $('m-pw').hidden = false; status('Uitgelogd: alleen lokaal opgeslagen.'); });
-	pull();
-
+	$('m-logout').addEventListener('click', () => { pw = ''; try { localStorage.removeItem(KEYSTORE); } catch {} $('m-logout').hidden = true; $('m-login').hidden = false; $('m-pw').hidden = false; status('Uitgelogd: alleen in deze browser opgeslagen.'); });
 	document.querySelectorAll('.dn-tab').forEach((t: any) =>
 		t.addEventListener('click', () => {
 			document.querySelectorAll('.dn-tab').forEach((x) => x.classList.toggle('is-active', x === t));
 			$('dn-c').hidden = t.dataset.tab !== 'c';
 			$('dn-a').hidden = t.dataset.tab !== 'a';
-			$('dn-m').hidden = t.dataset.tab !== 'm';
 		}));
-	renderC();
-	renderA();
-	renderM();
+	setLimInputs();
+	renderAll();
+	pull();
 </script>
 
 <style is:global>
-	.dn h2 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
-	.dn h2 small { color: var(--color-muted); font-weight: 400; }
+	.dn h2 { font-size: 1.1rem; margin: 1.75rem 0 0.75rem; }
+	.dn h3 { font-size: 1rem; margin: 0 0 0.4rem; }
+	.dn ol { padding-left: 1.2rem; font-size: 0.9rem; line-height: 1.7; }
+	.dn-box { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.75rem 1rem 0.25rem; margin: 1rem 0; background: var(--color-bg-alt); }
 	.dn-tabs { display: flex; gap: 0.5rem; margin: 1.25rem 0; }
 	.dn-tab { border: 1px solid var(--color-border); background: var(--color-bg-alt); color: var(--color-text); padding: 0.5rem 1.1rem; border-radius: 999px; font: inherit; cursor: pointer; }
 	.dn-tab.is-active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
-	.dn-filters { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1rem; }
+	.dn-filters { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.75rem; align-items: center; }
 	.dn-filters input, .dn-filters select { font: inherit; padding: 0.5rem 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text); }
-	.dn-filters input { flex: 1 1 14rem; }
-	.dn-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
-	.dn-tile { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.75rem 1rem; display: flex; flex-direction: column; }
-	.dn-tile b { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
-	.dn-tile span { font-size: 0.8rem; color: var(--color-muted); }
-	.dn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 2rem; }
-	.dn-bars { display: flex; align-items: flex-end; gap: 0.75rem; }
-	.dn-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; }
-	.dn-bararea { height: 9rem; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
-	.dn-bararea i { display: block; width: 70%; max-width: 2.5rem; min-height: 3px; background: var(--color-primary); border-radius: 4px 4px 0 0; }
-	.dn-val { font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 0.3rem; }
-	.dn-lab { font-size: 0.72rem; color: var(--color-muted); margin-top: 0.5rem; text-align: center; }
-	.dn-hbars { display: flex; flex-direction: column; gap: 0.4rem; }
-	.dn-row { display: grid; grid-template-columns: minmax(0, 11rem) 1fr 2rem; gap: 0.6rem; align-items: center; font-size: 0.85rem; }
-	.dn-rl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-	.dn-track { background: var(--color-bg-alt); border-radius: 4px; height: 0.7rem; }
-	.dn-track i { display: block; height: 100%; background: var(--color-accent); border-radius: 4px; }
-	.dn-rv { text-align: right; font-variant-numeric: tabular-nums; color: var(--color-muted); }
-	.dn-tablewrap { overflow-x: auto; max-height: 36rem; overflow-y: auto; border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
-	.dn-table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
-	.dn-table th { position: sticky; top: 0; background: var(--color-surface); text-align: left; padding: 0.5rem 0.7rem; cursor: pointer; white-space: nowrap; border-bottom: 1px solid var(--color-border); user-select: none; }
-	.dn-table th.asc::after { content: ' ▲'; font-size: 0.65rem; }
-	.dn-table th.desc::after { content: ' ▼'; font-size: 0.65rem; }
-	.dn-table td { padding: 0.4rem 0.7rem; border-bottom: 1px solid var(--color-border); font-variant-numeric: tabular-nums; }
-	.dn-click { cursor: pointer; }
-	.dn-click:hover { background: var(--color-bg-alt); }
-	.dn-detail td { background: var(--color-bg-alt); color: var(--color-muted); line-height: 1.7; }
-	.dn-detail td b { color: var(--color-text); }
-	.dn-btn { font: inherit; font-size: 0.85rem; padding: 0.4rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg-alt); color: var(--color-text); cursor: pointer; }
-	.dn-btn--p { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
-	.dn-own { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.5rem 0.75rem; margin-bottom: 0.5rem; font-size: 0.85rem; }
-	.dn-own .dn-btn { float: right; padding: 0 0.5rem; }
-	.dn-own__b { color: var(--color-muted); line-height: 1.6; margin-top: 0.25rem; }
-	.dn-own__b b { color: var(--color-text); }
-	.dn h3 { font-size: 1rem; margin: 0 0 0.4rem; }
-	.dn ol { padding-left: 1.2rem; font-size: 0.9rem; line-height: 1.7; }
-	.dn-own--off { opacity: 0.55; }
-	.dn-on { font-size: 0.8rem; margin-right: 0.4rem; cursor: pointer; }
-	.dn-lim { align-items: center; font-size: 0.85rem; }
+	.dn-filters input[type='search'] { flex: 1 1 14rem; }
+	.dn-lim, .dn-login { font-size: 0.85rem; }
 	.dn-lim input { width: 4rem; padding: 0.3rem 0.4rem; }
 	.dn-login input { max-width: 14rem; }
+	.dn-seg { display: inline-flex; border: 1px solid var(--color-border); border-radius: var(--radius-sm); overflow: hidden; }
+	.dn-seg button { font: inherit; padding: 0.5rem 1rem; border: 0; background: var(--color-bg); color: var(--color-text); cursor: pointer; }
+	.dn-seg button.is-active { background: var(--color-primary); color: #fff; }
+	.dn-btn { font: inherit; font-size: 0.85rem; padding: 0.4rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text); cursor: pointer; }
+	.dn-btn--p { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+	.dn-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+	.dn-tile { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.6rem 0.9rem; display: flex; flex-direction: column; }
+	.dn-tile b { font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+	.dn-tile span { font-size: 0.78rem; color: var(--color-muted); }
+	.dn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 2rem; }
+	.dn-tablewrap { overflow: auto; max-height: 38rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
+	.dn-table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+	.dn-table th { position: sticky; top: 0; z-index: 1; background: var(--color-surface); text-align: left; padding: 0.5rem 0.7rem; cursor: pointer; white-space: nowrap; border-bottom: 1px solid var(--color-border); user-select: none; }
+	.dn-table th.asc::after { content: ' ▲'; font-size: 0.65rem; }
+	.dn-table th.desc::after { content: ' ▼'; font-size: 0.65rem; }
+	.dn-table td { padding: 0.4rem 0.7rem; border-bottom: 1px solid var(--color-border); font-variant-numeric: tabular-nums; vertical-align: top; }
+	.dn-table td input[type='checkbox'] { width: 1.1rem; height: 1.1rem; cursor: pointer; }
+	.dn-table td select { font: inherit; font-size: 0.8rem; padding: 0.15rem 0.3rem; }
+	.dn-owned td { background: color-mix(in srgb, var(--color-primary) 7%, transparent); }
+	.dn-ben { display: inline-block; margin: 0 0.9rem 0.15rem 0; color: var(--color-muted); white-space: nowrap; }
+	.dn-ben b { color: var(--color-text); }
 </style>

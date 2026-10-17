@@ -68,7 +68,9 @@ export const PUT: APIRoute = async ({ request }) => {
 	} catch {
 		return json({ ok: false, error: 'Ongeldige data.' }, 400);
 	}
-	if (!mine || !Array.isArray(mine.c) || !Array.isArray(mine.a)) return json({ ok: false, error: 'Ongeldige data.' }, 400);
+	// `c` is een object (naam → {rar, ch, live}); het oude formaat (lijst) accepteren we ook,
+	// de pagina zet dat bij het laden zelf om.
+	if (!mine || typeof mine.c !== 'object' || mine.c === null || !Array.isArray(mine.a)) return json({ ok: false, error: 'Ongeldige data.' }, 400);
 
 	try {
 		await kv.set(DATA_KEY, { c: mine.c, a: mine.a, aOff: mine.aOff ?? [], lim: mine.lim ?? {} });
