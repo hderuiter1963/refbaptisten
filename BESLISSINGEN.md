@@ -133,6 +133,18 @@ als zelfstandig kunnen publiceren wél gewenst is.
      redirects en behandelen zo'n 308 als een voltooide aanroep. Pas
      toen ook dit pad met een trailing slash werd geschreven
      (`/api/refresh-news/`) werkte de cron voor het eerst echt end-to-end.
+- **Vertaling naar het Nederlands, build-time via de Claude API** (Haiku
+  4.5, één aanroep voor de 4 getoonde items): gekozen boven een Google
+  Translate-widget of de browservertaling omdat de site statisch blijft,
+  er geen scripts van derden worden geladen en kerkelijke termen in de
+  prompt vastliggen (covenant = verbond, elder = ouderling/oudste, enz.).
+  DeepL was het alternatief. Alleen titel en korte samenvatting worden
+  vertaald, nooit volledige artikelen (auteursrecht). De tegel is
+  gelabeld "Automatisch vertaald", linkt naar het origineel en heeft een
+  extra link om het artikel via Google Translate te lezen. Bij ontbrekende
+  sleutel of fout valt het stilletjes terug op Engels — daardoor viel
+  het in oktober 2026 niet op dat `ANTHROPIC_API_KEY` nog niet in Vercel
+  stond (alleen Production nodig, plus een redeploy).
 - **Handmatig te verversen** (bv. na een gemiste run): de Vercel Deploy
   Hook direct met een POST aanroepen start dezelfde rebuild als de cron
   zelf zou doen.

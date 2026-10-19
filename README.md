@@ -33,7 +33,7 @@ src/
     newsSources.ts           ← RSS-bronnen voor "Reformed Baptists wereldwijd"
     weeklyQuotes.ts          ← citaten-pool voor het wisselende weekcitaat
   lib/
-    news.ts                  ← haalt/selecteert wereldnieuws-RSS op (build-time), zie "Wereldnieuws" hieronder
+    news.ts                  ← haalt/selecteert/vertaalt wereldnieuws-RSS op (build-time), zie "Wereldnieuws" hieronder
     weeklyQuote.ts            ← bepaalt het citaat van de week o.b.v. ISO-weeknummer
   layouts/
     BaseLayout.astro        ← <html>, head (incl. OG/Twitter-tags, favicon), header/footer
@@ -128,6 +128,16 @@ wisselend "citaat van de week" (`src/data/weeklyQuotes.ts`). Beide worden
 afhankelijk is van de beschikbaarheid van externe sites. Als één RSS-bron
 faalt, verschijnt het blok gewoon met de overige bronnen.
 
+**Vertaling naar het Nederlands:** na het selecteren worden titel en
+samenvatting van de getoonde artikelen in één aanroep vertaald via de Claude
+API (Haiku 4.5, `translateItems()` in `src/lib/news.ts`). De tegel toont de
+Nederlandse tekst met het label "Automatisch vertaald uit het Engels" en een
+extra link "Artikel vertaald lezen" (via Google Translate); de titel linkt
+naar het originele artikel. Zonder `ANTHROPIC_API_KEY`, bij een API-fout of
+een timeout (30 s) blijft de originele Engelse tekst staan en de build slaagt
+gewoon. Controleer bij "het blijft Engels" de buildlog op
+`Wereldnieuws: vertalen mislukt`.
+
 Omdat een build alleen gebeurt bij een git-push, triggert een cron-job
 (`vercel.json`, momenteel **2x per week: zo + wo, 03:00 UTC**) de
 serverless functie `src/pages/api/refresh-news.ts`, die een Vercel Deploy
@@ -141,6 +151,11 @@ Variables, **niet** in git):
   `Authorization: Bearer <CRON_SECRET>`-header).
 - `DEPLOY_HOOK_URL` — de Deploy Hook-URL (Project → Settings → Git →
   Deploy Hooks) die een build van `main` start.
+- `ANTHROPIC_API_KEY` — optioneel; vertaalt het wereldnieuws naar het
+  Nederlands tijdens de build (zie hierboven). Moet voor **Production**
+  zijn ingesteld en werkt pas na een nieuwe deploy. Gebruik bij voorkeur een
+  eigen sleutel voor deze site en let op het API-tegoed (leeg tegoed =
+  stilletjes terug naar Engels).
 
 **Twee valkuilen om niet opnieuw in te trappen** (kostten eerder weken
 stilzwijgende inactiviteit, zie BESLISSINGEN.md):
