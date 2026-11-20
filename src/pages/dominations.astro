@@ -143,8 +143,9 @@ import data from '../data/dominations.json';
 	// geschonken troops, en die wisselen elke keer.
 	const trHit = (b: string) => {
 		if (!mine.tr.length) return false;
-		const x = b.toLowerCase();
-		return mine.tr.some((id) => TROOPS.find((t) => t.id === id)?.k.some((k) => x.includes(k)));
+		const flat = (t: string) => t.toLowerCase().replace(/[^a-z]/g, '');
+		const x = flat(b);
+		return mine.tr.some((id) => TROOPS.find((t) => t.id === id)?.k.some((k) => x.includes(flat(k))));
 	};
 	const cNames = [...new Set<string>(C.map((r: any) => r.n))].sort((x, y) => x.localeCompare(y, 'nl'));
 	// councilor|chamber -> benefits met Epic- en Legendary-waarde
