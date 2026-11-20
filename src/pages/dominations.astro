@@ -139,14 +139,16 @@ import data from '../data/dominations.json';
 		{ id: 'Ranged Siege', k: ['ranged siege'] }, { id: 'Catapults', k: ['catapult'] }, { id: 'Fighters', k: ['fighter'] },
 		{ id: 'Bombers', k: ['bomber'] }, { id: 'Attack Helicopters', k: ['attack helicopter'] },
 	];
-	// Hoort deze benefit bij een van je gekozen troops? "Coalition Troop" telt niet mee: dat gaat over
-	// geschonken troops, en die wisselen elke keer.
-	const trHit = (b: string) => {
-		if (!mine.tr.length) return false;
+	// Factor van de troop waar deze benefit bij hoort (1 normaal, 1,5 sterk, 2 heel sterk); 0 als het geen van je
+	// gekozen troops is. "Coalition Troop" telt niet mee: dat gaat over geschonken troops, en die wisselen elke keer.
+	// Hoort de benefit bij meerdere troops (bv. "Bazooka & Paratrooper Damage"), dan telt de zwaarste factor.
+	const trWeight = (b: string) => {
+		if (!mine.tr.length) return 0;
 		const flat = (t: string) => t.toLowerCase().replace(/[^a-z]/g, '');
 		const x = flat(b);
-		return mine.tr.some((id) => TROOPS.find((t) => t.id === id)?.k.some((k) => x.includes(flat(k))));
+		return Math.max(0, ...mine.tr.filter((id) => TROOPS.find((t) => t.id === id)?.k.some((k) => x.includes(flat(k)))).map((id) => mine.tw[id] ?? 1));
 	};
+	const trHit = (b: string) => trWeight(b) > 0;
 	const cNames = [...new Set<string>(C.map((r: any) => r.n))].sort((x, y) => x.localeCompare(y, 'nl'));
 	// councilor|chamber -> benefits met Epic- en Legendary-waarde
 	const CB = new Map<string, Map<string, any>>();
@@ -181,7 +183,7 @@ import data from '../data/dominations.json';
 	};
 	const cScore = (n: string, ch: string, rar: string) => cBen(n, ch).reduce((s, x) => s + (x[rar] != null && inFocus(x.dom) ? Math.abs(x[rar]) : 0), 0);
 	// Ontbreekt de waarde voor deze zeldzaamheid (bv. Galileo heeft alleen Epic-waarden), dan gebruiken we de andere als schatting.
-	const tScore = (n: string, ch: string, rar: string) => cBen(n, ch).reduce((s, x) => { const v = x[rar] ?? x[rar === 'Epic' ? 'Legendary' : 'Epic']; return s + (v != null && trHit(x.b) ? Math.abs(v) : 0); }, 0);
+	const tScore = (n: string, ch: string, rar: string) => cBen(n, ch).reduce((s, x) => { const v = x[rar] ?? x[rar === 'Epic' ? 'Legendary' : 'Epic']; return s + (v != null ? Math.abs(v) * trWeight(x.b) : 0); }, 0);
 	const A = new Map<string, any>();
 	D.artifacts.forEach(([n, k, b, dom, st, v]: any[]) => {
 		const key = `${n}|${k}`;
@@ -209,9 +211,9 @@ import data from '../data/dominations.json';
 	type CM = { rar: string; live: boolean };
 	type Cards = { Primary?: CM; War?: CM };
 	type AX = { n: string; k: string; items: { b: string; v: number | null }[] };
-	type Mine = { ax: AX[]; c: Record<string, Cards>; a: string[]; aOff: string[]; lim: Record<string, number>; ov: Record<string, number>; cx: Record<string, { b: string; Epic: number | null; Legendary: number | null }[]>; nm: Record<string, string>; hd: string[]; sw: string[]; tr: string[] };
+	type Mine = { ax: AX[]; c: Record<string, Cards>; a: string[]; aOff: string[]; lim: Record<string, number>; ov: Record<string, number>; cx: Record<string, { b: string; Epic: number | null; Legendary: number | null }[]>; nm: Record<string, string>; hd: string[]; sw: string[]; tr: string[]; tw: Record<string, number> };
 	const KEY = 'dn-mine';
-	const blank = (): Mine => ({ ax: [], c: {}, a: [], aOff: [], lim: {}, ov: {}, cx: {}, nm: {}, hd: [], sw: [], tr: [] });
+	const blank = (): Mine => ({ ax: [], c: {}, a: [], aOff: [], lim: {}, ov: {}, cx: {}, nm: {}, hd: [], sw: [], tr: [], tw: {} });
 	// Leest ook het oude formaat (c als lijst met `off`) en maakt het schoon.
 	function norm(m: any): Mine {
 		const o = blank();
@@ -254,6 +256,7 @@ import data from '../data/dominations.json';
 		if (Array.isArray(m.hd)) o.hd = m.hd.filter((k: any) => typeof k === 'string' && /^c\|/.test(k));
 		if (Array.isArray(m.sw)) o.sw = m.sw.filter((n: any) => cNames.includes(n));
 		if (Array.isArray(m.tr)) o.tr = m.tr.filter((id: any) => TROOPS.some((t) => t.id === id));
+		if (m.tw && typeof m.tw === 'object') o.tr.forEach((id) => { if ([1.5, 2].includes(+m.tw[id])) o.tw[id] = +m.tw[id]; });
 		return o;
 	}
 	let mine: Mine = blank();
@@ -553,13 +556,15 @@ import data from '../data/dominations.json';
 		$('m-ovreset').textContent = `Reset aanpassingen (${n})`;
 	}
 	function renderTroops() {
-		$('tr-chips').innerHTML = TROOPS.map((t) => `<label class="dn-chip${mine.tr.includes(t.id) ? ' is-on' : ''}"><input type="checkbox" data-troop="${esc(t.id)}"${mine.tr.includes(t.id) ? ' checked' : ''} /> ${esc(t.id)}</label>`).join('');
+		$('tr-chips').innerHTML = TROOPS.map((t) => `<label class="dn-chip${mine.tr.includes(t.id) ? ' is-on' : ''}"><input type="checkbox" data-troop="${esc(t.id)}"${mine.tr.includes(t.id) ? ' checked' : ''} /> ${esc(t.id)}${mine.tr.includes(t.id) ? ` <select data-tw="${esc(t.id)}" title="Hoe sterk gebruik je deze troop?">${[[1, 'normaal'], [1.5, 'sterk'], [2, 'heel sterk']].map(([f, l]) => `<option value="${f}"${(mine.tw[t.id] ?? 1) === f ? ' selected' : ''}>${l}</option>`).join('')}</select>` : ''}</label>`).join('');
 	}
 	$('tr-chips').addEventListener('change', (e: any) => {
+		if (e.target.dataset.tw) { const f = +e.target.value; if (f === 1) delete mine.tw[e.target.dataset.tw]; else mine.tw[e.target.dataset.tw] = f; return saveMine(); }
 		const id = e.target.dataset.troop;
 		if (!id) return;
 		const had = mine.tr.length > 0;
 		mine.tr = e.target.checked ? [...mine.tr, id] : mine.tr.filter((x) => x !== id);
+		if (!e.target.checked) delete mine.tw[id];
 		if (!had && mine.tr.length) { cState.k = 8; cState.d = -1; }
 		saveMine();
 	});
@@ -613,7 +618,8 @@ import data from '../data/dominations.json';
 	.dn-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
 	.dn-chip { border: 1px solid var(--color-border); border-radius: 999px; padding: 0.2rem 0.7rem; font-size: 0.85rem; cursor: pointer; background: var(--color-bg); }
 	.dn-chip.is-on { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
-	.dn-chip input { display: none; }
+	.dn-chip input[type='checkbox'] { display: none; }
+	.dn-chip select { font: inherit; font-size: 0.8rem; margin-left: 0.2rem; }
 	.dn-hit { color: var(--color-text); font-weight: 600; background: color-mix(in srgb, var(--color-primary) 12%, transparent); border-radius: 4px; padding: 0 0.3rem; }
 	.container.dn { max-width: min(100%, 110rem); }
 	.dn-lim, .dn-login { font-size: 0.85rem; }
