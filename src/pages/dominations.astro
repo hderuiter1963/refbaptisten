@@ -371,13 +371,38 @@ import data from '../data/dominations.json';
 		], rows, cState);
 		renderBest();
 	}
+	// Wat kopen en wat vervangen, op troop-score in de gekozen chamber. Is er nog een live slot vrij, dan hoeft er
+	// niets af; zijn ze vol, dan vervangt de beste nieuwe kaart de zwakste live kaart.
+	function buyAdvice() {
+		const limit = mine.lim[view === 'War' ? 'cW' : 'cP'] || 0;
+		const cards = cNames.map((n) => { const m = mine.c[n]?.[view]; return { n, own: !!m, live: !!m?.live, rar: m?.rar ?? 'Legendary', v: tScore(n, view, m?.rar ?? 'Legendary') }; });
+		const live = cards.filter((c) => c.live).sort((x, y) => x.v - y.v);
+		const free = !limit || live.length < limit;
+		const li = (c: any) => `<b>${esc(c.n)}</b> (${r1(c.v)})`;
+		const out: string[] = [];
+		// 1. Gratis winst: iets wat je al hebt maar niet live staat, tegenover je zwakste live kaart.
+		const idle = cards.filter((c) => c.own && !c.live && c.v > 0).sort((x, y) => y.v - x.v)[0];
+		if (idle) {
+			if (free) out.push(`Zet ${li(idle)} live: er is nog een vrij slot.`);
+			else if (live[0] && idle.v > live[0].v) out.push(`Zet ${li(idle)} live in plaats van ${li(live[0])}: +${r1(idle.v - live[0].v)}, zonder te kopen.`);
+		}
+		// 2. Koopadvies: beste kaart die je nog niet hebt.
+		const buys = cards.filter((c) => !c.own && c.v > 0).sort((x, y) => y.v - x.v).slice(0, 3);
+		buys.forEach((b, i) => {
+			if (free) return out.push(`${i ? 'Daarna: ' : 'Koop '}${li(b)}: past in een vrij slot, niemand hoeft af te vallen.`);
+			const weakest = live.find((c) => c.v < b.v);
+			out.push(weakest ? `${i ? 'Of: ' : 'Koop '}${li(b)} en laat ${li(weakest)} afvallen: +${r1(b.v - weakest.v)}.` : `${li(b)} scoort niet hoger dan je zwakste live kaart; kopen is niet nuttig.`);
+		});
+		const head = `<b>Advies ${view}</b> <span class="stat-footnote">${limit ? `${live.length} van ${limit} slots live` : 'geen live-limiet ingesteld'}; score = Legendary voor kaarten die je nog niet hebt; benefits worden bij elkaar opgeteld.</span>`;
+		return `<div class="dn-box">${head}${out.length ? '<ol>' + out.map((x) => `<li>${x}</li>`).join('') + '</ol>' : '<p class="stat-footnote">Niets te adviseren.</p>'}</div>`;
+	}
 	function renderBest() {
 		const el = $('c-best');
 		if (!mine.tr.length) { el.innerHTML = ''; return; }
 		const top = cNames.map((n) => { const m = mine.c[n]?.[view]; return { n, own: !!m, rar: m?.rar ?? 'Legendary', v: tScore(n, view, m?.rar ?? 'Legendary') }; })
 			.filter((x) => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 8);
 		el.innerHTML = `<div class="dn-box"><b>Beste councilors voor jouw troops (${view})</b><ol>` +
-			(top.map((x) => `<li><b>${esc(x.n)}</b>: ${r1(x.v)} <span class="stat-footnote">${x.own ? `in bezit (${x.rar})` : 'nog niet in bezit, score bij Legendary'}</span></li>`).join('') || '<li class="stat-footnote">Geen councilors met benefits voor deze troops in deze chamber.</li>') + '</ol></div>';
+			(top.map((x) => `<li><b>${esc(x.n)}</b>: ${r1(x.v)} <span class="stat-footnote">${x.own ? `in bezit (${x.rar})` : 'nog niet in bezit, score bij Legendary'}</span></li>`).join('') || '<li class="stat-footnote">Geen councilors met benefits voor deze troops in deze chamber.</li>') + '</ol></div>' + buyAdvice();
 	}
 	$('c-table').addEventListener('change', (e: any) => {
 		const t = e.target, id = t.dataset.id, act = t.dataset.act;
