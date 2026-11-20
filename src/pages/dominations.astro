@@ -53,7 +53,7 @@ import data from '../data/dominations.json';
 			<div class="dn-filters">
 				<input type="search" id="c-q" placeholder="Zoek councilor of benefit…" />
 				<div class="dn-seg" id="c-view" role="group" aria-label="Chamber">
-					<button data-v="Primary" class="is-active">Primary</button><button data-v="War">War</button>
+					<button data-v="Primary">Primary</button><button data-v="War" class="is-active">War</button>
 				</div>
 				<select id="c-own"><option value="">Alle</option><option value="own">In bezit</option><option value="miss">Niet in bezit</option></select>
 				<select id="c-type"><option value="">Alle typen</option></select>
@@ -327,7 +327,7 @@ import data from '../data/dominations.json';
 	}
 
 	// ---------- Councilors ----------
-	let view = 'Primary';
+	let view = 'War';
 	const cState = { k: 9, d: -1 };
 	const typeSel = $('c-type');
 	[...new Set(Object.values(TYPES))].sort().forEach((t) => typeSel.insertAdjacentHTML('beforeend', `<option>${esc(t as string)}</option>`));
@@ -402,7 +402,7 @@ import data from '../data/dominations.json';
 		const el = $('c-best');
 		if (!mine.tr.length) { el.innerHTML = ''; return; }
 		const top = cNames.map((n) => { const m = mine.c[n]?.[view]; return { n, own: !!m, rar: m?.rar ?? 'Legendary', v: tScore(n, view, m?.rar ?? 'Legendary') }; })
-			.filter((x) => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 8);
+			.filter((x) => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 7);
 		el.innerHTML = `<div class="dn-box"><b>Beste councilors voor jouw troops (${view})</b><ol>` +
 			(top.map((x) => `<li><b>${esc(x.n)}</b>: ${r1(x.v)} <span class="stat-footnote">${x.own ? `in bezit (${x.rar})` : 'nog niet in bezit, score bij Legendary'}</span></li>`).join('') || '<li class="stat-footnote">Geen councilors met benefits voor deze troops in deze chamber.</li>') + '</ol></div>' + buyAdvice();
 	}
