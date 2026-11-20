@@ -179,7 +179,8 @@ import data from '../data/dominations.json';
 		return [...base, ...custom];
 	};
 	const cScore = (n: string, ch: string, rar: string) => cBen(n, ch).reduce((s, x) => s + (x[rar] != null && inFocus(x.dom) ? Math.abs(x[rar]) : 0), 0);
-	const tScore = (n: string, ch: string, rar: string) => cBen(n, ch).reduce((s, x) => s + (x[rar] != null && trHit(x.b) ? Math.abs(x[rar]) : 0), 0);
+	// Ontbreekt de waarde voor deze zeldzaamheid (bv. Galileo heeft alleen Epic-waarden), dan gebruiken we de andere als schatting.
+	const tScore = (n: string, ch: string, rar: string) => cBen(n, ch).reduce((s, x) => { const v = x[rar] ?? x[rar === 'Epic' ? 'Legendary' : 'Epic']; return s + (v != null && trHit(x.b) ? Math.abs(v) : 0); }, 0);
 	const A = new Map<string, any>();
 	D.artifacts.forEach(([n, k, b, dom, st, v]: any[]) => {
 		const key = `${n}|${k}`;
