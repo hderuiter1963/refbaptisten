@@ -381,6 +381,7 @@ import data from '../data/dominations.json';
 		const free = !limit || live.length < limit;
 		const li = (c: any) => `<b>${esc(c.n)}</b> (${r1(c.v)})`;
 		const out: string[] = [];
+		if (limit && live.length > limit) out.push(`Je hebt ${live.length} live maar je limiet is ${limit}: laat ${live.length - limit} afvallen, de zwakste ${live.length - limit === 1 ? 'is' : 'zijn'} ${live.slice(0, live.length - limit).map(li).join(', ')}.`);
 		// 1. Gratis winst: iets wat je al hebt maar niet live staat, tegenover je zwakste live kaart.
 		const idle = cards.filter((c) => c.own && !c.live && c.v > 0).sort((x, y) => y.v - x.v)[0];
 		if (idle) {
